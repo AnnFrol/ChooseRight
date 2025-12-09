@@ -1,0 +1,124 @@
+//
+//  ComparisonListViewController + ObjectCellMenu.swift
+//  ChooseRight!
+//
+//  Created by Александр Фрольцов on 29.06.2024.
+//
+
+import Foundation
+import UIKit
+
+extension ComparisonListViewController {
+    
+    func setupObjectCellMenu(indexPath: IndexPath) {
+        
+        guard let changingComparisonItem = self.comparisonItemsFetchResultsController.fetchedObjects?[indexPath.section] else { return }
+        let menuTitle = changingComparisonItem.unwrappedName
+        
+        let changeColor = UIAction(
+            title: "Change color", image: UIImage(systemName: "paintpalette")) { [self] _ in
+                guard let oldColor = changingComparisonItem.color else {
+                    changingComparisonItem.color = specialColors.first
+                    return
+                }
+                
+                guard let oldColorIndex = specialColors.firstIndex(of: oldColor) else {
+                    changingComparisonItem.color = specialColors.first
+                    return
+                }
+                
+                let newColorIndex = (oldColorIndex + 1) % specialColors.count
+                let newColorName = specialColors[newColorIndex]
+                self.sharedData.updateComparisonItemColor(for: changingComparisonItem, newColor: newColorName)
+            
+            }
+        
+        let deleteItem = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [self] _ in
+            guard let deleteItem = self.comparisonItemsFetchResultsController.fetchedObjects?[indexPath.section] else { return }
+            
+            self.alertConfigurationForDeleteItemConfirmation(comparisonItem: deleteItem)
+            present(deleteItemAlert ?? UIAlertController(), animated: true) {
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.deleteItemAlertDismiss))
+                self.deleteItemAlert?.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
+            }
+        }
+        
+        objectCellMenu = UIMenu(
+            title: menuTitle,
+            image: UIImage(systemName: "peacesign"),
+            children: [changeColor, deleteItem]
+        )
+        
+        print(changingComparisonItem.unwrappedName)
+        
+    }
+    
+    @objc func deleteItemAlertDismiss() {
+        self.dismiss(animated: true)
+    }
+    
+    
+    func alertConfigurationForDeleteItemConfirmation(comparisonItem: ComparisonItemEntity) {
+        
+        let itemToDelete = comparisonItem
+        let itemName = itemToDelete.unwrappedName
+        
+        self.deleteItemAlert = UIAlertController(
+            title: "Delete \(itemName)?",
+            message: "",
+            preferredStyle: .actionSheet)
+        
+        let deleteButton = UIAlertAction(
+            title: "Delete",
+            style: .destructive) { [self] _ in
+                self.sharedData.deleteComparisonItem(item: itemToDelete)
+            }
+        
+        let cancelButton = UIAlertAction(
+            title: "Cancel",
+            style: .default)
+        
+        deleteItemAlert?.addAction(deleteButton)
+        deleteItemAlert?.addAction(cancelButton)
+    }
+    
+    func makeCellPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard let indexPath = configuration.identifier as? IndexPath else { return nil }
+        
+        guard let cell = objectTableView.cellForRow(at: indexPath) as? ObjectTableViewCell else { return nil }
+        
+        let cellFrame = cell.backgroundCell.frame
+        
+//        guard let item = comparisonItemsFetchResultsController.fetchedObjects?[indexPath.section] as? ComparisonItemEntity else { return nil }
+        
+//        let previewFrame = CGRect(
+//            x: cellFrame.minX,
+//            y: cellFrame.minY,
+//            width: 250,
+//            height: cellFrame.height
+//        )
+        
+//        let previewView = ObjectTableViewCellPreview(frame: previewFrame)
+//        previewView.configureCell(comparisonItemEntity: item)
+//        previewView.translatesAutoresizingMaskIntoConstraints = true
+//        previewView.frame = previewFrame
+//        view.addSubview(previewView)
+//        
+//        let snapshot = previewView.snapshotView(afterScreenUpdates: true)
+//        previewView.removeFromSuperview()
+//        
+//        guard let snapshotView = snapshot else { return nil }
+//        
+//        snapshotView.layer.cornerRadius = cell.backgroundCell.layer.cornerRadius
+//        snapshotView.layer.masksToBounds = true
+//        
+        
+        let parameters = UIPreviewParameters()
+        parameters.backgroundColor = .clear
+        parameters.visiblePath = UIBezierPath(roundedRect: cellFrame, cornerRadius: cell.backgroundCell.layer.cornerRadius)
+        
+        return UITargetedPreview(view: cell, parameters: parameters)
+        
+    }
+    
+}
