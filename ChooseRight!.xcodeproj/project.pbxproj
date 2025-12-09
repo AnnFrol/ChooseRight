@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0E1E6BD89421449FB764B1904D3B971A /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E1E6BD79421449FB764B1904D3B9719 /* OnboardingViewController.swift */; };
 		850703422B4C285E0037987F /* PlusMinusButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850703412B4C285E0037987F /* PlusMinusButton.swift */; };
 		850703452B4D9BD40037987F /* ObjectDetailsViewController + AlertsConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850703442B4D9BD40037987F /* ObjectDetailsViewController + AlertsConfiguration.swift */; };
 		85077BDB2A35C0E000673636 /* AttributesCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85077BDA2A35C0E000673636 /* AttributesCollectionView.swift */; };
@@ -82,7 +83,6 @@
 		85E6E15E29F2F74A0008794E /* CompairsonListSettingsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E15D29F2F74A0008794E /* CompairsonListSettingsMenu.swift */; };
 		85E6E16629F52C480008794E /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E16529F52C480008794E /* MainViewController.swift */; };
 		85E6E16829F533ED0008794E /* MainTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E16729F533EC0008794E /* MainTableView.swift */; };
-		0E1E6BD89421449FB764B1904D3B971A /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E1E6BD79421449FB764B1904D3B9719 /* OnboardingViewController.swift */; };
 		85E6E16A29F533FC0008794E /* MainTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E16929F533FB0008794E /* MainTableViewCell.swift */; };
 		DFE47FA12EE6F5DB0071D342 /* SceneDelegateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F952EE6F5DB0071D342 /* SceneDelegateExtension.swift */; };
 		DFE47FA22EE6F5DB0071D342 /* CloseButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F8D2EE6F5DB0071D342 /* CloseButtonView.swift */; };
@@ -103,6 +103,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0E1E6BD79421449FB764B1904D3B9719 /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
 		850703412B4C285E0037987F /* PlusMinusButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusMinusButton.swift; sourceTree = "<group>"; };
 		850703442B4D9BD40037987F /* ObjectDetailsViewController + AlertsConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObjectDetailsViewController + AlertsConfiguration.swift"; sourceTree = "<group>"; };
 		85077BDA2A35C0E000673636 /* AttributesCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributesCollectionView.swift; sourceTree = "<group>"; };
@@ -179,7 +180,6 @@
 		85E6E15D29F2F74A0008794E /* CompairsonListSettingsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompairsonListSettingsMenu.swift; sourceTree = "<group>"; };
 		85E6E16529F52C480008794E /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		85E6E16729F533EC0008794E /* MainTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableView.swift; sourceTree = "<group>"; };
-		0E1E6BD79421449FB764B1904D3B9719 /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
 		85E6E16929F533FB0008794E /* MainTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableViewCell.swift; sourceTree = "<group>"; };
 		DFE47F8B2EE6F5DB0071D342 /* AddAttributeButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAttributeButtonView.swift; sourceTree = "<group>"; };
 		DFE47F8C2EE6F5DB0071D342 /* AddButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddButtonView.swift; sourceTree = "<group>"; };
@@ -915,6 +915,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ChooseRight!/SupportingFiles/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -942,6 +943,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ChooseRight!/SupportingFiles/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

@@ -29,8 +29,8 @@ class OnboardingViewController: UIViewController {
         let pageControl = UIPageControl()
         pageControl.numberOfPages = 3
         pageControl.currentPage = 0
-        pageControl.pageIndicatorTintColor = .specialColors.detailsOptionTableText?.withAlphaComponent(0.3)
-        pageControl.currentPageIndicatorTintColor = .specialColors.text
+        pageControl.pageIndicatorTintColor = .specialColors.background?.withAlphaComponent(0.3)
+        pageControl.currentPageIndicatorTintColor = .specialColors.background
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         return pageControl
     }()
@@ -39,17 +39,17 @@ class OnboardingViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Skip", for: .normal)
         button.titleLabel?.font = .sfProTextRegular16()
-        button.setTitleColor(.specialColors.detailsOptionTableText, for: .normal)
+        button.setTitleColor(.specialColors.background, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private let getStartedButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Get Started", for: .normal)
+        button.setTitle("Let's go!", for: .normal)
         button.titleLabel?.font = .sfProTextMedium16()
-        button.setTitleColor(.specialColors.text, for: .normal)
-        button.backgroundColor = .specialColors.oneBlueWinterWiazrd
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .black
         button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
         button.alpha = 0
@@ -72,7 +72,6 @@ class OnboardingViewController: UIViewController {
         setupPages()
         setConstraints()
         
-        skipButton.addTarget(self, action: #selector(skipButtonTapped), for: .touchUpInside)
     }
     
     private func setupViews() {
@@ -84,6 +83,7 @@ class OnboardingViewController: UIViewController {
         view.addSubview(skipButton)
         view.addSubview(getStartedButton)
         
+        skipButton.addTarget(self, action: #selector(skipButtonTapped), for: .touchUpInside)
         getStartedButton.addTarget(self, action: #selector(getStartedButtonTapped), for: .touchUpInside)
     }
     
@@ -101,17 +101,6 @@ class OnboardingViewController: UIViewController {
         let containerView = UIView()
         containerView.backgroundColor = backgroundColor
         containerView.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Navigation bar (notchView style)
-        let navBarLabel = UILabel()
-        navBarLabel.text = "    Choose Right!    "
-        navBarLabel.font = .sfProDisplaySemibold12()
-        navBarLabel.backgroundColor = .specialColors.threeBlueLavender
-        navBarLabel.textColor = .specialColors.detailsMainLabelText
-        navBarLabel.translatesAutoresizingMaskIntoConstraints = false
-        navBarLabel.layer.cornerRadius = 20
-        navBarLabel.clipsToBounds = true
-        containerView.addSubview(navBarLabel)
         
         // Image
         let imageView = UIImageView()
@@ -131,18 +120,15 @@ class OnboardingViewController: UIViewController {
         containerView.addSubview(textLabel)
         
         NSLayoutConstraint.activate([
-            navBarLabel.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor, constant: 10),
-            navBarLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            
-            imageView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor, constant: -40),
-            imageView.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.6),
-            imageView.heightAnchor.constraint(equalTo: containerView.heightAnchor, multiplier: 0.4),
-            
-            textLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 40),
+            textLabel.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor, constant: 60),
             textLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 30),
             textLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -30),
-            textLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor)
+            textLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            
+            imageView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            imageView.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 40),
+            imageView.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.75),
+            imageView.heightAnchor.constraint(equalTo: containerView.heightAnchor, multiplier: 0.5)
         ])
         
         return containerView
@@ -164,13 +150,13 @@ class OnboardingViewController: UIViewController {
             skipButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             skipButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            getStartedButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -50),
-            getStartedButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            getStartedButton.widthAnchor.constraint(equalToConstant: 200),
-            getStartedButton.heightAnchor.constraint(equalToConstant: 50),
+            pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            pageControl.bottomAnchor.constraint(equalTo: getStartedButton.topAnchor, constant: -20),
-            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            getStartedButton.bottomAnchor.constraint(equalTo: pageControl.topAnchor, constant: -30),
+            getStartedButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            getStartedButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            getStartedButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -213,7 +199,7 @@ extension OnboardingViewController: UIScrollViewDelegate {
             }
         }
         
-        // Показываем кнопку Get Started на последней странице
+        // Показываем кнопку Let's go! только на последней странице
         if currentPage == pages.count - 1 {
             UIView.animate(withDuration: 0.3) {
                 self.skipButton.alpha = 0

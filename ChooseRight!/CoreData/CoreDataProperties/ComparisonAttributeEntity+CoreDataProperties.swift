@@ -11,17 +11,30 @@ import CoreData
 
 
 extension ComparisonAttributeEntity {
-
+    
     @nonobjc public class func fetchRequest() -> NSFetchRequest<ComparisonAttributeEntity> {
         return NSFetchRequest<ComparisonAttributeEntity>(entityName: "ComparisonAttributeEntity")
     }
-
+    
     @NSManaged public var comment: String?
     @NSManaged public var id: UUID
     @NSManaged public var name: String
     @NSManaged public var item: ComparisonItemEntity?
     @NSManaged public var comparison: ComparisonEntity?
     @NSManaged public var value: NSSet?
+    @NSManaged public var date: Date?
+    
+    
+    public var unwrappedName: String {
+        name
+    }
+    public var unwrappedDate: Date {
+        date ?? Date().getLocalDate()
+    }
+    
+    public var relatedComparison: ComparisonEntity {
+        comparison ?? ComparisonEntity()
+    }
 
 }
 
