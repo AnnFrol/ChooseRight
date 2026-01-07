@@ -6,31 +6,24 @@ struct itemSortKeys {
     let value = "trueValuesCount"
 }
 
-extension ComparisonListViewController: UIDocumentPickerDelegate {
+extension ComparisonListViewController {
     
-    func savePdfToUserPath(pdfURL: URL) {
+    func sharePdf(pdfURL: URL) {
         guard FileManager.default.fileExists(atPath: pdfURL.path) else {
-            print ("PDF file doesn`t exist")
             return
         }
         
+        let activityViewController = UIActivityViewController(activityItems: [pdfURL], applicationActivities: nil)
         
-        let documentPicker = UIDocumentPickerViewController(forExporting: [pdfURL], asCopy: true)
+        // Для iPad нужно указать sourceView
+        if let popover = activityViewController.popoverPresentationController {
+            popover.sourceView = self.view
+            popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
         
-//        let dodod = UIdocumpickervie
-//        documentPicker.delegate = self
-        documentPicker.modalPresentationStyle = .formSheet
-        present(documentPicker, animated: true)
+        present(activityViewController, animated: true)
     }
-    
-//    func savePdfToUserPath(pdfURL: URL) {
-//        
-//        print ("SAVE PDF FETCHED")
-//        let activityViewController = UIActivityViewController(activityItems: [pdfURL], applicationActivities: nil)
-//        activityViewController.popoverPresentationController?.sourceView = self.presentedViewController?.view
-//        self.presentedViewController?.present(activityViewController, animated: true, completion: nil)
-//
-//    }
 
     
 
@@ -38,47 +31,37 @@ extension ComparisonListViewController: UIDocumentPickerDelegate {
     func  setupSettingsMenu() -> UIMenu {
         var menu = UIMenu()
         
-        let downloadPDFAction = UIAction(title: "Download PDF", handler: { _ in
-            
-            //            var values = self.comparisonValuesFetchResultsController.fetchedObjects
-            //            values?.forEach({ value in
-            //                self.sharedData.deleteValue(value: value)
-            
-            //            })
-            
-//            let pdfData = self.createPDFData()
-//            
-//            
-//            let documentPath = FileManager.default.urls(
-//                for: .documentDirectory,
-//                in: .userDomainMask).first!
-//            let pdfPath = documentPath.appendingPathComponent("CollectionView.pdf")
-//            
-//            do {
-//                try pdfData.write(to: pdfPath)
-//                print("PDF created at \(pdfPath)")
-//            } catch {
-//                print("Failed to save PDF")
-//            }
-//            
-//            print("PDF")
-            
+        let sharePDFAction = UIAction(title: "Download PDF", image: UIImage(systemName: "square.and.arrow.down"), handler: { _ in
             guard let pdfFile = PDFService.getPdfDocument(fetchedItems: self.comparisonItemsFetchResultsController) else { return }
             
-            self.savePdfToUserPath(pdfURL: pdfFile)
-            
-            
-            print("pdfFile")
-            print(pdfFile)
-            
+            self.sharePdf(pdfURL: pdfFile)
         })
         
-//        let edit = UIAction(title: "Edit", handler: { _ in
-//            self.toggleWobbleAnimation()
-//                        print("Edit tapped")})
-        
-//        let shareAppAction = UIAction(title: "Share App", handler: { _ in
-//            print("Share App")})
+        let shareLinkAction = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up"), handler: { _ in
+            // Always use file for sharing
+            guard let shareFile = ComparisonSharingService.createShareFile(from: self.comparisonEntity) else {
+                // Show error alert
+                let alert = UIAlertController(
+                    title: "Error",
+                    message: "Failed to create share file",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+                return
+            }
+            
+            let shareText = "Check out this comparison from ChooseRight!"
+            let activityViewController = UIActivityViewController(activityItems: [shareText, shareFile], applicationActivities: nil)
+            
+            if let popover = activityViewController.popoverPresentationController {
+                popover.sourceView = self.view
+                popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
+            
+            self.present(activityViewController, animated: true)
+        })
         
         let deleteListAction = UIAction(title: "Delete list", image: UIImage(systemName: "trash"), attributes: .destructive, handler: { _ in
             
@@ -137,9 +120,10 @@ extension ComparisonListViewController: UIDocumentPickerDelegate {
         ])
                 
         menu = UIMenu(title: "", image: nil,children: [
-            downloadPDFAction,
-            deleteListAction,
             sortingSubMenu,
+            shareLinkAction,
+            sharePDFAction,
+            deleteListAction,
         ])
         
         return menu

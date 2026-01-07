@@ -21,7 +21,7 @@ extension MainViewController: UITextFieldDelegate {
     }
     
 //MARK: alertsConfigurationForCreate
-    func alertsConfigurationForCreate() {
+    func alertConfigurationForCreate() {
 
         //New comparison configuration
         self.createNewComparisonListAlert? = UIAlertController(
@@ -30,40 +30,64 @@ extension MainViewController: UITextFieldDelegate {
             preferredStyle: .alert)
         
         createNewComparisonListAlert?.addTextField { alertTextfield in
+            alertTextfield.autocapitalizationType = .sentences
+            alertTextfield.clearButtonMode = .always
             alertTextfield.delegate = self
             alertTextfield.placeholder = "Name your comparison"
             alertTextfield.addTarget(self, action: #selector(self.textFieldChanged), for: .editingChanged)
         }
         
         let saveNewComparisonButton = UIAlertAction(title: "Start", style: .default) { [self, weak createNewComparisonListAlert] (_) in
+                        
+            var currentColor = specialColors[0]
+            
+            switch comparisonsArray.count {
+                
+            case 0: currentColor = specialColors[0]
+                
+            case 1...:
+                
+                let lastColor = comparisonsArray.first?.color ?? specialColors[0]
+                let currentcolorindexis = specialColors.firstIndex(of: lastColor)
+                currentColor = specialColors[(currentcolorindexis! + 1) % specialColors.count]
+                
+            default:
+                currentColor = specialColors[0]
+            }
             
             let textfieldText = createNewComparisonListAlert?.textFields?[0].text ?? "NoText"
-            let savingResult = self.sharedDataBase.createComparison(name: textfieldText)
-            
-            if savingResult == nil {
-                print("comparison doesn`t created")
                 
-                let emoji = warningMessageEmoji.randomElement() ?? ""
-                createNewComparisonListAlert?.message =
-                "\(emoji) \"\(textfieldText)\" already in use"
                 
-                let generator = UINotificationFeedbackGenerator()
-                generator.notificationOccurred(.error)
+                let savingResult = self.sharedDataBase.createComparison(name: textfieldText, color: currentColor)
                 
-                present(createNewComparisonListAlert ?? UIAlertController(), animated: true)
-            } else {
-                self.objectDetailsViewController.transitioningDelegate = self
-                self.objectDetailsViewController.modalPresentationStyle = .fullScreen
-                self.objectDetailsViewController.setForNewItem(comparisonID: savingResult ?? "", needUpdateViewController:  false)
-                self.objectDetailsViewController.endCreatingDelegate = self
-                present(self.objectDetailsViewController, animated: true)
-                print(textfieldText)
-                print("savedComparisonID: \(savingResult ?? "NOT SAVED")" )
-            }
+                if savingResult == nil {
+                    print("comparison doesn`t created")
+                    
+                    let emoji = warningMessageEmoji.randomElement() ?? ""
+                    createNewComparisonListAlert?.message =
+                    "\(emoji) \"\(textfieldText)\" already in use"
+                    
+                    let generator = UINotificationFeedbackGenerator()
+                    generator.notificationOccurred(.error)
+                    
+                    present(createNewComparisonListAlert ?? UIAlertController(), animated: true)
+                } else {
+                    
+                    
+                    let destination = ComparisonListViewController()
+                    let comparison = sharedDataBase.fetchComparisonWithID(id: savingResult ?? "") ?? ComparisonEntity()
+                    destination.setComparisonEntity(comparison: comparison)
+                    notchView.alpha = 0
+                    navigationController?.pushViewController(destination, animation: true) {
+                        destination.notchView.alpha = 1
+                        destination.openDetailsForNewComparison()
+                    }
+                }
         }
         let cancelNewComparisonButton = UIAlertAction(title: "Cancel", style: .cancel)
         { _ in
             self.createNewComparisonListAlert?.dismiss(animated: true)
+
             self.createNewComparisonListAlert? = UIAlertController()
         }
         
@@ -74,7 +98,7 @@ extension MainViewController: UITextFieldDelegate {
     }
     
 //MARK: alertsConfigurationForChangeName
-    func alertsConfigurationForChangeName(comparison: ComparisonEntity) {
+    func alertConfigurationForChangeName(comparison: ComparisonEntity) {
         
         //New comparison configuration
         self.createNameChangingAlert? = UIAlertController(
@@ -84,38 +108,33 @@ extension MainViewController: UITextFieldDelegate {
         
         createNameChangingAlert?.addTextField { alertTextfield in
             alertTextfield.delegate = self
+            alertTextfield.autocapitalizationType = .sentences
+            alertTextfield.clearButtonMode = .always
+            alertTextfield.text = comparison.unwrappedName
             alertTextfield.placeholder = "Rename your comparison!"
             alertTextfield.addTarget(self, action: #selector(self.textFieldChanged), for: .editingChanged)
         }
         
-        let saveNewComparisonButton = UIAlertAction(title: "Start", style: .default) { [self, weak createNameChangingAlert] (_) in
+        let saveNewComparisonButton = UIAlertAction(title: "Save", style: .default) { [self, weak createNameChangingAlert] (_) in
             
             let textfieldText = createNameChangingAlert?.textFields?[0].text ?? "NoText"
             let savingResult = self.sharedDataBase.updateComparisonName(for: comparison, newName: textfieldText)
             
             if savingResult == false {
                 print("comparison doesn`t changed")
-                
-//                let emoji = warningMessageEmoji.randomElement() ?? ""
-//                createNameChangingAlert?.message =
-//                "\(emoji) \"\(textfieldText)\" already in use"
-//
-//                let generator = UINotificationFeedbackGenerator()
-//                generator.notificationOccurred(.error)
-//
-//                present(createNameChangingAlert ?? UIAlertController(), animated: true)
             } else {
-                self.objectDetailsViewController.transitioningDelegate = self
-                self.objectDetailsViewController.modalPresentationStyle = .fullScreen
-//                self.objectDetailsViewController.setComparisonEntity(comparisonID: savingResult ?? "")
-                presentingViewController?.present(self.objectDetailsViewController, animated: true)
+                self.tableView.reloadData()
                 print(textfieldText)
-                print("savedComparisonID\(savingResult)" )
+                print("savedComparisonID\(savingResult)")
             }
         }
         let cancelNewComparisonButton = UIAlertAction(title: "Cancel", style: .cancel)
         { _ in
-            self.createNameChangingAlert?.dismiss(animated: true)
+            
+            self.createNameChangingAlert?.view.window?.removeGestureRecognizer(self.dismissGesture)
+            self.createNameChangingAlert?.dismiss(animated: true) {
+                self.createNameChangingAlert?.view.window?.removeGestureRecognizer(self.dismissGesture)
+            }
             self.createNameChangingAlert? = UIAlertController()
         }
         
@@ -124,5 +143,27 @@ extension MainViewController: UITextFieldDelegate {
         saveButtonInAlertChanged = saveNewComparisonButton
         saveNewComparisonButton.isEnabled = false
     }
+    
+    func alertConfigurationForDeleteConfirmation(comparison: ComparisonEntity, index: Int ) {
+        self.deleteComparisonConfirmationAlert? = UIAlertController(
+            title: "Delete comparison?",
+            message: "",
+            preferredStyle: .actionSheet)
+        
+        let deleteButton = UIAlertAction(
+            title: "Delete",
+            style: .destructive) { [self] _ in
+                self.deleteComparisonFromTable(comparison: comparison, index: index)
+            }
+        
+        let cancelButton = UIAlertAction(
+            title: "Cancel",
+            style: .default)
+        
+        deleteComparisonConfirmationAlert?.addAction(deleteButton)
+        deleteComparisonConfirmationAlert?.addAction(cancelButton)
+    }
+    
+    
 }
 

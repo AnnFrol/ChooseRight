@@ -147,7 +147,7 @@ class PDFService {
     
     static func createTableWithData(itemsArray: [ComparisonItemEntity], attrsArray: [ComparisonAttributeEntity?]) ->  PDFTable? {
         
-        weak var sharedData = CoreDataManager.shared
+        let sharedData = CoreDataManager.shared
         
         let comparisonItemsArray = itemsArray
         guard comparisonItemsArray.first?.comparison != nil else { return nil }
@@ -218,8 +218,8 @@ class PDFService {
                 rowContent.append(itemRelevanceContent)
                 rowContent.append(itemName)
                 for attribute in comparisonAttibutes {
-                    let cellValue = sharedData?.fetchValue(item: item, attribute: attribute ?? ComparisonAttributeEntity())
-                    let cellText = cellValue?.booleanValue ?? false ? "+" : "-"
+                    let cellValue = sharedData.fetchValue(item: item, attribute: attribute ?? ComparisonAttributeEntity())
+                    let cellText = cellValue.booleanValue ? "+" : "-"
                     let cellContent = NSMutableAttributedString(
                         string: cellText,
                         attributes: [

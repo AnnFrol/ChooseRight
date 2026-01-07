@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import CoreData
 
-class MainViewController: UIViewController, UIViewControllerTransitioningDelegate {
+class MainViewController: UIViewController, UIViewControllerTransitioningDelegate, UIDocumentPickerDelegate {
     
     var dismissGesture = UITapGestureRecognizer()
     
@@ -122,8 +122,8 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     
     let tableView = MainTableView()
     
-    private var bottomInset: Int = 120
-    var insets = UIEdgeInsets(top: 0, left: 0, bottom: 120, right: 0)
+    private var bottomInset: Int = 0
+    var insets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     
     let mainLabelContainer: UIView = {
         let view = UIView()
@@ -154,10 +154,6 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-//        view.layoutIfNeeded()
-//        UIView.animate(withDuration: 0.4) {
-//            self.view.alpha = 1
-//        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -254,7 +250,6 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     
     
     @objc func placeholderTapped() {
-        self.addButton.animateButton(delay: 0)
     }
     
     private func addGestureToPlaceholder() {
@@ -351,7 +346,7 @@ extension MainViewController {
 //            mainLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
             
             
-            addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -24),
+            addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -24),
             addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             addButton.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.17),
             addButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.17),
@@ -434,8 +429,6 @@ extension MainViewController: UITableViewDataSource {
                 self.placeholderArrowImageView.alpha = 1
             })
             
-            self.addButton.animateButton(delay: 2)
-            
         case 1...:
 
                 self.placeholderLabel.alpha = 0
@@ -506,26 +499,9 @@ extension MainViewController {
             print(indexPath)
         }
         
-        let changeColor = UIAction(title: "Change color", image: UIImage(systemName: "paintpalette")) { _ in
-            
-//            let changingComparison = self.comparisonsArray[indexPath.section]
-            
-            //next color
-            guard let oldColor = changingComparison.color else {
-                changingComparison.color = specialColors.first
-                return
-            }
-            guard let oldColorIndex = specialColors.firstIndex(of: oldColor) else {
-                changingComparison.color = specialColors.first
-                return
-            }
-            
-            let newColorIndex = (oldColorIndex + 1) % specialColors.count
-//            changingComparison.color = specialColors[newColorIndex]
-            let newColorName = specialColors[newColorIndex]
-            self.sharedDataBase.updateComparisonColor(for: changingComparison, color: newColorName)
-            
-            self.tableView.reloadData()
+        let changeColor = UIAction(title: "Change color", image: UIImage(systemName: "paintpalette")) { [weak self] _ in
+            guard let self = self else { return }
+            self.showColorPicker(for: changingComparison, at: indexPath)
         }
 
         let delete = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [self] _ in
@@ -548,6 +524,29 @@ extension MainViewController {
     
     @objc func dismissAlertController() {
         self.dismiss(animated: true)
+    }
+    
+    func showColorPicker(for comparison: ComparisonEntity, at indexPath: IndexPath) {
+        let colorPicker = ColorPickerViewController(
+            selectedColor: comparison.color,
+            onColorSelected: { [weak self] colorName in
+                guard let self = self else { return }
+                self.sharedDataBase.updateComparisonColor(for: comparison, color: colorName)
+                self.tableView.reloadData()
+            }
+        )
+        
+        if #available(iOS 15.0, *) {
+            if let sheet = colorPicker.sheetPresentationController {
+                sheet.detents = [.custom { _ in
+                    return UIScreen.main.bounds.height / 3
+                }]
+                sheet.prefersGrabberVisible = true
+            }
+        }
+        
+        colorPicker.modalPresentationStyle = .pageSheet
+        present(colorPicker, animated: true)
     }
 }
 
@@ -620,10 +619,9 @@ extension MainViewController {
 
 extension MainViewController {
     private func setBottomInset() {
-        bottomInset = Int(view.bounds.height * 0.17)
-        insets.bottom = CGFloat(bottomInset)
+        bottomInset = 0
+        insets.bottom = 0
         tableView.contentInset = insets
-        print("Inset size \(bottomInset)")
     }
 }
 
@@ -658,5 +656,51 @@ extension MainViewController: ObjectDetailsVCProtocol {
         navigationController?.pushViewController(destination, animated: true)
         //        }
     }
+    
+    // MARK: - UIDocumentPickerDelegate (for testing file import)
+    #if DEBUG
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let url = urls.first else { return }
+        
+        // Start accessing security-scoped resource
+        guard url.startAccessingSecurityScopedResource() else {
+            let alert = UIAlertController(
+                title: "Error",
+                message: "Cannot access file",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        defer {
+            url.stopAccessingSecurityScopedResource()
+        }
+        
+        // Import comparison
+        if ComparisonSharingService.importComparison(from: url) {
+            // Refresh data
+            getData()
+            
+            // Show success alert
+            let alert = UIAlertController(
+                title: "Success",
+                message: "Comparison imported successfully!",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+        } else {
+            let alert = UIAlertController(
+                title: "Error",
+                message: "Failed to import comparison",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+        }
+    }
+    #endif
 }
 

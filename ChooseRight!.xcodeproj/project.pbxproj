@@ -58,6 +58,7 @@
 		857ADE942BA31BA8009BBB61 /* PopOverCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 857ADE932BA31BA8009BBB61 /* PopOverCollectionViewCell.swift */; };
 		857ADE962BA31C11009BBB61 /* PopOverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 857ADE952BA31C11009BBB61 /* PopOverViewController.swift */; };
 		859ACFF32C8DEA460012F34D /* PDFService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 859ACFF22C8DEA460012F34D /* PDFService.swift */; };
+		856828C22190438A94D4BF75 /* ComparisonSharingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F17B3FC861E4C90A3D6279E /* ComparisonSharingService.swift */; };
 		85A133172C03C14D002E679B /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A133162C03C14D002E679B /* ThemeManager.swift */; };
 		85A1331A2C05DD74002E679B /* CreatePDF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A133192C05DD74002E679B /* CreatePDF.swift */; };
 		85A1331E2C08F10D002E679B /* ComparisonListViewController + ShakeMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A1331D2C08F10D002E679B /* ComparisonListViewController + ShakeMotion.swift */; };
@@ -78,12 +79,15 @@
 		85A21C8329D8C26700A066E9 /* SFProDisplay-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C8229D8C26700A066E9 /* SFProDisplay-Regular.otf */; };
 		85A21C8529D8C27A00A066E9 /* SFProText-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C8429D8C27A00A066E9 /* SFProText-Semibold.otf */; };
 		85A21C8829D8C9DA00A066E9 /* CloseButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A21C8729D8C9DA00A066E9 /* CloseButton.swift */; };
+		85A21C8929D8C9DA00A066E9 /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A21C8A29D8C9DA00A066E9 /* GlassButton.swift */; };
 		85E6E11029E050090008794E /* ChangeValueButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E10F29E050090008794E /* ChangeValueButton.swift */; };
 		85E6E15429EAA7810008794E /* ObjectTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E15329EAA7810008794E /* ObjectTableViewCell.swift */; };
 		85E6E15E29F2F74A0008794E /* CompairsonListSettingsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E15D29F2F74A0008794E /* CompairsonListSettingsMenu.swift */; };
 		85E6E16629F52C480008794E /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E16529F52C480008794E /* MainViewController.swift */; };
 		85E6E16829F533ED0008794E /* MainTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E16729F533EC0008794E /* MainTableView.swift */; };
 		85E6E16A29F533FC0008794E /* MainTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E16929F533FB0008794E /* MainTableViewCell.swift */; };
+		B289ECEF73D34ABC8DEC0C419BA9EECA /* ColorPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B289ECEE73D34ABC8DEC0C419BA9EEC9 /* ColorPickerViewController.swift */; };
+		DF5B57622EFBFE6F0051D7C6 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = DF5B57612EFBFE6F0051D7C6 /* AppIcon.icon */; };
 		DFE47FA12EE6F5DB0071D342 /* SceneDelegateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F952EE6F5DB0071D342 /* SceneDelegateExtension.swift */; };
 		DFE47FA22EE6F5DB0071D342 /* CloseButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F8D2EE6F5DB0071D342 /* CloseButtonView.swift */; };
 		DFE47FA32EE6F5DB0071D342 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F9B2EE6F5DB0071D342 /* MainView.swift */; };
@@ -137,6 +141,7 @@
 		855046AB2A55B25C00AC59F8 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		855046AD2A56A98E00AC59F8 /* CreateNewComparisonAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateNewComparisonAlert.swift; sourceTree = "<group>"; };
 		855046B22A59FBBB00AC59F8 /* Date + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + Extensions.swift"; sourceTree = "<group>"; };
+		B289ECEE73D34ABC8DEC0C419BA9EEC9 /* ColorPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerViewController.swift; sourceTree = "<group>"; };
 		855046B52A5B520300AC59F8 /* ComparisonAttributeEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ComparisonAttributeEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
 		855046B62A5B520300AC59F8 /* ComparisonAttributeEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ComparisonAttributeEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		855046B72A5B520300AC59F8 /* ComparisonEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ComparisonEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -153,6 +158,7 @@
 		857ADE932BA31BA8009BBB61 /* PopOverCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopOverCollectionViewCell.swift; sourceTree = "<group>"; };
 		857ADE952BA31C11009BBB61 /* PopOverViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopOverViewController.swift; sourceTree = "<group>"; };
 		859ACFF22C8DEA460012F34D /* PDFService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFService.swift; sourceTree = "<group>"; };
+		5F17B3FC861E4C90A3D6279E /* ComparisonSharingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComparisonSharingService.swift; sourceTree = "<group>"; };
 		85A133162C03C14D002E679B /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		85A133192C05DD74002E679B /* CreatePDF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePDF.swift; sourceTree = "<group>"; };
 		85A1331D2C08F10D002E679B /* ComparisonListViewController + ShakeMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ComparisonListViewController + ShakeMotion.swift"; sourceTree = "<group>"; };
@@ -175,12 +181,14 @@
 		85A21C8229D8C26700A066E9 /* SFProDisplay-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProDisplay-Regular.otf"; sourceTree = "<group>"; };
 		85A21C8429D8C27A00A066E9 /* SFProText-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProText-Semibold.otf"; sourceTree = "<group>"; };
 		85A21C8729D8C9DA00A066E9 /* CloseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseButton.swift; sourceTree = "<group>"; };
+		85A21C8A29D8C9DA00A066E9 /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
 		85E6E10F29E050090008794E /* ChangeValueButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeValueButton.swift; sourceTree = "<group>"; };
 		85E6E15329EAA7810008794E /* ObjectTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectTableViewCell.swift; sourceTree = "<group>"; };
 		85E6E15D29F2F74A0008794E /* CompairsonListSettingsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompairsonListSettingsMenu.swift; sourceTree = "<group>"; };
 		85E6E16529F52C480008794E /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		85E6E16729F533EC0008794E /* MainTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableView.swift; sourceTree = "<group>"; };
 		85E6E16929F533FB0008794E /* MainTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableViewCell.swift; sourceTree = "<group>"; };
+		DF5B57612EFBFE6F0051D7C6 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		DFE47F8B2EE6F5DB0071D342 /* AddAttributeButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAttributeButtonView.swift; sourceTree = "<group>"; };
 		DFE47F8C2EE6F5DB0071D342 /* AddButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddButtonView.swift; sourceTree = "<group>"; };
 		DFE47F8D2EE6F5DB0071D342 /* CloseButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseButtonView.swift; sourceTree = "<group>"; };
@@ -364,6 +372,7 @@
 			isa = PBXGroup;
 			children = (
 				859ACFF22C8DEA460012F34D /* PDFService.swift */,
+				5F17B3FC861E4C90A3D6279E /* ComparisonSharingService.swift */,
 			);
 			path = SupportingFuncs;
 			sourceTree = "<group>";
@@ -426,6 +435,7 @@
 			children = (
 				85A21C7929D8BE5400A066E9 /* Fonts */,
 				85A21C6429D8988300A066E9 /* Assets.xcassets */,
+				DF5B57612EFBFE6F0051D7C6 /* AppIcon.icon */,
 				85A21C6629D8988300A066E9 /* LaunchScreen.storyboard */,
 				85A21C6929D8988300A066E9 /* Info.plist */,
 			);
@@ -442,6 +452,7 @@
 				855046B22A59FBBB00AC59F8 /* Date + Extensions.swift */,
 				85A133232C2C8A09002E679B /* ScreenOrientationUtility.swift */,
 				85A133162C03C14D002E679B /* ThemeManager.swift */,
+				B289ECEE73D34ABC8DEC0C419BA9EEC9 /* ColorPickerViewController.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -479,6 +490,7 @@
 			isa = PBXGroup;
 			children = (
 				85A21C8729D8C9DA00A066E9 /* CloseButton.swift */,
+				85A21C8A29D8C9DA00A066E9 /* GlassButton.swift */,
 				8532F38F29DC10CB00E1830C /* AddButton.swift */,
 				8532F39729DC858D00E1830C /* NewItemTextfield.swift */,
 				8532F39929DE09A600E1830C /* DeleteItemButton.swift */,
@@ -675,6 +687,7 @@
 				DFE47FB02EE6F5DB0071D342 /* INTEGRATION_GUIDE.md in Resources */,
 				85A21C7F29D8BF4800A066E9 /* SFProText-Medium.otf in Resources */,
 				85A21C8329D8C26700A066E9 /* SFProDisplay-Regular.otf in Resources */,
+				DF5B57622EFBFE6F0051D7C6 /* AppIcon.icon in Resources */,
 				85A21C7B29D8BF2B00A066E9 /* SFProText-Bold.otf in Resources */,
 				85362F792C92223100F3B91E /* SFProDisplay-Heavy.otf in Resources */,
 			);
@@ -693,6 +706,7 @@
 				85077C112A3F946300673636 /* ComparisonListTransitionAnimation.swift in Sources */,
 				850FC5172AEC2E5B00896560 /* String + Extensions.swift in Sources */,
 				85A21C8829D8C9DA00A066E9 /* CloseButton.swift in Sources */,
+				85A21C8929D8C9DA00A066E9 /* GlassButton.swift in Sources */,
 				855046C02A5B520300AC59F8 /* ComparisonEntity+CoreDataProperties.swift in Sources */,
 				857ADE8D2BA311D7009BBB61 /* #UIWindow + Extensions.swift in Sources */,
 				8532F39629DC5F7100E1830C /* AttributesTableViewCell.swift in Sources */,
@@ -750,6 +764,7 @@
 				8532F37B29D997F800E1830C /* UIStackView + Extensions.swift in Sources */,
 				8532F38029D9DAEF00E1830C /* UIColor + Extensions.swift in Sources */,
 				859ACFF32C8DEA460012F34D /* PDFService.swift in Sources */,
+				856828C22190438A94D4BF75 /* ComparisonSharingService.swift in Sources */,
 				85A21C5E29D8988100A066E9 /* SceneDelegate.swift in Sources */,
 				85E6E16A29F533FC0008794E /* MainTableViewCell.swift in Sources */,
 				855046C32A5B520300AC59F8 /* ComparisonValueEntity+CoreDataClass.swift in Sources */,
@@ -762,6 +777,7 @@
 				855046C22A5B520300AC59F8 /* ComparisonItemEntity+CoreDataProperties.swift in Sources */,
 				85A133222C10E7AE002E679B /* ComparisonListViewController + AttributeCellMenu.swift in Sources */,
 				857ADE942BA31BA8009BBB61 /* PopOverCollectionViewCell.swift in Sources */,
+				B289ECEF73D34ABC8DEC0C419BA9EECA /* ColorPickerViewController.swift in Sources */,
 				8532F38429DA04CC00E1830C /* ObjectTableView.swift in Sources */,
 				85A1331A2C05DD74002E679B /* CreatePDF.swift in Sources */,
 				85077BE12A35C99400673636 /* ValuesColectionView.swift in Sources */,
@@ -926,7 +942,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ChooseRight;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ChooseRight.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -954,7 +970,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ChooseRight;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ChooseRight.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

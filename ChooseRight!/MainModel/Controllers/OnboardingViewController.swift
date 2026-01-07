@@ -29,8 +29,8 @@ class OnboardingViewController: UIViewController {
         let pageControl = UIPageControl()
         pageControl.numberOfPages = 3
         pageControl.currentPage = 0
-        pageControl.pageIndicatorTintColor = .specialColors.background?.withAlphaComponent(0.3)
-        pageControl.currentPageIndicatorTintColor = .specialColors.background
+        pageControl.pageIndicatorTintColor = .black.withAlphaComponent(0.3)
+        pageControl.currentPageIndicatorTintColor = .black
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         return pageControl
     }()
@@ -39,7 +39,7 @@ class OnboardingViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Skip", for: .normal)
         button.titleLabel?.font = .sfProTextRegular16()
-        button.setTitleColor(.specialColors.background, for: .normal)
+        button.setTitleColor(.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -59,9 +59,9 @@ class OnboardingViewController: UIViewController {
     private var pages: [(imageName: String, text: String, backgroundColor: UIColor)] {
         let darkTraitCollection = UITraitCollection(userInterfaceStyle: .dark)
         return [
-            ("hello1", "Hello, this is the Choice Right!", UIColor.specialColors.fourPinkBriliantLavender?.resolvedColor(with: darkTraitCollection) ?? .systemPink),
-            ("hello2", "Don't know how to make a choice and not make a mistake?", UIColor.specialColors.threeBlueLavender?.resolvedColor(with: darkTraitCollection) ?? .systemBlue),
-            ("hello3", "We will save you from the torment of choice!", UIColor.specialColors.ninePinkPaleMagenta?.resolvedColor(with: darkTraitCollection) ?? .systemPink)
+            ("hello1", "Hi! This is ChooseRight", UIColor.specialColors.fourPinkBriliantLavender?.resolvedColor(with: darkTraitCollection) ?? .systemPink),
+            ("hello2", "Not sure what the right choice is?", UIColor.specialColors.threeBlueLavender?.resolvedColor(with: darkTraitCollection) ?? .systemBlue),
+            ("hello3", "We help you choose — without the stress", UIColor.specialColors.ninePinkPaleMagenta?.resolvedColor(with: darkTraitCollection) ?? .systemPink)
         ]
     }
     
@@ -92,7 +92,7 @@ class OnboardingViewController: UIViewController {
             let pageView = createPageView(imageName: page.imageName, text: page.text, backgroundColor: page.backgroundColor)
             contentView.addArrangedSubview(pageView)
             
-            // Устанавливаем ширину каждой страницы равной ширине экрана
+            // Set app wide equal to screen wide
             pageView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
         }
     }
@@ -113,7 +113,7 @@ class OnboardingViewController: UIViewController {
         let textLabel = UILabel()
         textLabel.text = text
         textLabel.font = .sfProTextBold33()
-        textLabel.textColor = .specialColors.background
+        textLabel.textColor = .black
         textLabel.textAlignment = .center
         textLabel.numberOfLines = 0
         textLabel.translatesAutoresizingMaskIntoConstraints = false

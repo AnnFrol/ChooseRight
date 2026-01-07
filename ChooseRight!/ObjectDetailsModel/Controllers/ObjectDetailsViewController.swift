@@ -55,7 +55,6 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
     private var comparisonModel: ComparisonEntity?
     private var attributesArray: [ComparisonAttributeEntity] = []
     
-    private let warningMessageEmoji = ["😉", "💁‍♂️", "👻", "🙀", "🥈", "🚧", "❣️", "🥸", "👯", "🙃", "🧐", "🤓", "🤔"]
     private var blurVisualEffectView = UIVisualEffectView()
     
     weak var saveButtonInAlertChanged: UIAlertAction?
@@ -134,14 +133,6 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
         setConstraints()
         addGesture()
         setDelegates()
-        
-        print("VC in NC:", navigationController?.viewControllers ?? "nil.",
-              "Presenting VC:", presentingViewController ?? "nil.",
-              "Presentation controller:", presentationController ?? "nil",
-              "presentationController?.presentedViewController:", presentationController?.presentedViewController ?? "nil",
-              "presentingViewController.navigationController", presentingViewController?.navigationController ?? "nil"
-        )
-        
     }
     
 
@@ -222,11 +213,9 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
         
 //    @objc private func closeButtonTapped() { //Alt
 //        guard let enteredName = detailsView.newItemTextField.text else {
-//            print("textfield is empty")
 //            return
 //        }
 //        
-//        //        print("Name in textfield - \(enteredName)")
 //        //
 //        //        let enteredNameWithoutSpaces = enteredName.replacingOccurrences(of: " ", with: "")
 //        //        let nameIsEmpty = enteredName == enteredNameWithoutSpaces
@@ -234,27 +223,22 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
 //        switch isNewItem {
 //        case true:
 //            
-//            print(self.needUpdate, "isNewItem - true")
 //            detailsView.newItemTextField.endEditing(true)
 //            self.detailsClosingCompletion(true)
 //            dismiss(animated: true)
 //            return
 //        case false:
-//            print(self.needUpdate, "isNewItem - false")
 //            if enteredName != comparisonItemModel?.unwrappedName && enteredName != "" {
 //                updateExistingItem(comparisonItem: comparisonItemModel ?? ComparisonItemEntity(), newName: enteredName)
-//                print("item name changed")
 //                self.detailsClosingCompletion(true)
 //                dismiss(animated: true)
 //                return
 //            } else {
 //                dismiss(animated: true)
-//                print("isNewItem-false, enteredName wrong")
 //                return
 //            }
 //        }
 //        
-//        print(self.needUpdate, "is newItem ignored")
 ////         self.detailsClosingCompletion()
 //        self.endCreatingDelegate?.creatingIsComplete(comparisonEntity: comparisonItemModel?.comparison ?? ComparisonEntity())
 //        dismiss(animated: true)
@@ -268,9 +252,7 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
     
 //    @objc private func closeButtonTapped() {
 //        guard let enteredName = detailsView.newItemTextField.text else {
-//            print("name - nil")
 //            return }
-//        print("name = \(enteredName)")
 //        
 //
 //            
@@ -280,7 +262,6 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
 //                    dismiss(animated: true)}
 //                else {
 //                    guard let comparisonEntity = comparisonModel else {
-//                        print("compEntity - nil")
 //                        dismiss(animated: true)
 //                        return }
 //                    
@@ -292,14 +273,11 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
 //                    
 //                    switch self.needUpdate {  //updating when opdened from ComparisonList
 //                    case false:
-//                        print("открыто из MainVC")
-//                        print(presentingVC)
 //                        self.dismiss(animated: true) {
 //                            self.endCreatingDelegate?.creatingIsComplete(comparisonEntity: comparisonEntity)
 //                        }
 //                        
 //                    case true:
-//                        print("открыто из ComparisonListVC")
 //                        self.saveCompletion(comparisonEntity, true)
 //                        self.dismiss(animated: true) {
 //                            self.saveCompletion(comparisonEntity, true)
@@ -309,7 +287,6 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
 //            } else {
 //                if enteredName != comparisonItemModel?.unwrappedName && enteredName != "" {
 //                    updateExistingItem(comparisonItem: comparisonItemModel ?? ComparisonItemEntity(), newName: enteredName)
-//                    print("item name changed")
 //                    dismiss(animated: true) {
 //                        self.saveCompletion(self.comparisonItemModel?.comparison ?? ComparisonEntity(), true)
 //
@@ -493,7 +470,6 @@ extension ObjectDetailsViewController {
             }
             
             //            if savingResult == false {
-//                print("new attribute wasn`t created")
 //            } else {
 //                
 //                self.updateAfterAddingAttr()
@@ -516,7 +492,6 @@ extension ObjectDetailsViewController {
     
     private func updateAfterAddingAttr() {
         self.attributesArray = self.comparisonItemModel?.comparison?.attributesArray ?? []
-        print(String(self.attributesArray.count), "ATTRS ARRAY COUNT AFTER UPDATE")
         self.attributesTableView.reloadData()
         self.detailsView.refreshLabels()
     }
@@ -589,7 +564,6 @@ extension ObjectDetailsViewController {
 //        let attrs = comparisonItem.attributes
         attributesArray = comparisonItem.comparison?.attributesArray ?? []
         
-        print(attributesArray.count, comparisonItemModel?.unwrappedName ?? "nil")
         detailsView.configureForExistedItem(comparisonItem: comparisonItem)
         
 //        detailsView.detailsViewDelegate = self
@@ -636,16 +610,13 @@ extension ObjectDetailsViewController {
         let currentColor = color
         
         if sharedDataBase.createComparisonItem(name: name, relatedComparison: comparisonModel ?? ComparisonEntity(), color: currentColor) {
-            print("Item created")
         } else {
-            print("Item NOT created")
             return
         }
     }
     
     private func updateExistingItem(comparisonItem: ComparisonItemEntity, newName: String) {
         if sharedDataBase.updateComparisonItemName(for: comparisonItem, newName: newName) {
-            print("Item updated")
         } else {
             print ("Updating failed")
             return
@@ -741,26 +712,20 @@ extension ObjectDetailsViewController: DetailsViewProtocol {
     func itemNameDidChanged(newName: String) {
         
         let comparisonEntity = comparisonModel ?? ComparisonEntity()
-//        print(comparisonEntity.unwrappedName)
                 
         guard let comparisonItem = comparisonItemModel else { return }
         let currentItemName = comparisonItem.unwrappedName
-//        print("currentName = \(currentItemName)")
         
         let newItemName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
-//        print("newItemName: \(newItemName)")
         
         let namesArray: [String] = comparisonEntity.itemsArray.map { $0.unwrappedName }
-//        print("namesArray \(namesArray)")
 
         let nameIsFree = !namesArray.contains(newItemName)
         
         if newItemName.containsCharacters() && nameIsFree && newItemName != currentItemName {
-//            print("Name \" \(newItemName) \" is avaliable")
             
             sharedDataBase.updateComparisonItemName(for: comparisonItem, newName: newItemName)
         } else {
-            print("Name unavaliable")
         }
     }
     
@@ -790,12 +755,9 @@ extension ObjectDetailsViewController: DetailsViewProtocol {
                 self?.attributesArray = compariosnEntity.attributesArray
                 self?.attributesTableView.reloadData()
                 
-                print("ITEM IS CREATED")
-                print("ItemNamedidSet finished. ComparisonEntity: \(compariosnEntity.unwrappedName), Item`sComparison:\(item?.comparison?.unwrappedName ?? "nil")")
 
             }
         } else if !isNewItem {
-            print("ODVC CLOSED WITH EXISTED ITEM")
         }
         
     }
@@ -838,7 +800,6 @@ extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
                     self.attributeChangeNameAlert?.view.window?.isUserInteractionEnabled = true
                     self.attributeChangeNameAlert?.view.superview?.subviews[0].addGestureRecognizer(dismissGesture)
                 }
-                print("rename attribute tapped \(changinngAttribute.unwrappedName)")
             }
             
             let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), identifier: nil, attributes: .destructive) { action in
@@ -851,7 +812,6 @@ extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
                 self.attributesArray.remove(at: indexPath.row)
 //                self.attributesTableView.deleteRows(at: [indexPath], with: .right)
                 self.attributesTableView.reloadData()
-                print("deleteAction tapped \(changinngAttribute.unwrappedName)")
             }
             
             
@@ -889,10 +849,8 @@ extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
             
             
             if savingResult == false {
-                print("comparison doesn`t changed")
             } else {
                 self.attributesTableView.reloadData()
-                print("attribute name -\(textfieldText)- saved")
             }
         }
         

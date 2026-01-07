@@ -66,7 +66,7 @@ class ComparisonListViewController: UIViewController  {
     var attributeCellMenu = UIMenu()
     var objectCellMenu = UIMenu()
     
-    private let bottomInsets = UIEdgeInsets(top: 0, left: 0, bottom: 100, right: 0)
+    private let bottomInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     
     var customLayout = ValuesCollectionViewLayout()
     
@@ -112,11 +112,16 @@ class ComparisonListViewController: UIViewController  {
     }()
     
     lazy var settingsButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
         button.tintColor = UIColor(named: "specialText")
         let image = UIImage(named: "optionButton")
         button.setImage((image), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
+        // Fix button size to prevent jumping when menu closes
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 44),
+            button.heightAnchor.constraint(equalToConstant: 44)
+        ])
         return button
     }()
     
@@ -208,6 +213,9 @@ class ComparisonListViewController: UIViewController  {
                                      spacing: 20)
         titleStackView.distribution = .equalSpacing
         titleStackView.translatesAutoresizingMaskIntoConstraints = false
+        // Prevent layout updates that cause button jumping
+        titleStackView.layoutMargins = .zero
+        titleStackView.isLayoutMarginsRelativeArrangement = false
         view.addSubview(titleStackView)
         
         view.addSubview(attributesCollectionView)
@@ -228,7 +236,7 @@ class ComparisonListViewController: UIViewController  {
         addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         view.addSubview(addButton)
         
-        settingsButton.addTarget(self, action: #selector(createSettingsMenu), for: .touchUpInside)
+        // Setup menu with standard animation
         settingsButton.menu = setupSettingsMenu()
         settingsButton.showsMenuAsPrimaryAction = true
         
@@ -315,7 +323,7 @@ extension ComparisonListViewController {
             valuesCollectionView.topAnchor.constraint(equalTo: attributesCollectionView.bottomAnchor, constant: 0),
             valuesCollectionView.leadingAnchor.constraint(equalTo: attributesCollectionView.leadingAnchor),
             valuesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            valuesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            valuesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
             
             objectTableView.topAnchor.constraint(equalTo: valuesCollectionView.topAnchor),
             objectTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
@@ -323,7 +331,7 @@ extension ComparisonListViewController {
             objectTableView.trailingAnchor.constraint(equalTo: attributesCollectionView.leadingAnchor, constant: 0),
             
             addButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
-            addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -24),
+            addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -24),
             addButton.heightAnchor.constraint(equalToConstant: 64),
             addButton.widthAnchor.constraint(equalToConstant: 64),
             
@@ -347,7 +355,6 @@ extension ComparisonListViewController: UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         guard let sections = comparisonItemsFetchResultsController.fetchedObjects?.count else { return 0 }
-        print(sections)
             return sections
         }
     
@@ -363,7 +370,7 @@ extension ComparisonListViewController: UITableViewDataSource {
         cell.configureCell(comparisonItemEntity: comparison)
 //        cell.cellCollapseDelegate = self
         
-        weak var weakCellDelegate = self
+        let weakCellDelegate = self
         cell.objectTableViewCellDelegate = weakCellDelegate
         
         return cell
@@ -486,9 +493,7 @@ extension ComparisonListViewController: UICollectionViewDataSource {
 extension ComparisonListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let attribute = self.comparisonAttributesFetchResultsController.fetchedObjects?[indexPath.row] ?? ComparisonAttributeEntity()
-        
-        print(attribute.unwrappedName)
+        // Handle item selection if needed
     }
     
 }
@@ -516,7 +521,6 @@ extension ComparisonListViewController: valuesCollectionViewCellDelegate {
     }
     
     func refreshCellWhenValueChanges(indexPath: IndexPath, item: ComparisonItemEntity) {
-                print(indexPath)
                 let relatedObjectTableViewCell = objectTableView.cellForRow(at: IndexPath(row: 0, section: indexPath.section)) as? ObjectTableViewCell
                 relatedObjectTableViewCell?.valueChangedRefresh(comparisonItemEntity: item)
     }
@@ -633,8 +637,6 @@ extension ComparisonListViewController: UIScrollViewDelegate {
             
         } else if contentMovesRight && !tableViewWidthFixed {
             newTopViewLeadingAnchorConst = min(currentTopViewLeadingAnchorConst - scrollDiff, maxConstraintConstant)
-            print("newTopLeadingAnchorConst = ", newTopViewLeadingAnchorConst)
-            print("content moves right")
         }
         
         if newTopViewLeadingAnchorConst != currentTopViewLeadingAnchorConst {
@@ -693,7 +695,6 @@ extension ComparisonListViewController: UIViewControllerTransitioningDelegate {
     }
     
     @objc private func addButtonTapped() {
-        print("addButtonTapped")
         
         let objectDetailsViewController = ObjectDetailsViewController()
         objectDetailsViewController.transitioningDelegate = self
@@ -765,7 +766,6 @@ extension ComparisonListViewController: UIViewControllerTransitioningDelegate {
 //MARK: - ObjectTableViewCellProtocol (passing table state into the cells)
 extension ComparisonListViewController: ObjectTableViewCellProtocol {
     func refreshCellWhenValueChanges() {
-        print("refreshing")
     }
     
     func isCellCollapsedNow() -> Bool {
@@ -834,11 +834,6 @@ extension ComparisonListViewController: UITextFieldDelegate {
     }
     
     
-    @objc func createSettingsMenu(_ sender: UIButton) {
-        let menu = self.setupSettingsMenu()
-        sender.menu = menu
-        sender.showsMenuAsPrimaryAction = true
-    }
 }
 
 
@@ -854,14 +849,12 @@ extension ComparisonListViewController {
 //        loadSavedData(itemsSortKey: sortKey)
 //        objectTableView.reloadData()
 //        valuesCollectionView.reloadData()
-        let menu = setupSettingsMenu()
-        settingsButton.menu = menu
-        settingsButton.showsMenuAsPrimaryAction = true
+        // Update menu (showsMenuAsPrimaryAction is already set in setupView)
+        settingsButton.menu = setupSettingsMenu()
         
         self.objectTableView.reloadData()
         
         
-        print("Current sort key: \(currentSortKey)")
     }
     
 }

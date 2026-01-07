@@ -278,6 +278,16 @@ extension CoreDataManager {
             return items.first
         }
     }
+    
+    //Fetch item with ID
+    public func fetchItemWithID(id: String) -> ComparisonItemEntity? {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entity.item)
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        do {
+            guard let items = try? viewContext.fetch(fetchRequest) as? [ComparisonItemEntity] else { return nil }
+            return items.first
+        }
+    }
     //MARK: Update comparison item
     //Update comparisonItemName
     @discardableResult public func updateComparisonItemName(for item: ComparisonItemEntity, newName: String) -> Bool {
