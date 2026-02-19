@@ -14,17 +14,9 @@ class RoundedView: UIView {
         layer.cornerRadius = frame.width / 2
     }
 }
-
-
-
-
 protocol CellColapsable: AnyObject {
     func isShorted(viewCollapsed: Bool) -> Bool
 }
-
-//protocol CellPercentCalculation: AnyObject {
-//    func valueChanged() 
-//}
 
 protocol ObjectTableViewCellProtocol: AnyObject {
     func refreshCellWhenValueChanges()
@@ -63,11 +55,7 @@ class ObjectTableViewCell: UITableViewCell {
                              UIColor.specialColors.eightYelowCalamansi,
                              UIColor.specialColors.ninePinkPaleMagenta ]
     
-//    private var randomColorForCircle: UIColor = {
-//        let color = UIColor.specialColors.oneBlueWinterWiazrd ?? UIColor.white
-//        return color
-//    }()
-    
+
     weak var objectTableViewCellDelegate: ObjectTableViewCellProtocol?
     
     weak var cellCollapseDelegate: CellColapsable?
@@ -128,7 +116,6 @@ class ObjectTableViewCell: UITableViewCell {
             self.layoutIfNeeded()
         }
         
-        print("relevanceValue = \(relevanceLabelText), sizeMultiplier = \(circleDiameter)")
     }
     
     public func configureCell(comparisonItemEntity: ComparisonItemEntity) {
@@ -149,7 +136,6 @@ class ObjectTableViewCell: UITableViewCell {
         progressLabelInCircle.text = relevanceLabelText
         
         
-        print("Label text: \(labelText), shorted: \(labelTextShorted)")
         
         circleBackgroundColor = UIColor(named: comparisonItem?.color ?? "sixGreenMagicMint") ?? UIColor.white
         circleView.backgroundColor = circleBackgroundColor
@@ -173,7 +159,6 @@ class ObjectTableViewCell: UITableViewCell {
         progressLabelInCircle.text = relevanceLabelText
         
         
-        print("Label text: \(labelText), shorted: \(labelTextShorted)")
         
         circleBackgroundColor = UIColor(named: comparisonItem?.color ?? "sixGreenMagicMint") ?? UIColor.white
         circleView.backgroundColor = circleBackgroundColor
@@ -193,7 +178,6 @@ class ObjectTableViewCell: UITableViewCell {
             else { multiplier = 1.5 }
         }
         
-        print("isViewCollapsed = \(isViewCollapsed)")
         
         let relevance = Double(relevanceValue)
         
@@ -202,7 +186,6 @@ class ObjectTableViewCell: UITableViewCell {
                     let calculatedSize = minUIRelevance + (relevance / 100) * (maxUIRelevance * multiplier + minUIRelevance)
         
         
-        print("viewSize = \(self.frame), item = \(comparisonItem?.unwrappedName ?? "nil"), maxUIRelevance = \(maxUIRelevance), minUIRelevance = \(minUIRelevance), calculatedSize = \(calculatedSize) ")
         return calculatedSize
     }
     
@@ -221,7 +204,6 @@ class ObjectTableViewCell: UITableViewCell {
         guard let delegateReport = objectTableViewCellDelegate?.isCellCollapsedNow() else { return false }
         
         
-        print("CONTROLLER REPORTS THAT CELL COLLAPSED IS \(delegateReport)")
 //        let currentWidth = self.frame.width
 //        switch currentWidth {
 //        case ..<230:
@@ -259,8 +241,6 @@ class ObjectTableViewCell: UITableViewCell {
         
 //        objectTableViewCellDelegate?.refreshCellWhenValueChanges()
 
-//        print("circle height: \(circleView.frame.size.height), circle width \(circleView.frame.size.width)")
-//        print("cornerRadius: ",circleView.layer.cornerRadius)
         
 
     }
@@ -347,7 +327,6 @@ extension ObjectTableViewCell {
             
 
         ])
-        print("Circle radius in setConstraints func finish: ", circleDiameter)
 
     }
 }

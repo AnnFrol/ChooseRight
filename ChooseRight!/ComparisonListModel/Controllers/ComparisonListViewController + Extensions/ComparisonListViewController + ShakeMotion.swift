@@ -19,23 +19,37 @@ extension ComparisonListViewController {
         self.becomeFirstResponder()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        self.resignFirstResponder()
-    }
+//    override func viewWillDisappear(_ animated: Bool) {
+//        super.viewWillDisappear(animated)
+//        self.resignFirstResponder()
+//        
+//        ScreenOrientationUtility.lockOrientation(.portrait)
+//    }
     
     override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         if motion == .motionShake {
             shakeEvent()
         }
-            
     }
     
     private func shakeEvent() {
         
-        self.comparisonEntity.itemsArray.map { $0.updateTrueValuesCount() }
-       self.updateSortKey("trueValuesCount")
-        
+        if self.currentSortKey == itemSortKeys().value {
+            
+//            self.comparisonEntity.itemsArray.forEach { $0.updateTrueValuesCount() }
+            
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+            
+//                    self.comparisonEntity.itemsArray.map { $0.updateTrueValuesCount() }
+
+            
+            
+            //        let gener = UIImpactFeedbackGenerator(style: .medium)
+            //        gener.impactOccurred()
+            
+            self.updateSortKey(itemSortKeys().value)
+        }
     }
     
     

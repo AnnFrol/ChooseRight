@@ -42,8 +42,8 @@ struct MainView: View {
                         Button(action: {
                             viewModel.showSettingsMenu()
                         }) {
-                            Image("optionButton")
-                                .renderingMode(.template)
+                            Image(systemName: "ellipsis")
+                                .font(.system(size: 26, weight: .regular))
                                 .foregroundColor(Color.specialColors.text)
                         }
                         .frame(width: 33, height: 33)

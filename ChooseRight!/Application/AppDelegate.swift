@@ -34,12 +34,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         // Handle URL scheme
         if url.scheme == ComparisonSharingService.urlScheme {
-            return ComparisonSharingService.importComparison(from: url)
+            let result = ComparisonSharingService.importComparison(from: url)
+            return result == .success
         }
         
         // Handle file import
         if url.pathExtension == "chooseright" {
-            return ComparisonSharingService.importComparison(from: url)
+            let result = ComparisonSharingService.importComparison(from: url)
+            return result == .success
         }
         
         return false

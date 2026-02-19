@@ -15,23 +15,10 @@ extension ComparisonListViewController {
         guard let changingComparisonItem = self.comparisonItemsFetchResultsController.fetchedObjects?[indexPath.section] else { return }
         let menuTitle = changingComparisonItem.unwrappedName
         
-        let changeColor = UIAction(
-            title: "Change color", image: UIImage(systemName: "paintpalette")) { [self] _ in
-                guard let oldColor = changingComparisonItem.color else {
-                    changingComparisonItem.color = specialColors.first
-                    return
-                }
-                
-                guard let oldColorIndex = specialColors.firstIndex(of: oldColor) else {
-                    changingComparisonItem.color = specialColors.first
-                    return
-                }
-                
-                let newColorIndex = (oldColorIndex + 1) % specialColors.count
-                let newColorName = specialColors[newColorIndex]
-                self.sharedData.updateComparisonItemColor(for: changingComparisonItem, newColor: newColorName)
-            
-            }
+        let changeColor = UIAction(title: "Change color", image: UIImage(systemName: "paintpalette")) { [weak self] _ in
+            guard let self = self else { return }
+            self.showColorPicker(for: changingComparisonItem, at: indexPath)
+        }
         
         let deleteItem = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [self] _ in
             guard let deleteItem = self.comparisonItemsFetchResultsController.fetchedObjects?[indexPath.section] else { return }
@@ -49,7 +36,6 @@ extension ComparisonListViewController {
             children: [changeColor, deleteItem]
         )
         
-        print(changingComparisonItem.unwrappedName)
         
     }
     
@@ -80,6 +66,13 @@ extension ComparisonListViewController {
         
         deleteItemAlert?.addAction(deleteButton)
         deleteItemAlert?.addAction(cancelButton)
+        
+        // Configure popover for iPad
+        if let popover = deleteItemAlert?.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
     }
     
     func makeCellPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
@@ -119,6 +112,28 @@ extension ComparisonListViewController {
         
         return UITargetedPreview(view: cell, parameters: parameters)
         
+    }
+    
+    func showColorPicker(for item: ComparisonItemEntity, at indexPath: IndexPath) {
+        let colorPicker = ColorPickerViewController(
+            selectedColor: item.color,
+            onColorSelected: { [weak self] colorName in
+                guard let self = self else { return }
+                self.sharedData.updateComparisonItemColor(for: item, newColor: colorName)
+            }
+        )
+        
+        if #available(iOS 15.0, *) {
+            if let sheet = colorPicker.sheetPresentationController {
+                sheet.detents = [.custom { _ in
+                    return UIScreen.main.bounds.height / 3
+                }]
+                sheet.prefersGrabberVisible = true
+            }
+        }
+        
+        colorPicker.modalPresentationStyle = .pageSheet
+        present(colorPicker, animated: true)
     }
     
 }

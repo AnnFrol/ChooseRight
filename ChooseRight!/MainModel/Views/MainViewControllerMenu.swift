@@ -29,18 +29,23 @@ extension MainViewController {
                 image: UIImage(systemName: "square.and.arrow.up"),
                 state: .off) { action in
                     
-                    guard let url = URL(string: "https://annfrol.github.io/") else { return }
+                    guard let url = URL(string: "https://apps.apple.com/app/id6758289216") else { return }
                     
                     let items = [url]
                     
                     let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
                     
+                    // Configure popover for iPad
+                    if let popover = ac.popoverPresentationController {
+                        popover.sourceView = self.view
+                        popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                        popover.permittedArrowDirections = []
+                    }
+                    
                     self.present(ac, animated: true)
-                    print(version)
                 }
         } else {
              appInfoAction = UIAction(title: "Choose Right!\nVersion: \(version)", image: logo, identifier: nil, discoverabilityTitle: "discTitle", attributes: [], state: .off) { action in
-                print(version)
             }        }
         
         
@@ -58,33 +63,20 @@ extension MainViewController {
         
         if isLightTheme {
             let darkAction = UIAction(title: "Dark", image: UIImage(systemName: "moon.fill")) { action in
-                print("1.\(ThemeManager.isLightTheme(for: self.view))")
-
                     ThemeManager.setTheme(isLight: false)
-//                    self.settingsButton.menu = self.setupSettingsMenu()
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     self.updateMenu()
-                    print("2.\(ThemeManager.isLightTheme(for: self.view))")
-
                 }
-                
                 }
             themeActions.append(darkAction)
         } else {
             let lightAction = UIAction(title: "Light", image: UIImage(systemName: "sun.max.fill")) { action in
+                ThemeManager.setTheme(isLight: true)
                 
-                print("1.\(ThemeManager.isLightTheme(for: self.view))")
-
-                    ThemeManager.setTheme(isLight: true)
-//                    self.settingsButton.menu = self.setupSettingsMenu()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     self.updateMenu()
-                    print("2.\(ThemeManager.isLightTheme(for: self.view))")
-
                 }
-                print("2.\(ThemeManager.isLightTheme(for: self.view))")
-
                         }
                         themeActions.append(lightAction)
         }
@@ -105,7 +97,7 @@ extension MainViewController {
             attributes: [],
             state: .off) { action in
                 
-                let email = "alexfro74@gmail.com"
+                let email = "ann.desi.d@gmail.com"
                 let subject = "ChooseRight! service request"
                 let body = "Please describe your issue here"
                 let coded = "mailto:\(email)?subject=\(subject)&body=\(body)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
@@ -114,8 +106,6 @@ extension MainViewController {
                     
                     if UIApplication.shared.canOpenURL(url) {
                         UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                    } else {
-                        print("Cant`t open eMail")
                     }
                 }
             }
@@ -124,7 +114,7 @@ extension MainViewController {
             title: "Telegram",
             image: UIImage(named: "telegramLogo")
         ) { action in
-                if let url = URL(string: "https://t.me/AlexanderFro") {
+                if let url = URL(string: "https://t.me/AnnKolnobro") {
                     UIApplication.shared.open(url)
                 }
             }
@@ -133,7 +123,7 @@ extension MainViewController {
             title: "Instagram",
             image: UIImage(named:"instagramLogo")
         ) { action in
-                if let url = URL(string: "https://www.instagram.com/alexfroool/") {
+                if let url = URL(string: "https://www.instagram.com/ann_kolnobr/") {
                     UIApplication.shared.open(url)
                 }
             }
@@ -148,33 +138,33 @@ extension MainViewController {
                 instagramAction
             ])
         
-        // Test file import (DEBUG only)
-        #if DEBUG
-        let testFileImportAction = UIAction(
-            title: "Test File Import",
-            image: UIImage(systemName: "doc.badge.plus")
+        // Purchase menu element (first)
+        let purchaseAction = UIAction(
+            title: "Unlock Premium",
+            image: UIImage(systemName: "star.fill")
         ) { action in
-            let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [.data])
-            documentPicker.delegate = self
-            documentPicker.allowsMultipleSelection = false
-            self.present(documentPicker, animated: true)
+            let subscriptionVC = SubscriptionViewController()
+            subscriptionVC.modalPresentationStyle = .pageSheet
+            if #available(iOS 15.0, *) {
+                if let sheet = subscriptionVC.sheetPresentationController {
+                    sheet.detents = [.large()]
+                    sheet.prefersGrabberVisible = true
+                }
+            }
+            self.present(subscriptionVC, animated: true)
         }
         
-        let testMenu = UIMenu(
+        let purchaseMenu = UIMenu(
             title: "",
             options: .displayInline,
-            children: [testFileImportAction])
-        #endif
+            children: [purchaseAction])
         
-        var menuChildren: [UIMenuElement] = [
+        let menuChildren: [UIMenuElement] = [
+            purchaseMenu,
             appInfoMenu,
             themeMenu,
             contactsMenu
         ]
-        
-        #if DEBUG
-        menuChildren.append(testMenu)
-        #endif
         
         let mainMenu = UIMenu(
             title: "",
@@ -183,9 +173,6 @@ extension MainViewController {
         
         if #available(iOS 16.0, *) {
             contactsMenu.preferredElementSize = .small
-        } else {
-            // Fallback on earlier versions
-            print("preferredElementSize not avalible")
         }
         
         return mainMenu
@@ -200,6 +187,7 @@ extension MainViewController {
         self.view.setNeedsLayout()
 
     }
+    
     }
     
     

@@ -50,7 +50,7 @@ class OnboardingViewController: UIViewController {
         button.titleLabel?.font = .sfProTextMedium16()
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .black
-        button.layer.cornerRadius = 12
+        button.layer.cornerRadius = 32
         button.translatesAutoresizingMaskIntoConstraints = false
         button.alpha = 0
         return button
@@ -59,7 +59,7 @@ class OnboardingViewController: UIViewController {
     private var pages: [(imageName: String, text: String, backgroundColor: UIColor)] {
         let darkTraitCollection = UITraitCollection(userInterfaceStyle: .dark)
         return [
-            ("hello1", "Hi! This is ChooseRight", UIColor.specialColors.fourPinkBriliantLavender?.resolvedColor(with: darkTraitCollection) ?? .systemPink),
+            ("hello1", "Hi! This is ChooseRight!", UIColor.specialColors.fourPinkBriliantLavender?.resolvedColor(with: darkTraitCollection) ?? .systemPink),
             ("hello2", "Not sure what the right choice is?", UIColor.specialColors.threeBlueLavender?.resolvedColor(with: darkTraitCollection) ?? .systemBlue),
             ("hello3", "We help you choose — without the stress", UIColor.specialColors.ninePinkPaleMagenta?.resolvedColor(with: darkTraitCollection) ?? .systemPink)
         ]
@@ -154,9 +154,9 @@ class OnboardingViewController: UIViewController {
             pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             getStartedButton.bottomAnchor.constraint(equalTo: pageControl.topAnchor, constant: -30),
-            getStartedButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-            getStartedButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
-            getStartedButton.heightAnchor.constraint(equalToConstant: 50)
+            getStartedButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            getStartedButton.widthAnchor.constraint(equalToConstant: 200),
+            getStartedButton.heightAnchor.constraint(equalToConstant: 78)
         ])
     }
     

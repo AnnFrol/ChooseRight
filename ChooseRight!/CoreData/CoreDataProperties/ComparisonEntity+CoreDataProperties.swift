@@ -18,11 +18,30 @@ extension ComparisonEntity {
 
     @NSManaged public var color: String?
     @NSManaged public var comment: String?
-    @NSManaged public var date: Date
-    @NSManaged public var id: UUID
-    @NSManaged public var name: String
+    @NSManaged public var date: Date?
+    @NSManaged public var id: UUID?
+    @NSManaged public var name: String?
     @NSManaged public var items: NSSet?
     @NSManaged public var attributes: NSSet?
+    
+//MARK: Unwrapping
+    public var unwrappedName: String {
+        name ?? "Unknown comparison"
+    }
+    
+    public var unwrappedDate: Date {
+        date ?? Date().getLocalDate()
+    }
+    
+    public var itemsArray: [ComparisonItemEntity] {
+        let itemsSet = items as? Set<ComparisonItemEntity> ?? []
+        return itemsSet.sorted { $0.unwrappedDate > $1.unwrappedDate }
+    }
+    
+    public var attributesArray: [ComparisonAttributeEntity] {
+        let attributesSet = attributes as? Set<ComparisonAttributeEntity> ?? []
+        return attributesSet.sorted { $0.unwrappedDate > $1.unwrappedDate}
+    }
 
 }
 

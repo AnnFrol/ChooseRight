@@ -110,10 +110,15 @@ extension ComparisonListViewController: NSFetchedResultsControllerDelegate {
 //        }, completion: nil)    }
     
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
+        switch controller {
+        case comparisonItemsFetchResultsController:
         objectTableView.beginUpdates()
-        attributesCollectionView.performBatchUpdates(nil, completion: nil)
-//        valuesCollectionView.performBatchUpdates(nil, completion: nil)
-        
+        case comparisonAttributesFetchResultsController:
+            // Clear pending changes and prepare for batch updates
+            pendingAttributeChanges.removeAll()
+        default:
+            break
+        }
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
@@ -175,72 +180,9 @@ extension ComparisonListViewController: NSFetchedResultsControllerDelegate {
             
             
         case self.comparisonAttributesFetchResultsController :
-            
-            switch type {
-                
-            case .insert:
-                if let newIndexPath = newIndexPath {
-                    self.attributesCollectionView.insertItems(at: [newIndexPath])
-//                    self.valuesCollectionView.reloadData()
-                    
-                    
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                        self.valuesCollectionView.reloadData()
-//                    }
-//                    self.valuesCollectionView.reloadData()
-                    
-//                    self.valuesCollectionView.performBatchUpdates {
-////                        for section in 0..<valuesCollectionView.numberOfSections {
-////                            let indexPath = IndexPath(item: newIndexPath.item, section: section)
-////                            valuesCollectionView.insertItems(at: [indexPath])
-//                        self.valuesCollectionView.reloadData()
-//
-////                        }
-//                    }
-                }
-                
-            case .delete:
-                if self.comparisonEntity.isDeleted {
-                    self.comparisonAttributesFetchResultsController.delegate = nil } else {
-                        if let indexPath = indexPath {
-                            
-                            //                    attributesCollectionView.reloadData()
-                            
-                            attributesCollectionView.deleteItems(at: [indexPath])
-                            //                    self.valuesCollectionView.reloadData()
-                            
-                            
-                            //                    valuesCollectionView.performBatchUpdates {
-                            //                        for section in 0..<valuesCollectionView.numberOfSections {
-                            //                            let indexPath = IndexPath(item: indexPath.item, section: section)
-                            //                            valuesCollectionView.deleteItems(at: [indexPath])
-                            //                        }
-                            //                    }
-                        }
-                    }
-            case .move:
-//                if let indexPath = indexPath, let newIndexPath = newIndexPath {
-//                    attributesCollectionView.moveItem(at: indexPath, to: newIndexPath)
-                self.attributesCollectionView.reloadData()
-                
-                
-//                    self.valuesCollectionView.reloadData()
-
-                    
-//                    valuesCollectionView.performBatchUpdates {
-//                        for section in 0..<valuesCollectionView.numberOfSections {
-//                            valuesCollectionView.moveItem(at: IndexPath(item: indexPath.item, section: section), to: IndexPath(item: newIndexPath.item, section: section))
-//                        }
-//                    }
-//                }
-            case .update: 
-                if let indexPath = indexPath {
-                    self.attributesCollectionView.reloadItems(at: [indexPath])
-//                    self.valuesCollectionView.reloadData()
-                }
-            @unknown default:
-                fatalError()
-            }
+            // Store changes to apply in batch in controllerDidChangeContent
+            pendingAttributeChanges.append((type: type, indexPath: indexPath, newIndexPath: newIndexPath))
+            break
             
 //        case self.comparisonValuesFetchResultsController :
 //            switch type {
@@ -328,7 +270,7 @@ extension ComparisonListViewController: NSFetchedResultsControllerDelegate {
 //                    self.valuesCollectionView.reloadItems(at: [indexPath])
 //                }
             @unknown default:
-                fatalError()
+                break
             }
             
             
@@ -424,17 +366,72 @@ extension ComparisonListViewController: NSFetchedResultsControllerDelegate {
 //    }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
+        switch controller {
+        case comparisonItemsFetchResultsController:
         objectTableView.endUpdates()
-        attributesCollectionView.performBatchUpdates(nil, completion: nil)
-//        
-//        self.valuesCollectionView.reloadData()
-//        self.valuesCollectionView.performBatchUpdates(nil)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.valuesCollectionView.reloadData()
-            self.valuesCollectionView.performBatchUpdates(nil)
+            // Reload values collection view after items change
+            DispatchQueue.main.async {
+                self.valuesCollectionView.reloadData()
+            }
+            
+        case comparisonAttributesFetchResultsController:
+            // Check if we should use batch updates or reload
+            let currentItemCount = self.attributesCollectionView.numberOfItems(inSection: 0)
+            let expectedItemCount = self.comparisonAttributesFetchResultsController.fetchedObjects?.count ?? 0
+            let insertCount = self.pendingAttributeChanges.filter { $0.type == .insert }.count
+            let deleteCount = self.pendingAttributeChanges.filter { $0.type == .delete }.count
+            let moveCount = self.pendingAttributeChanges.filter { $0.type == .move }.count
+            let changesToApply = self.pendingAttributeChanges
+            self.pendingAttributeChanges.removeAll()
+            
+            // Calculate expected count after all changes
+            let calculatedCount = currentItemCount + insertCount - deleteCount
+            
+            // If deleting many items, if counts don't match, if there are moves, or if there are inserts, use reloadData for safety
+            // Inserts can cause issues with batch updates if data source isn't perfectly synchronized
+            if deleteCount > currentItemCount / 2 || calculatedCount != expectedItemCount || moveCount > 0 || insertCount > 0 {
+                // Too many deletions, count mismatch, moves, or inserts - use reload
+                self.attributesCollectionView.reloadData()
+                DispatchQueue.main.async { [weak self] in
+                    self?.valuesCollectionView.reloadData()
+                }
+            } else {
+                // Apply all pending changes in a single batch update
+                attributesCollectionView.performBatchUpdates({ [weak self] in
+                    guard let self = self else { return }
+                    for change in changesToApply {
+                        switch change.type {
+                        case .insert:
+                            if let newIndexPath = change.newIndexPath {
+                                self.attributesCollectionView.insertItems(at: [newIndexPath])
+                            }
+                        case .delete:
+                            if let indexPath = change.indexPath {
+                                self.attributesCollectionView.deleteItems(at: [indexPath])
+                            }
+                        case .update:
+                            if let indexPath = change.indexPath {
+                                self.attributesCollectionView.reloadItems(at: [indexPath])
+                            }
+                        case .move:
+                            if let indexPath = change.indexPath, let newIndexPath = change.newIndexPath {
+                                self.attributesCollectionView.moveItem(at: indexPath, to: newIndexPath)
+                            }
+                        @unknown default:
+                            break
+                        }
+                    }
+                }, completion: { [weak self] _ in
+                    // After attributes are updated, reload values collection view
+                    DispatchQueue.main.async {
+                        self?.valuesCollectionView.reloadData()
+                    }
+                })
+            }
+            
+        default:
+            break
         }
-//        valuesCollectionView.performBatchUpdates(nil, completion: nil)
     }
     
 //    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {

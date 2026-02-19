@@ -1,22 +1,41 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22F82" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22758" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="ComparisonAttributeEntity" representedClassName=".ComparisonAttributeEntity" syncable="YES">
         <attribute name="comment" optional="YES" attributeType="String"/>
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <relationship name="comparison" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ComparisonEntity" inverseName="attributes" inverseEntity="ComparisonEntity"/>
+        <relationship name="item" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ComparisonItemEntity" inverseName="attributes" inverseEntity="ComparisonItemEntity"/>
+        <relationship name="value" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ComparisonValueEntity" inverseName="attribute" inverseEntity="ComparisonValueEntity"/>
     </entity>
     <entity name="ComparisonEntity" representedClassName=".ComparisonEntity" syncable="YES">
         <attribute name="color" optional="YES" attributeType="String"/>
         <attribute name="comment" optional="YES" attributeType="String"/>
-        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" attributeType="String"/>
+        <relationship name="attributes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ComparisonAttributeEntity" inverseName="comparison" inverseEntity="ComparisonAttributeEntity"/>
+        <relationship name="items" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ComparisonItemEntity" inverseName="comparison" inverseEntity="ComparisonItemEntity"/>
+        <relationship name="values" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ComparisonValueEntity" inverseName="comparison" inverseEntity="ComparisonValueEntity"/>
     </entity>
     <entity name="ComparisonItemEntity" representedClassName=".ComparisonItemEntity" syncable="YES">
         <attribute name="color" optional="YES" attributeType="String"/>
         <attribute name="comment" optional="YES" attributeType="String"/>
-        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" attributeType="String"/>
+        <attribute name="trueValuesCount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="attributes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ComparisonAttributeEntity" inverseName="item" inverseEntity="ComparisonAttributeEntity"/>
+        <relationship name="comparison" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ComparisonEntity" inverseName="items" inverseEntity="ComparisonEntity"/>
+        <relationship name="value" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ComparisonValueEntity" inverseName="item" inverseEntity="ComparisonValueEntity"/>
+    </entity>
+    <entity name="ComparisonValueEntity" representedClassName=".ComparisonValueEntity" syncable="YES">
+        <attribute name="comment" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="value" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <relationship name="attribute" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ComparisonAttributeEntity" inverseName="value" inverseEntity="ComparisonAttributeEntity"/>
+        <relationship name="comparison" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ComparisonEntity" inverseName="values" inverseEntity="ComparisonEntity"/>
+        <relationship name="item" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ComparisonItemEntity" inverseName="value" inverseEntity="ComparisonItemEntity"/>
     </entity>
 </model>

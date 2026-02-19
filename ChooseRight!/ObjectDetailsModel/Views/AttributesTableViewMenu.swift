@@ -6,3 +6,9 @@
 //
 
 import Foundation
+import UIKit
+
+//extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
+//
+//    
+//}

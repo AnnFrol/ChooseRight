@@ -24,9 +24,10 @@ class AttributesCollectionView: UICollectionView {
     }
     
     private func configure() {
-        backgroundColor = .clear
+        backgroundColor = .specialColors.background
         bounces = true
         clipsToBounds = true
+//        layer.masksToBounds = false
         showsHorizontalScrollIndicator = false
         
         translatesAutoresizingMaskIntoConstraints = false
@@ -35,7 +36,9 @@ class AttributesCollectionView: UICollectionView {
     private func setupLayout() {
         myLayout.minimumLineSpacing = 0
         myLayout.scrollDirection = .horizontal
-        myLayout.itemSize = CGSize(width: 87,
-                                   height: 50)  //need to manage (make public let somwhere)
+        myLayout.itemSize = CGSize(width: 86,
+                                   height: 50)  //needs to manage (make public let somwhere)
+        
+        myLayout.collectionView?.backgroundColor = .specialColors.background
     }
 }

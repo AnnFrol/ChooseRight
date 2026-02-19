@@ -34,7 +34,6 @@ class ThemeManager {
     @objc func didChangeTheme() {
         // Note: This method signature is incorrect - isLightTheme requires a UIView parameter
         // This is a placeholder implementation
-        print("Theme changed notification received")
     }
     
     static func setTheme(isLight: Bool) {

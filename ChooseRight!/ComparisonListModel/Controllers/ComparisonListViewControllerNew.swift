@@ -66,6 +66,9 @@ class ComparisonListViewController: UIViewController  {
     var attributeCellMenu = UIMenu()
     var objectCellMenu = UIMenu()
     
+    // Track pending changes for batch updates
+    var pendingAttributeChanges: [(type: NSFetchedResultsChangeType, indexPath: IndexPath?, newIndexPath: IndexPath?)] = []
+    
     private let bottomInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     
     var customLayout = ValuesCollectionViewLayout()
@@ -114,8 +117,12 @@ class ComparisonListViewController: UIViewController  {
     lazy var settingsButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintColor = UIColor(named: "specialText")
-        let image = UIImage(named: "optionButton")
+        let image = UIImage(systemName: "ellipsis")
         button.setImage((image), for: .normal)
+        
+        let config = UIImage.SymbolConfiguration(pointSize: 26, weight: .regular)
+        button.setPreferredSymbolConfiguration(config, forImageIn: .normal)
+        
         button.translatesAutoresizingMaskIntoConstraints = false
         // Fix button size to prevent jumping when menu closes
         NSLayoutConstraint.activate([
@@ -305,32 +312,35 @@ extension ComparisonListViewController {
         
         attributesCollectionViewLeadingAnchor = attributesCollectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: maxConstraintConstant)
         
+        // Adaptive sizing for iPad - Removed max width limitation
+        let horizontalPadding: CGFloat = 15 // Always use 15 padding regardless of device
+        
         NSLayoutConstraint.activate([
             
             backButton.heightAnchor.constraint(equalToConstant: 33),
             backButton.widthAnchor.constraint(equalToConstant: 33),
             
-            titleStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
-            titleStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            titleStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: horizontalPadding),
+            titleStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -horizontalPadding),
             titleStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
             titleStackView.heightAnchor.constraint(equalToConstant: 40),
             
             attributesCollectionViewLeadingAnchor!,
-            attributesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            attributesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
             attributesCollectionView.topAnchor.constraint(equalTo: titleStackView.bottomAnchor, constant: 10),
             attributesCollectionView.heightAnchor.constraint(equalToConstant: 45),
             
             valuesCollectionView.topAnchor.constraint(equalTo: attributesCollectionView.bottomAnchor, constant: 0),
             valuesCollectionView.leadingAnchor.constraint(equalTo: attributesCollectionView.leadingAnchor),
-            valuesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            valuesCollectionView.trailingAnchor.constraint(equalTo: attributesCollectionView.trailingAnchor),
             valuesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
             
             objectTableView.topAnchor.constraint(equalTo: valuesCollectionView.topAnchor),
-            objectTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
+            objectTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: horizontalPadding),
             objectTableView.bottomAnchor.constraint(equalTo: valuesCollectionView.bottomAnchor),
             objectTableView.trailingAnchor.constraint(equalTo: attributesCollectionView.leadingAnchor, constant: 0),
             
-            addButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+            addButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -max(24, horizontalPadding)),
             addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -24),
             addButton.heightAnchor.constraint(equalToConstant: 64),
             addButton.widthAnchor.constraint(equalToConstant: 64),
@@ -674,6 +684,7 @@ extension ComparisonListViewController {
         
         loadSavedData(itemsSortKey: currentSortKey)
         
+        // Set label to comparison name
         mainLabel.text = comparisonEntity.unwrappedName
         
         customLayout = ValuesCollectionViewLayout(

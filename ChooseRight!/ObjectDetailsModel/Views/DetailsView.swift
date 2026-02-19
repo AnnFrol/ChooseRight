@@ -8,8 +8,11 @@
 import UIKit
 
 protocol DetailsViewProtocol: AnyObject {
-    func saveDetails(itemName: String)
-    func setupDetailsView(comparisonItem: String)
+//    func saveDetails(itemName: String)
+//    func setupDetailsView(comparisonItem: String)
+    func itemNameDidSet(name: String)
+    func itemNameDidChanged(newName: String)
+    
 }
 
 class DetailsView: UIView {
@@ -18,8 +21,8 @@ class DetailsView: UIView {
 
     weak var detailsViewDelegate: DetailsViewProtocol?
     
-    private var comparisonModel = ComparisonEntity()
-    private var itemModel = ComparisonItemEntity()
+    private var comparisonEntity = ComparisonEntity()
+    private var itemEntity = ComparisonItemEntity()
     
 //    private var comparisonName: String = "ChooseRight"
     private var comparisonPluses: Int = 0
@@ -31,6 +34,35 @@ class DetailsView: UIView {
     public let newItemTextField = NewItemTextField()
     private var textFieldStackView = UIStackView()
     
+    
+    private let attentionLabel: UILabel = {
+       let label = UILabel()
+        label.text = "Name exists!"
+        label.textColor = UIColor.specialColors.detailsMainLabelText
+        label.font = UIFont(name: "SFProDisplay-Regular", size: 15)
+        label.alpha = 0.4
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    private let attentionImage: UIImageView = {
+        let view = UIImageView()
+        view.image = UIImage(systemName: "exclamationmark.triangle.fill")?.withTintColor(.specialColors.detailsMainLabelText ?? .lightText, renderingMode: .alwaysOriginal)
+        view.alpha = 0.4
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+//    private let attentionImage: UILabel = {
+//        let view = UILabel()
+//        view.text = "\(UIImage(exclamationmark.triangle.fill)"
+////        view.image = UIImage(named: "exclamationmark.triangle.fill")?.withTintColor(.specialColors.detailsMainLabelText ?? .lightText, renderingMode: .alwaysOriginal)
+//        view.alpha = 0.4
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        return view
+//    }()
+    private var attentionStackView = UIStackView()
+    
+    
     private let relevanceLabel = UILabel(detailsSecondaryLabelText: "Relevance")
     private let relevanceValueLabel = UILabel(detailsRelevanseValueLabelText: "0%")
     private var relevanceStackview = UIStackView()
@@ -41,8 +73,10 @@ class DetailsView: UIView {
     
     private var bottomStackView = UIStackView()
     
+    var itemColorName = specialColors.first
+    
     private func setupViews() {
-        backgroundColor = .specialColors.sixGreenMagicMint
+        backgroundColor = UIColor(named: itemColorName ?? "sixGreenMagicMint")
         scoreLabel.textAlignment = .right
         translatesAutoresizingMaskIntoConstraints = false
         
@@ -54,12 +88,23 @@ class DetailsView: UIView {
         bottomStackView.distribution = .equalCentering
         addSubview(textFieldStackView)
         
+        
+        attentionStackView = UIStackView(arrangedSubviews: [attentionImage,
+                                                           attentionLabel],
+                                         axis: .horizontal,
+                                         spacing: 4)
+        attentionStackView.translatesAutoresizingMaskIntoConstraints = false
+        attentionStackView.alpha = 0
+        addSubview(attentionStackView)
+        
+        
         relevanceStackview = UIStackView(arrangedSubviews: [relevanceLabel,
                                                            relevanceValueLabel],
                                          axis: .vertical,
                                          spacing: 0)
         relevanceStackview.translatesAutoresizingMaskIntoConstraints = false
         addSubview(relevanceStackview)
+        
         
         scoreStackView = UIStackView(arrangedSubviews: [scoreLabel,
                                                        scoreValueLabel],
@@ -68,7 +113,8 @@ class DetailsView: UIView {
         scoreStackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(scoreStackView)
         
-    
+        newItemTextField.addTarget(self, action: #selector(self.setTextfieldKern), for: .allEditingEvents)
+        
     }
     
     override init(frame: CGRect) {
@@ -87,37 +133,103 @@ class DetailsView: UIView {
 //    }
     
     public func configureForNewItem(comparisonEntity: ComparisonEntity) {
-        comparisonModel = comparisonEntity
+        self.comparisonEntity = comparisonEntity
+        
+        switch comparisonEntity.itemsArray.count {
+        case 0: itemColorName = specialColors[0]
+            
+        case 1...:
+            
+            let lastColor = comparisonEntity.itemsArray.first?.color ?? specialColors[0]
+            let currentColorIndex = specialColors.firstIndex(of: lastColor)
+            itemColorName = specialColors[(currentColorIndex! + 1) % specialColors.count]
+        default:
+            itemColorName = specialColors.first
+        }
+        
 //        comparisonScore = 75
-        comparisonPluses = 3
-        comparisonMinuses = 1
-        comparisonRelevance = 75
+//        comparisonPluses = 0
+//        comparisonMinuses = 0
+//        comparisonRelevance = 0
         
         newItemTextField.delegate = self
-        newItemTextField.addTarget(self, action: #selector(self.setTextfieldKern), for: .allEditingEvents)
         newItemTextField.text = ""
+        newItemTextField.returnKeyType = .done
+        
+        newItemTextField.addTarget(self, action: #selector(textfieldEditingDidEnd), for: .editingDidEnd)
         
         comparisonNameLabel.text = comparisonEntity.unwrappedName//itemModel.comparison?.unwrappedName
         relevanceValueLabel.text = "\(comparisonRelevance)%"
         scoreValueLabel.text = "\(comparisonPluses)/\(comparisonMinuses)"
+        
+        newItemTextField.addTarget(self, action: #selector(isNameForNewItemExists), for: .editingChanged)
+        
+        
+        backgroundColor = UIColor(named: itemColorName ?? "sixGreenMagicMint")
+    }
+    
+    @objc private func textfieldEditingDidEnd() {
+        let itemName = newItemTextField.text ?? ""
+        
+        detailsViewDelegate?.itemNameDidSet(name: itemName)        
     }
     
     public func configureForExistedItem(comparisonItem: ComparisonItemEntity) {
         newItemTextField.delegate = self
-        newItemTextField.addTarget(self, action: #selector(self.setTextfieldKern), for: .allEditingEvents)
-        itemModel = comparisonItem
+        newItemTextField.returnKeyType = .done
+        
+        newItemTextField.addTarget(self, action: #selector(isNameUsedForExist), for: .editingChanged)
+        
+        newItemTextField.addTarget(self, action: #selector(saveNewNameForExist), for: .editingDidEnd)
+        
+        itemEntity = comparisonItem
+        comparisonEntity = comparisonItem.comparison ?? ComparisonEntity()
+        backgroundColor = UIColor(named: itemEntity.color ?? "sixGreenMagicMint")
         comparisonNameLabel.text = comparisonItem.comparison?.unwrappedName
-//        newItemTextField.text = comparisonItem.unwrappedName
+        
+        comparisonRelevance = itemEntity.getRelevance
+        relevanceValueLabel.attributedText = NSMutableAttributedString(string: "\(comparisonRelevance)%", attributes: [NSAttributedString.Key.kern: -4])
+        let plusesMinuses = itemEntity.getPlusesAndValues
+        scoreValueLabel.text = "\(plusesMinuses[0])/\(plusesMinuses[1])"
+        
         newItemTextField.attributedText = NSMutableAttributedString(string: comparisonItem.unwrappedName,
                                                                     attributes:
                                                                        [NSAttributedString.Key.kern: -1.37])
     }
     
-//    public func savingData() {
-//        
-//    }
+    @objc func saveNewNameForExist(){
+        
+        let actualName = itemEntity.unwrappedName
+        let newItemName = newItemTextField.text ?? ""
+        
+        if actualName != newItemName {
+            
+            detailsViewDelegate?.itemNameDidChanged(newName: newItemName)
+        }
+    }
     
+    
+    public func refreshLabels() {
+        let plusesMinuses = itemEntity.getPlusesAndValues
+        let relevance = itemEntity.getRelevance
+        
+        UIView.animate(withDuration: 0.2) {
+//            self.relevanceValueLabel.transform = .init(scaleX: 0.9, y: 0.9)
+            self.relevanceValueLabel.alpha = 0.2
+            
+        } completion: { Bool in
+            
+            self.scoreValueLabel.text = "\(plusesMinuses[0])/\(plusesMinuses[1])"
+            UIView.animate(withDuration: 0.1
+            ) {
+                self.relevanceValueLabel.alpha = 1
+                self.relevanceValueLabel.attributedText = NSAttributedString(string: "\(relevance)%", attributes:           [NSAttributedString.Key.kern: -4])
+//                self.relevanceValueLabel.transform = .identity
+            }
+        }
+    }
 }
+
 
 extension DetailsView {
     private func setConstraints() {
@@ -127,6 +239,9 @@ extension DetailsView {
             textFieldStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             textFieldStackView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.212),
             textFieldStackView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
+            
+            attentionStackView.topAnchor.constraint(equalTo: textFieldStackView.bottomAnchor, constant: 3),
+            attentionStackView.leadingAnchor.constraint(equalTo: textFieldStackView.leadingAnchor),
             
             newItemTextField.heightAnchor.constraint(equalToConstant: 40),
             newItemTextField.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
@@ -143,6 +258,8 @@ extension DetailsView {
 }
 
 
+
+//MARK: Textfield
 extension DetailsView: UITextFieldDelegate {
     @objc private func setTextfieldKern(_ sender: Any) {
         let textfield = sender as! UITextField
@@ -150,5 +267,31 @@ extension DetailsView: UITextFieldDelegate {
         textfield.attributedText = NSMutableAttributedString(string: textfieldText,
                                                              attributes:
                                                                 [NSAttributedString.Key.kern: -1.37])
+    }
+    
+    @objc private func isNameUsedForExist(_ sender: Any) {
+        let actualName = itemEntity.unwrappedName
+        let textfield = sender as! UITextField
+        let namesArray: [String] = comparisonEntity.itemsArray.map { $0.unwrappedName }
+        guard let textfieldText = textfield.text else { return }
+        
+        let isNameUsed = namesArray.contains(textfieldText) && textfieldText != actualName
+        
+        
+        
+        attentionStackView.alpha = isNameUsed ? 1 : 0
+        
+    }
+    
+    @objc private func isNameForNewItemExists(_ sender: Any) {
+        
+        let textfield = sender as! UITextField
+        let namesArray: [String] = comparisonEntity.itemsArray.map { $0.unwrappedName }
+        guard let textfieldText = textfield.text else { return }
+        
+        let isNameUsed = namesArray.contains(textfieldText)
+        
+        attentionStackView.alpha = isNameUsed ? 1 : 0
+        
     }
 }

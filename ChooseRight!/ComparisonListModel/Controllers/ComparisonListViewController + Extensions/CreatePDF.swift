@@ -38,12 +38,9 @@ extension ComparisonListViewController {
             
             for item in myData {
                 if yOffset + 50 + margin * 2 > pageHeight {
-                    print("page is full. New page begins")
                     context.beginPage()
                     yOffset = 0
                 }
-                
-                
                 
                 let frame = CGRect(
                     x: margin,
@@ -59,10 +56,7 @@ extension ComparisonListViewController {
                 
                 yOffset += 50 + margin
                 
-                print("yOffset = \(yOffset), page height = \(pageHeight)")
                 context.beginPage()
-        
-        
             }
         }
         

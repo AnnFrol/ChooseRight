@@ -1,4 +1,5 @@
 import UIKit
+import Foundation
 
 struct itemSortKeys {
     let name = "name"
@@ -37,6 +38,7 @@ extension ComparisonListViewController {
             self.sharePdf(pdfURL: pdfFile)
         })
         
+        
         let shareLinkAction = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up"), handler: { _ in
             // Always use file for sharing
             guard let shareFile = ComparisonSharingService.createShareFile(from: self.comparisonEntity) else {
@@ -51,7 +53,7 @@ extension ComparisonListViewController {
                 return
             }
             
-            let shareText = "Check out this comparison from ChooseRight!"
+            let shareText = "Check out this comparison from ChooseRight! https://apps.apple.com/app/id6758289216"
             let activityViewController = UIActivityViewController(activityItems: [shareText, shareFile], applicationActivities: nil)
             
             if let popover = activityViewController.popoverPresentationController {
@@ -63,12 +65,10 @@ extension ComparisonListViewController {
             self.present(activityViewController, animated: true)
         })
         
-        let deleteListAction = UIAction(title: "Delete list", image: UIImage(systemName: "trash"), attributes: .destructive, handler: { _ in
-            
-            self.navigationController?.popViewController(animated: true)
-            print("delete \(self.comparisonEntity.unwrappedName)")
-            
-            })
+        let deleteListAction = UIAction(title: "Delete list", image: UIImage(systemName: "trash"), attributes: .destructive, handler: { [weak self] _ in
+            guard let self = self else { return }
+            self.showDeleteComparisonAlert()
+        })
         
         
 //        let verticalOrientationAction = UIAction(title: "Vertical", image: UIImage(named: "arrowDown"), state: .on, handler: { _ in
@@ -91,26 +91,14 @@ extension ComparisonListViewController {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.showToast(message: "Shake to reorder", icon: UIImage(named:"shakeMotion"), duration: 1.5)
                 }
-//            }
-            
-
-            print("Percent")
-            print(self.currentSortKey)
         })
         
         let dateSortingAction = UIAction(title: "Created", state: currentSortKey == itemSortKeys().date ? .on : .off, handler: { _ in
-            
             self.updateSortKey(itemSortKeys().date)
-            print("Time")
-            print(self.currentSortKey)
-
         })
         
         let nameSortingAction = UIAction(title: "Name", state: currentSortKey == itemSortKeys().name ? .on : .off, handler: { _ in
-            
             self.updateSortKey("name")
-            print("Name")
-            print(self.currentSortKey)
         })
         
         let sortingSubMenu = UIMenu(title: "Sort", options: .displayInline, children: [
@@ -132,17 +120,47 @@ extension ComparisonListViewController {
     //MARK setupAttributesCellMenu
     func setupAttributesCellMenu(attribute: ComparisonAttributeEntity) {
         let changeAttributesNameAction = UIAction(title: "Edit attribute", handler: { _ in
-            print("Change name pressed")
         })
         
         let deleteAttributeAction = UIAction(title: "Delete attribute", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
-         
-            print("Delete attribute tapped")
         }
         
         attributeCellMenu = UIMenu(title: "attribute name", image: nil,
                                    children: [changeAttributesNameAction, deleteAttributeAction])
         
         
+    }
+    
+    //MARK: - Delete Comparison
+    func showDeleteComparisonAlert() {
+        let alert = UIAlertController(
+            title: "Delete comparison?",
+            message: "This action cannot be undone.",
+            preferredStyle: .actionSheet
+        )
+        
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+            guard let self = self else { return }
+            self.deleteComparison()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        // Configure popover for iPad
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = self.view
+            popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    private func deleteComparison() {
+        // Удаляем сравнение из базы данных
+        sharedData.deleteComparison(comparison: comparisonEntity)
+        
+        // Возвращаемся на главный экран
+        navigationController?.popViewController(animated: true)
     }
 }

@@ -20,7 +20,8 @@ class AttributesTableView: UITableView {
     }
         
     private func configure() {
-        bounces = false
+        clipsToBounds = false
+        bounces = true
         backgroundColor = .clear
         separatorStyle = .none
         showsVerticalScrollIndicator = false

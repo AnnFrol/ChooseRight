@@ -86,7 +86,6 @@ class ObjectTableViewCellPreview: UIView {
             self.layoutIfNeeded()
         }
         
-        print("relevanceValue = \(relevanceLabelText), sizeMultiplier = \(circleDiameter)")
     }
     
     public func configureCell(comparisonItemEntity: ComparisonItemEntity) {
@@ -106,7 +105,6 @@ class ObjectTableViewCellPreview: UIView {
         progressLabelInCircle.text = relevanceLabelText
         
         
-        print("Label text: \(labelText), shorted: \(labelTextShorted)")
         
         circleBackgroundColor = UIColor(named: comparisonItem?.color ?? "sixGreenMagicMint") ?? UIColor.white
         circleView.backgroundColor = circleBackgroundColor
@@ -131,7 +129,6 @@ class ObjectTableViewCellPreview: UIView {
             else { multiplier = 1.5 }
         }
         
-        print("isViewCollapsed = \(isViewCollapsed)")
         
         let relevance = Double(relevanceValue)
         
@@ -140,7 +137,6 @@ class ObjectTableViewCellPreview: UIView {
                     let calculatedSize = minUIRelevance + (relevance / 100) * (maxUIRelevance * multiplier + minUIRelevance)
         
         
-        print("viewSize = \(self.frame), item = \(comparisonItem?.unwrappedName ?? "nil"), maxUIRelevance = \(maxUIRelevance), minUIRelevance = \(minUIRelevance), calculatedSize = \(calculatedSize) ")
         return calculatedSize
     }
     
@@ -171,8 +167,6 @@ class ObjectTableViewCellPreview: UIView {
         
 //        objectTableViewCellDelegate?.refreshCellWhenValueChanges()
 
-//        print("circle height: \(circleView.frame.size.height), circle width \(circleView.frame.size.width)")
-//        print("cornerRadius: ",circleView.layer.cornerRadius)
         
 
     }
@@ -256,7 +250,6 @@ extension ObjectTableViewCellPreview {
             
 
         ])
-        print("Circle radius in setConstraints func finish: ", circleDiameter)
 
     }
 }

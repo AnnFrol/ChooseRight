@@ -56,7 +56,6 @@ extension ComparisonListViewController {
             self.objectTableView.reloadData()
             self.valuesCollectionView.reloadData()
         } catch {
-            print("Items fetch failed, invalid controller")
         }
     }
     
@@ -77,10 +76,8 @@ extension ComparisonListViewController {
         do {
             try comparisonAttributesFetchResultsController.performFetch()
             
-            print("Attribues count: ", comparisonAttributesFetchResultsController.fetchedObjects?.count as Any)
 //            self.attributesCollectionView.reloadData()
         } catch {
-            print("Attributes fetch failed, invalid controller")
         }
     }
     
@@ -100,10 +97,8 @@ extension ComparisonListViewController {
         }
         do {
             try comparisonValuesFetchResultsController.performFetch()
-            print("Values count: \(comparisonValuesFetchResultsController.fetchedObjects?.count as Any)")
 //            self.valuesCollectionView.reloadData()
         } catch {
-            print("Values fetch failed, invalid controller")
         }
     }
 }

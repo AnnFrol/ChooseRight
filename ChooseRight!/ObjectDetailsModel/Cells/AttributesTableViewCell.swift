@@ -7,23 +7,20 @@
 
 import UIKit
 
+protocol attributesTableViewCellDelegate: AnyObject {
+    func didTapValueButton(cell: AttributesTableViewCell)
+    func contextMenuInteractionWasCalled(cell: UITableViewCell, indexPath: IndexPath)
+}
+
 class AttributesTableViewCell: UITableViewCell {
     
-    private var attributesArray = [ComparisonAttributeEntity]()
-
+    weak var delegate: attributesTableViewCellDelegate?
+    
     private let attributeNameLabel = UILabel(attributeLabelText: "Expences")
-//    private let attributeValueLabel = UILabel(detailsTableValueLabel: "+")
-//    private let attributeValueButton = ChangeValueButton(title: " + ")
-    private lazy var attributeValueButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("+", for: .normal)
-        button.layer.cornerRadius = 10
-        button.backgroundColor = .clear
-        button.translatesAutoresizingMaskIntoConstraints = false
-//        button.titleEdgeInsets = .init(top: 0, left: 40, bottom: 0, right: 0)
-        button.tintColor = .specialColors.text
+
+    private lazy var attributeValueButton: PlusMinusButton = {
+        let button = PlusMinusButton(type: .system)
         button.titleLabel?.font = .sfProTextRegular23()
-        button.alpha = 0.6
         return button
     }() 
 
@@ -43,45 +40,48 @@ class AttributesTableViewCell: UITableViewCell {
     }
 
     private func setupViews() {
-        backgroundColor = .clear
+        layer.cornerRadius = 10
+        backgroundColor = .specialColors.background
+        clipsToBounds = false
 
-        attributeValueButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        attributeValueButton.addTarget(self, 
+                                       action: #selector(buttonTapped),
+                                       for: .touchUpInside)
+        
         cellStackView = UIStackView(arrangedSubviews: [attributeNameLabel,
-//                                                       attributeValueLabel,
-                                                       attributeValueButton
-                                                      ],
+                                                       attributeValueButton],
                                     axis: .horizontal,
-                                    spacing: 140)
+                                    spacing: 30)
+        
         cellStackView.distribution = .equalSpacing
         cellStackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(cellStackView)
     }
-    
-    public func configure(comparisonAttribute: ComparisonAttributeEntity) {
-        
-//        attributeNameLabel
-    }
 
     @objc private func buttonTapped() {
-        if attributeValueButton.titleLabel?.text == "+" {
-            attributeValueButton.setTitle("-", for: .normal)
-            print(attributeValueButton.titleLabel?.text as Any)
-        } else {
-            attributeValueButton.setTitle("+", for: .normal)
-            print(attributeValueButton.titleLabel?.text as Any)
-        }
+        
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
+        
+        self.delegate?.didTapValueButton(cell: self)
+    }
+    
+    
+    func updateButtonTitle(isValueTrue: Bool) {
+        self.attributeValueButton.updateTitle(isValueTrue: isValueTrue)
+    }
+    
+    func updateAttributeName(name: String) {
+        attributeNameLabel.text = name
     }
 }
-
 
 extension AttributesTableViewCell {
     private func setConstraints() {
         NSLayoutConstraint.activate([
 
             cellStackView.topAnchor.constraint(equalTo: topAnchor, constant: 0),
-            cellStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant:  0),
+            cellStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant:  10),
             cellStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
             cellStackView.bottomAnchor.constraint(equalTo: bottomAnchor,constant: 0),
 
@@ -89,5 +89,6 @@ extension AttributesTableViewCell {
         ])
     }
 }
+
 
 

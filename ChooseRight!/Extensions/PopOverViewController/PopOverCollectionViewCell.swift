@@ -10,6 +10,8 @@ import UIKit
 
 class PopOverCollectionViewCell: UICollectionViewCell {
     
-    static let id
+    static let idPopOverCollectionViewCell = "idPopOverCollectionViewCell"
+    
+    
     
 }

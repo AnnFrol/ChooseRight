@@ -30,13 +30,13 @@ class AttributesCollectionViewCell: UICollectionViewCell {
     
     lazy var deleteButton: UIButton = {
         let view = UIButton()
-        let config = UIImage.SymbolConfiguration(pointSize: 20)
+        let config = UIImage.SymbolConfiguration(pointSize: 19)
         view.setImage(UIImage(systemName: "xmark.circle.fill", withConfiguration: config), for: .normal)
-        view.tintColor = .specialColors.detailsOptionTableText
+        view.tintColor = #colorLiteral(red: 0.8039381504, green: 0.8354540467, blue: 0.97239393, alpha: 1)
         view.backgroundColor = .clear
         view.layer.masksToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.alpha = 0.7
+        view.alpha = 1
         view.isHidden = !isEditing
         return view
     }()
@@ -56,9 +56,9 @@ class AttributesCollectionViewCell: UICollectionViewCell {
     private func setupView() {
         
 //        translatesAutoresizingMaskIntoConstraints = false
-        
-        backgroundColor = .clear
-        clipsToBounds = false
+        layer.cornerRadius = 10
+        backgroundColor = .specialColors.background
+        clipsToBounds = true
         addSubview(attributeLabel)
         
         addSubview(deleteButton)
@@ -74,11 +74,15 @@ extension AttributesCollectionViewCell {
     private func setConstraints() {
         NSLayoutConstraint.activate([
             
-            attributeLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+//            attributeLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             attributeLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            attributeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
+            attributeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
             
             deleteButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             deleteButton.topAnchor.constraint(equalTo: topAnchor)
-        ])    
+//            deleteButton.trailingAnchor.constraint(equalTo: attributeLabel.trailingAnchor),
+//            deleteButton.bottomAnchor.constraint(equalTo: attributeLabel.topAnchor)
+        ])
     }
 }

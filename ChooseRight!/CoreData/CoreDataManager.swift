@@ -8,6 +8,20 @@
 import UIKit
 import CoreData
 
+public struct ImportedTableData {
+    public let items: [String]
+    public let attributes: [String]
+    public let values: [[String]] // values[row][column] - значения для каждого айтема
+    public let firstHeader: String? // Заголовок первого столбца (если есть)
+    
+    public init(items: [String], attributes: [String], values: [[String]], firstHeader: String? = nil) {
+        self.items = items
+        self.attributes = attributes
+        self.values = values
+        self.firstHeader = firstHeader
+    }
+}
+
 struct EntityNames {
     let comparison = "ComparisonEntity"
     let item = "ComparisonItemEntity"
@@ -63,14 +77,12 @@ extension CoreDataManager {
         
         let count = comparisons?.count ?? 0
         if count > 0 {
-            print("Name already used")
             return nil
         } else {
             //Creating comparison
             guard let comparisonEntityDescription = NSEntityDescription.entity(
                 forEntityName: entity.comparison,
                 in: viewContext) else {
-                print("ERROR: Name unused, but create failed by another cause")
                 return nil
             }
             let date = Date().getLocalDate()
@@ -80,7 +92,6 @@ extension CoreDataManager {
             comparison.date = date
             comparison.color = color
             appDelegate.saveContext()
-            print("\(date)")
             return comparison.id?.uuidString
         }
     }
@@ -94,7 +105,7 @@ extension CoreDataManager {
         do {
             return try viewContext.fetch(fetchRequest)
         } catch {
-            print(error.localizedDescription)
+            // Error fetching comparisons
         }
         return []
     }
@@ -113,7 +124,6 @@ extension CoreDataManager {
     //MARK: Update comparison
     public func updateComparisonName(for comparison: ComparisonEntity, newName: String) -> Bool  {
         //check if name used
-        let oldName = comparison.unwrappedName
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entity.comparison)
         fetchRequest.predicate = NSPredicate(format: "name = %@", newName)
         var comparisons: [ComparisonEntity]?
@@ -124,14 +134,12 @@ extension CoreDataManager {
         let count = comparisons?.count ?? 0
         
         if count > 0 {
-            print("Name already used")
             return false
         } else {
             //updating name
             comparison.name = newName
         }
         appDelegate.saveContext()
-        print("Name \(oldName) changed to \(newName)")
         return true
     }
     
@@ -146,7 +154,6 @@ extension CoreDataManager {
         }
         let count = comparisons?.count ?? 0
         if count > 0 {
-            print("Name already used")
             return false
         } else {
             //updating name
@@ -154,7 +161,6 @@ extension CoreDataManager {
             comparison?.name = newName
         }
         appDelegate.saveContext()
-        print("name changed to \(newName)")
         return true
     }
     
@@ -201,11 +207,9 @@ extension CoreDataManager {
         } else {
             DispatchQueue.main.async {
                 
-                print("Started creating of new values")
                 
                 guard let comparisonItemEntityDescription = NSEntityDescription.entity(forEntityName: self.entity.item, in: self.viewContext)
                 else {
-                    print("Item description was not created")
                     return
                 }
                 
@@ -227,6 +231,35 @@ extension CoreDataManager {
             return true
         }
     }
+    
+    /// Синхронная версия createComparisonItem для импорта данных
+    @discardableResult
+    private func createComparisonItemSync(name: String, relatedComparison: ComparisonEntity, color: String?) -> Bool {
+        // Проверяем, не используется ли имя
+        let comparisonItemNames = relatedComparison.itemsArray.map { $0.unwrappedName }
+        if comparisonItemNames.contains(name) {
+            return false
+        }
+        
+        // Создаем айтем синхронно
+        guard let comparisonItemEntityDescription = NSEntityDescription.entity(forEntityName: entity.item, in: viewContext) else {
+            return false
+        }
+        
+        let date = Date().getLocalDate()
+        let comparisonItem = ComparisonItemEntity(entity: comparisonItemEntityDescription, insertInto: viewContext)
+        comparisonItem.id = UUID()
+        comparisonItem.name = name
+        comparisonItem.color = color
+        comparisonItem.date = date
+        comparisonItem.comparison = relatedComparison
+        appDelegate.saveContext()
+        
+        addValuesForItem(item: comparisonItem)
+        
+        return true
+    }
+    
     
 //    public func createAndGetComparisonItem(name: String, relatedComparison: ComparisonEntity) -> ComparisonItemEntity? {
 //
@@ -263,7 +296,6 @@ extension CoreDataManager {
         fetchRequest.predicate = NSPredicate(format: "comparison == %@", relatedComparison)
         do {
             guard let items = try? viewContext.fetch(fetchRequest) as? [ComparisonItemEntity] else {
-                print("fetch is nil")
                 return []}
             return items
         }
@@ -351,7 +383,6 @@ extension CoreDataManager {
                 
                 //create attribute
                 guard let attributeEntityDescription = NSEntityDescription.entity(forEntityName: self.entity.attribute, in: self.viewContext) else {
-                    print("Attribute description was not created")
                     return
                 }
                 
@@ -375,23 +406,28 @@ extension CoreDataManager {
     
     public func createAndGetComparisonAttribute(name: String, relatedComparison: ComparisonEntity) -> ComparisonAttributeEntity? {
         
-        //check if name is used
-        let attributeNames = relatedComparison.attributesArray.map { $0.unwrappedName }
+        // Очищаем имя от пробелов
+        let cleanedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanedName.isEmpty else { return nil }
         
-        if attributeNames.contains(name) {
+        // Проверяем, используется ли имя (case-insensitive для надежности)
+        let attributeNames = relatedComparison.attributesArray.map { 
+            $0.unwrappedName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        }
+        
+        if attributeNames.contains(cleanedName.lowercased()) {
             return nil
         } else {
             
-            //create attribute
+            // Создаем атрибут
             guard let attributeEntityDescription = NSEntityDescription.entity(forEntityName: entity.attribute, in: viewContext) else {
-                print("Attribute description was not created")
                 return nil
             }
             
             let date = Date().getLocalDate()
             let comparisonAttribute = ComparisonAttributeEntity(entity: attributeEntityDescription, insertInto: viewContext)
             comparisonAttribute.id = UUID()
-            comparisonAttribute.name = name
+            comparisonAttribute.name = cleanedName // Используем очищенное имя
             comparisonAttribute.date = date
             comparisonAttribute.comparison = relatedComparison
             appDelegate.saveContext()
@@ -407,7 +443,6 @@ extension CoreDataManager {
         fetchRequest.predicate = NSPredicate(format: "comparison == %@", relatedComparison)
         do {
             guard let attributes = try? viewContext.fetch(fetchRequest) as? [ComparisonAttributeEntity] else {
-                print("fetch is nil")
                 return []
             }
             return attributes
@@ -420,7 +455,6 @@ extension CoreDataManager {
         fetchRequest.predicate = NSPredicate(format: "comparison == %@ && name == %@", relatedComparison, name)
         do {
             guard let attributes = try? viewContext.fetch(fetchRequest) as? [ComparisonAttributeEntity] else {
-                print("fetch is nil")
                     return nil
                     }
             return attributes.first
@@ -428,6 +462,11 @@ extension CoreDataManager {
         
         
     }
+    
+    public func fetchComparisonAttribute(name: String, relatedComparison: ComparisonEntity) -> ComparisonAttributeEntity? {
+        return fetchAttributeWithName(relatedComparison: relatedComparison, name: name)
+    }
+
     
     //MARK: Update comparisonAttribute
     public func updateComparisonAttributeName(for attribute: ComparisonAttributeEntity, newName: String) -> Bool {
@@ -461,7 +500,6 @@ extension CoreDataManager {
     public func createComparisonValue(item: ComparisonItemEntity, attribute: ComparisonAttributeEntity) -> Bool {
         
         guard let attributeEntityDescription = NSEntityDescription.entity(forEntityName: entity.value, in: viewContext) else {
-            print("Value attribute description wasn`t create")
             return false
         }
         
@@ -483,8 +521,7 @@ extension CoreDataManager {
         fetchRequest.predicate = predicate
         do {
             guard let values = try? viewContext.fetch(fetchRequest) as? [ComparisonValueEntity] else {
-                print("Values fetch result is nil")
-                return [ComparisonValueEntity()]
+                return []
             }
             return values
         }
@@ -499,7 +536,6 @@ extension CoreDataManager {
         fetchRequest.predicate = compoundPredicate
         do {
             guard let value = try? viewContext.fetch(fetchRequest) as? [ComparisonValueEntity] else {
-                print("fetch is nil")
                 return ComparisonValueEntity()
             }
             return value.first ?? ComparisonValueEntity()
@@ -527,6 +563,12 @@ extension CoreDataManager {
 
     }
     
+    //MARK: Update Value
+    public func updateValue(value: ComparisonValueEntity, booleanValue: Bool) {
+        value.value = booleanValue
+        appDelegate.saveContext()
+    }
+    
     //MARK: Delete value
     public func deleteValue(value: ComparisonValueEntity) {
         do {
@@ -546,9 +588,8 @@ extension CoreDataManager {
             return
         }
         for attribute in attributes {
-            let valueSavingResult = createComparisonValue(item: item, attribute: attribute)
+            _ = createComparisonValue(item: item, attribute: attribute)
             appDelegate.saveContext()
-            print("value created: \(valueSavingResult)")
         }
     }
     
@@ -557,9 +598,162 @@ extension CoreDataManager {
             return
         }
         for item in items {
-            let valueSavingresult = createComparisonValue(item: item, attribute: attribute)
-            print("value created: \(valueSavingresult)")
+            _ = createComparisonValue(item: item, attribute: attribute)
         }
+    }
+}
+
+//MARK: - Table Import
+extension CoreDataManager {
+    
+    /// Импортирует таблицу в сравнение
+    /// - Parameters:
+    ///   - comparison: Сравнение, в которое импортируются данные
+    ///   - data: Данные таблицы (айтемы, атрибуты, значения)
+    /// - Returns: Кортеж с количеством созданных айтемов и атрибутов
+    @discardableResult
+    public func importTableData(
+        to comparison: ComparisonEntity,
+        data: ImportedTableData
+    ) -> (itemsCount: Int, attributesCount: Int) {
+        
+        var createdAttributes: [ComparisonAttributeEntity] = []
+        var createdItems: [ComparisonItemEntity] = []
+        
+        // 1. Создаем атрибуты (если их еще нет)
+        // Важно: используем синхронную версию для импорта, чтобы сохранить порядок
+        // Обновляем контекст перед проверкой
+        viewContext.refresh(comparison, mergeChanges: true)
+        
+        for attributeName in data.attributes {
+            // Очищаем имя атрибута от пробелов
+            let cleanedName = attributeName.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !cleanedName.isEmpty else { continue }
+            
+            // Проверяем существующие атрибуты (case-insensitive сравнение для надежности)
+            let existingAttributes = comparison.attributesArray.filter { 
+                $0.unwrappedName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == cleanedName.lowercased()
+            }
+            
+            if let existing = existingAttributes.first {
+                // Используем существующий атрибут
+                createdAttributes.append(existing)
+            } else {
+                // Создаем новый атрибут синхронно (используем createAndGetComparisonAttribute)
+                if let newAttribute = createAndGetComparisonAttribute(name: cleanedName, relatedComparison: comparison) {
+                    // НЕ вызываем addValuesForAttribute здесь, так как значения будут созданы позже
+                    // в цикле установки значений, и это позволит установить правильные значения из data.values
+                    createdAttributes.append(newAttribute)
+                    // Обновляем контекст после создания, чтобы изменения были видны
+                    viewContext.refresh(comparison, mergeChanges: true)
+                }
+            }
+        }
+        
+        // 2. Создаем айтемы (если их еще нет)
+        // Генерируем разные цвета для каждого нового айтема
+        var colorIndex = 0
+        
+        for itemName in data.items {
+            // Обновляем контекст перед проверкой существующих айтемов
+            viewContext.refresh(comparison, mergeChanges: true)
+            
+            let existingItems = comparison.itemsArray.filter { $0.unwrappedName == itemName }
+            
+            if let existing = existingItems.first {
+                createdItems.append(existing)
+            } else {
+                // Генерируем цвет для нового айтема (циклически используем доступные цвета)
+                let itemColor = specialColors[colorIndex % specialColors.count]
+                colorIndex += 1
+                
+                // Создаем новый айтем синхронно (для импорта)
+                // Сначала создаем айтем напрямую, чтобы получить ссылку на него
+                guard let comparisonItemEntityDescription = NSEntityDescription.entity(forEntityName: entity.item, in: viewContext) else {
+                    continue // Пропускаем, если не удалось создать описание
+                }
+                
+                let date = Date().getLocalDate()
+                let comparisonItem = ComparisonItemEntity(entity: comparisonItemEntityDescription, insertInto: viewContext)
+                comparisonItem.id = UUID()
+                comparisonItem.name = itemName
+                comparisonItem.color = itemColor
+                comparisonItem.date = date
+                comparisonItem.comparison = comparison
+                
+                // Сохраняем контекст
+                appDelegate.saveContext()
+                
+                // Добавляем значения для айтема
+                addValuesForItem(item: comparisonItem)
+                
+                // Добавляем созданный айтем в список
+                createdItems.append(comparisonItem)
+            }
+        }
+        
+        // 3. Устанавливаем значения для айтемов
+        // Важно: используем порядок из data.items, а не из createdItems
+        for (dataIndex, itemName) in data.items.enumerated() {
+            guard dataIndex < data.values.count else { continue }
+            
+            // Находим соответствующий айтем по имени
+            guard let item = createdItems.first(where: { $0.unwrappedName == itemName }) else { continue }
+            
+            let itemValues = data.values[dataIndex]
+            
+            for (attrIndex, attribute) in createdAttributes.enumerated() {
+                guard attrIndex < itemValues.count else { continue }
+                
+                // Очищаем значение от всех пробелов и невидимых символов
+                var valueText = itemValues[attrIndex].trimmingCharacters(in: .whitespacesAndNewlines)
+                valueText = valueText.replacingOccurrences(of: "\u{200B}", with: "") // Zero-width space
+                valueText = valueText.replacingOccurrences(of: "\u{FEFF}", with: "") // Zero-width no-break space
+                valueText = valueText.replacingOccurrences(of: "\u{00A0}", with: "") // Non-breaking space
+                valueText = valueText.trimmingCharacters(in: .whitespacesAndNewlines)
+                
+                let boolValue = parseBooleanValue(valueText)
+                
+                // Получаем или создаем значение
+                var value = fetchValue(item: item, attribute: attribute)
+                
+                // Проверяем, существует ли значение (проверяем по item, так как fetchValue может вернуть пустой объект)
+                // id не опциональный, поэтому проверяем через item
+                let valueExists = value.item != nil
+                
+                // Если значение не существует, создаем его
+                if !valueExists {
+                    _ = createComparisonValue(item: item, attribute: attribute)
+                    value = fetchValue(item: item, attribute: attribute)
+                }
+                
+                // Устанавливаем значение (даже если оно только что создано с false, обновим его на правильное)
+                updateValue(value: value, booleanValue: boolValue)
+            }
+        }
+        
+        return (itemsCount: createdItems.count, attributesCount: createdAttributes.count)
+    }
+    
+    /// Преобразует текстовое значение в boolean
+    private func parseBooleanValue(_ value: String) -> Bool {
+        let normalized = value.trimmingCharacters(in: .whitespaces)
+        
+        // Пустые значения = false
+        if normalized.isEmpty {
+            return false
+        }
+        
+        // Отрицательные значения (явно обрабатываем)
+        let negativeValues = ["-", "нет", "no", "0", "false", "✗", "✕", "x", "n", "отсутствует"]
+        if negativeValues.contains(normalized.lowercased()) {
+            return false
+        }
+        
+        // Положительные значения
+        let positiveValues = ["+", "да", "yes", "1", "true", "✓", "✔", "v", "y", "есть"]
+        
+        return positiveValues.contains(normalized.lowercased())
     }
 }
 

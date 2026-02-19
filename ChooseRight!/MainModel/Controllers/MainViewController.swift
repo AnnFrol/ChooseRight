@@ -13,18 +13,6 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     
     var dismissGesture = UITapGestureRecognizer()
     
-    let notchView: UILabel = {
-        let label = UILabel()
-        label.text = "    Choose Right!    "
-        label.font = .sfProDisplaySemibold12()
-        label.backgroundColor = .specialColors.threeBlueLavender
-        label.textColor = .specialColors.detailsMainLabelText
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.layer.cornerRadius = 20
-        label.clipsToBounds = true
-        return label
-    }()
-    
     let warningMessageEmoji = ["😉", "💁‍♂️", "👻", "🙀", "🥈", "🚧", "❣️", "🥸", "👯", "🙃", "🧐", "🤓", "🤔"]
     
     weak var saveButtonInAlertChanged: UIAlertAction?
@@ -85,20 +73,11 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
         return label
     }()
     
-    let placeholderArrowImageView: UIImageView = {
-        let view = UIImageView()
-        view.image = UIImage(named: "MainViewPlaceholder")?.withTintColor(.specialColors.detailsOptionTableText ?? .lightText, renderingMode: .alwaysOriginal)
-        view.alpha = 1
-        //        view.tintColor = .specialColors.detailsOptionTableText
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     var cellMenu = UIMenu()
     
     private let mainLabel: UILabel = {
         let label = UILabel()
-        label.attributedText = NSMutableAttributedString(string: "Choose Right",
+        label.attributedText = NSMutableAttributedString(string: "Choose Right!",
                                                          attributes:
                                                             [NSAttributedString.Key.kern: -1.37])
         label.font = .sfProTextBold33()
@@ -110,8 +89,12 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     lazy var settingsButton: UIButton = {
         let button = UIButton()
         button.tintColor = UIColor(named: "specialText")
-        let image = UIImage(named: "optionButton")
+        let image = UIImage(systemName: "ellipsis")
         button.setImage((image), for: .normal)
+        
+        let config = UIImage.SymbolConfiguration(pointSize: 26, weight: .regular)
+        button.setPreferredSymbolConfiguration(config, forImageIn: .normal)
+        
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -172,12 +155,6 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
         setBottomInset()
         setDelegate()
         
-        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? "")
-        
-        if let constant = self.titleStackTopAnchor?.constant {
-            print(constant, "mainLabelTop")
-        }
-        
         self.addButton.layer.cornerRadius = self.addButton.frame.height / 2
         
         NotificationCenter.default.addObserver(self, selector: #selector(updateMenu), name: .didChangeTheme, object: nil)
@@ -203,8 +180,6 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
         placeholderLabel.isUserInteractionEnabled = true
         addGestureToPlaceholder()
         
-        view.addSubview(placeholderArrowImageView)
-        
         view.backgroundColor = .specialColors.background
         
         view.addSubview(tableView)
@@ -218,9 +193,6 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
         settingsButton.addTarget(self, action: #selector(showMenu), for: .touchUpInside)
         view.addSubview(addButton)
         
-        view.addSubview(notchView)
-        notchView.layer.cornerRadius = 8
-        
         updateMenu()
         
     }
@@ -232,14 +204,10 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     }
     
     @objc func showMenu(_ sender: UIButton) {
-        
-        print("menu pushed, themeIsLight \(ThemeManager.isLightTheme(for: view))")
         let menu = setupSettingsMenu()
         
         sender.menu = menu
         sender.showsMenuAsPrimaryAction = true
-        print("menu pushed, func ended, themeIsLight \(ThemeManager.isLightTheme(for: view))")
-
     }
     
 //    private func createSettingsMenu() {
@@ -301,21 +269,24 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     //MARK: - AddButtonTransitionAnimation
     
     @objc private func addButtonTapped() {
-        
+        showNormalCreateAlert()
+    }
+    
+    private func showNormalCreateAlert() {
         alertConfigurationForCreate()
         
         present(createNewComparisonListAlert ?? UIAlertController(), animated: true) { [weak self] in
-                    guard let self = self else { return }
-        
-                    dismissGesture = UITapGestureRecognizer(
-                        target: self,
-                        action: #selector(dismissCreateAlertGesture))
-        
-                    self.createNewComparisonListAlert?.view.window?.isUserInteractionEnabled = true
-        
+            guard let self = self else { return }
+            
+            dismissGesture = UITapGestureRecognizer(
+                target: self,
+                action: #selector(dismissCreateAlertGesture))
+            
+            self.createNewComparisonListAlert?.view.window?.isUserInteractionEnabled = true
+            
             self.createNewComparisonListAlert?.view.superview?.subviews[0].addGestureRecognizer(dismissGesture)
-                }
-                }
+        }
+    }
         
             @objc func dismissCreateAlertGesture() {
                 createNewComparisonListAlert?.dismiss(animated: true)
@@ -334,47 +305,38 @@ extension MainViewController {
         
         tableViewTopAnchor = tableView.topAnchor.constraint(equalTo: mainLabel.bottomAnchor, constant: 20)
         
+        // Adaptive sizing - same padding for all devices
+        let horizontalPadding: CGFloat = 15
+        
         NSLayoutConstraint.activate([
             
             titleStackTopAnchor!,
-            titleStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
-            titleStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            titleStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: horizontalPadding),
+            titleStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -horizontalPadding),
             titleStackView.heightAnchor.constraint(equalToConstant: 36),
             
-//            mainLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            mainLabel.heightAnchor.constraint(equalToConstant: 36),
-//            mainLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
-            
+            settingsButton.widthAnchor.constraint(equalTo: settingsButton.heightAnchor),
             
             addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -24),
-            addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            addButton.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.17),
-            addButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.17),
+            addButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+            addButton.heightAnchor.constraint(equalToConstant: 64),
+            addButton.widthAnchor.constraint(equalToConstant: 64),
             
             tableViewTopAnchor!,
-            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
-            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: horizontalPadding),
+            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -horizontalPadding),
 //            tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 //            tableView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
             
             placeholderLabel.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.1),
-            placeholderLabel.leadingAnchor.constraint(equalTo: mainLabel.leadingAnchor),
-            placeholderLabel.trailingAnchor.constraint(equalTo: mainLabel.trailingAnchor),
-            placeholderLabel.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: mainLabel.bottomAnchor, multiplier: 25),
-            
-            placeholderArrowImageView.topAnchor.constraint(equalTo: placeholderLabel.bottomAnchor, constant: 40),
-            placeholderArrowImageView.bottomAnchor.constraint(equalTo: addButton.centerYAnchor),
-            placeholderArrowImageView.leadingAnchor.constraint(equalTo: placeholderLabel.leadingAnchor, constant: 10),
-            placeholderArrowImageView.trailingAnchor.constraint(equalTo: addButton.leadingAnchor, constant: -40),
+            placeholderLabel.leadingAnchor.constraint(equalTo: titleStackView.leadingAnchor),
+            placeholderLabel.trailingAnchor.constraint(equalTo: titleStackView.trailingAnchor),
+            placeholderLabel.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -40),
             
             statusBarGradientView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1),
             statusBarGradientView.topAnchor.constraint(equalTo: view.topAnchor),
-            statusBarGradientView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                   
-            notchView.heightAnchor.constraint(equalToConstant: 15),
-            notchView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            notchView.topAnchor.constraint(equalTo: view.topAnchor, constant: 15)
+            statusBarGradientView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
         ])
     }
 }
@@ -426,18 +388,15 @@ extension MainViewController: UITableViewDataSource {
             
             UIView.animate(withDuration: 0.5, animations: {
                 self.placeholderLabel.alpha = 0.6
-                self.placeholderArrowImageView.alpha = 1
             })
             
         case 1...:
 
                 self.placeholderLabel.alpha = 0
-                self.placeholderArrowImageView.alpha = 0
 
         default:
 
                 self.placeholderLabel.alpha = 0
-                self.placeholderArrowImageView.alpha = 0
 
             }
         return comparisonsCount
@@ -496,7 +455,6 @@ extension MainViewController {
                 
                 self.createNameChangingAlert?.view.superview?.subviews[0].addGestureRecognizer(dismissGesture)
             }
-            print(indexPath)
         }
         
         let changeColor = UIAction(title: "Change color", image: UIImage(systemName: "paintpalette")) { [weak self] _ in
@@ -590,7 +548,7 @@ extension MainViewController: UIScrollViewDelegate {
 //MARK: - Working with data
 
 extension MainViewController {
-    private func getData(){
+    func getData(){
         comparisonsArray = sharedDataBase.fetchAllComparisons()
         comparisonsArray.sort { $0.unwrappedDate > $1.unwrappedDate }
         tableViewSectionsCount = comparisonsArray.count//tableView.numberOfSections
@@ -603,7 +561,6 @@ extension MainViewController {
         comparisonsArray.remove(at: index)
         setComparisonsArray(ComparisonEntities: comparisonsArray)
         tableView.reloadData()
-        print("CompArrayCount:", comparisonsArray.count)
     }
     
     public func setComparisonsArray(ComparisonEntities: [ComparisonEntity]) {
@@ -629,14 +586,9 @@ extension MainViewController {
 //MARK: - ComparisonTableViewCellTapped
 extension MainViewController {
     private func cellTapped(comparison: ComparisonEntity) {
-        
-        print("cell tapped")
-        
         let destination = ComparisonListViewController()
         destination.setComparisonEntity(comparison: comparison)
-        notchView.alpha = 0
         navigationController?.pushViewController(destination, animation: true, completion: {
-            destination.notchView.alpha = 1
         })
     }
 }
@@ -679,25 +631,56 @@ extension MainViewController: ObjectDetailsVCProtocol {
         }
         
         // Import comparison
-        if ComparisonSharingService.importComparison(from: url) {
+        let result = ComparisonSharingService.importComparison(from: url)
+        
+        switch result {
+        case .success:
             // Refresh data
             getData()
             
-            // Show success alert
+            // Show success alert with checkmark
+            showImportSuccessAlert()
+            
+        case .failed(let error):
+            var alertTitle = "Error"
+            var alertMessage = "Failed to import comparison"
+            var showSubscription = false
+            
+            switch error {
+            case .limitExceeded:
+                alertTitle = "Limit Exceeded"
+                alertMessage = "You have reached the free limit of 1 comparison. Please upgrade to Premium to import more comparisons."
+                showSubscription = true
+            case .invalidFile:
+                alertMessage = "Could not import the comparison file. Please make sure the file is valid."
+            case .saveError:
+                alertMessage = "Could not save the comparison. Please try again."
+            }
+            
             let alert = UIAlertController(
-                title: "Success",
-                message: "Comparison imported successfully!",
+                title: alertTitle,
+                message: alertMessage,
                 preferredStyle: .alert
             )
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
-        } else {
-            let alert = UIAlertController(
-                title: "Error",
-                message: "Failed to import comparison",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            
+            if showSubscription {
+                alert.addAction(UIAlertAction(title: "Upgrade", style: .default) { [weak self] _ in
+                    guard let self = self else { return }
+                    let subscriptionVC = SubscriptionViewController()
+                    subscriptionVC.modalPresentationStyle = .pageSheet
+                    if #available(iOS 15.0, *) {
+                        if let sheet = subscriptionVC.sheetPresentationController {
+                            sheet.detents = [.large()]
+                            sheet.prefersGrabberVisible = true
+                        }
+                    }
+                    self.present(subscriptionVC, animated: true)
+                })
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            } else {
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+            }
+            
             present(alert, animated: true)
         }
     }

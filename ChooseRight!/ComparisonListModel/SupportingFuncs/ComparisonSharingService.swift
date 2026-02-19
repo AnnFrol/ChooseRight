@@ -99,16 +99,39 @@ class ComparisonSharingService {
         )
     }
     
+    // MARK: - Import result enum
+    enum ImportResult: Equatable {
+        case success
+        case failed(ImportError)
+        
+        enum ImportError: Equatable {
+            case invalidFile
+            case limitExceeded
+            case saveError
+        }
+    }
+    
     // MARK: - Decode and import comparison from URL or file
-    static func importComparison(from url: URL) -> Bool {
+    static func importComparison(from url: URL) -> ImportResult {
         // Handle file import (.chooseright files)
-        if url.pathExtension == "chooseright" {
+        if url.pathExtension.lowercased() == "chooseright" {
+            // For file URLs opened via "Open with", ensure we can access the file
+            var hasAccess = false
+            if url.isFileURL {
+                hasAccess = url.startAccessingSecurityScopedResource()
+            }
+            defer {
+                if hasAccess {
+                    url.stopAccessingSecurityScopedResource()
+                }
+            }
+            
             guard let jsonData = try? Data(contentsOf: url) else {
-                return false
+                return .failed(.invalidFile)
             }
             
             guard let shareData = try? JSONDecoder().decode(ComparisonShareData.self, from: jsonData) else {
-                return false
+                return .failed(.invalidFile)
             }
             
             return createComparison(from: shareData)
@@ -123,27 +146,50 @@ class ComparisonSharingService {
               let encodedString = dataItem.value,
               let base64String = encodedString.removingPercentEncoding,
               let jsonData = Data(base64Encoded: base64String) else {
-            return false
+            return .failed(.invalidFile)
         }
         
         guard let shareData = try? JSONDecoder().decode(ComparisonShareData.self, from: jsonData) else {
-            return false
+            return .failed(.invalidFile)
         }
         
         return createComparison(from: shareData)
     }
     
     // MARK: - Create comparison from share data
-    private static func createComparison(from shareData: ComparisonShareData) -> Bool {
+    private static func createComparison(from shareData: ComparisonShareData) -> ImportResult {
         let sharedDataBase = CoreDataManager.shared
         let viewContext = sharedDataBase.viewContext
+        
+        // Check comparison limit before creating
+        // Get current comparisons count
+        let currentComparisons = sharedDataBase.fetchAllComparisons()
+        
+        // Check if user can create comparison (subscription status should be updated on app launch)
+        // Access SubscriptionManager on main actor safely
+        let canCreate: Bool
+        if Thread.isMainThread {
+            // We're on main thread, safe to access MainActor isolated property
+            canCreate = MainActor.assumeIsolated {
+                SubscriptionManager.shared.canCreateComparison(freeComparisonsCount: currentComparisons.count)
+            }
+        } else {
+            // Not on main thread - use synchronous dispatch
+            canCreate = DispatchQueue.main.sync {
+                SubscriptionManager.shared.canCreateComparison(freeComparisonsCount: currentComparisons.count)
+            }
+        }
+        
+        if !canCreate {
+            return .failed(.limitExceeded)
+        }
         
         // Create comparison synchronously
         guard let comparisonEntityDescription = NSEntityDescription.entity(
             forEntityName: "ComparisonEntity",
             in: viewContext
         ) else {
-            return false
+            return .failed(.saveError)
         }
         
         let comparison = ComparisonEntity(entity: comparisonEntityDescription, insertInto: viewContext)
@@ -212,9 +258,9 @@ class ComparisonSharingService {
         // Save context
         do {
             try viewContext.save()
-            return true
+            return .success
         } catch {
-            return false
+            return .failed(.saveError)
         }
     }
 }

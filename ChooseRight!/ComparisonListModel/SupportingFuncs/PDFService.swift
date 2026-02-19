@@ -41,29 +41,18 @@ class PDFService {
         //MARK: Page Elements
         // Header elements
         
-//        guard let headerBanner = UIImage(named: "headerBannerGroup" ) else { return nil }
-        guard let headerBanner = UIImage(named: "headerAppLogo 1" ) else { return nil }
+        guard let headerBanner = UIImage(named: "headerBannerGroup" ) else { return nil }
 
-
-//        let headerPdfBanner = PDFImage(image: headerBanner, size: CGSize(width: 171, height: 28), quality: 1.0, options: .none)
-        let headerPdfBanner = PDFImage(image: headerBanner, size: CGSize(width: 83, height: 28), quality: 1.0, options: .none)
+        let headerPdfBanner = PDFImage(image: headerBanner, size: CGSize(width: 171, height: 28), quality: 1.0, options: .none)
 
 
         
         // Footer elements
-        guard let footerImage = UIImage(named: "footerAppLogo 1") else { return nil }
-        let footerPdfImage = PDFImage(image: footerImage, size: CGSize(width: 112 /*135*/, height: 106 /*128*/), quality: 1.0, options: .none)
-        
         let footerPageNumber = NSMutableAttributedString(string: " ", attributes: [
             NSAttributedString.Key.kern: -0.13,
             NSAttributedString.Key.font: UIFont(name: "SFProText-Regular", size: 11) as Any,
             NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.4159629941, green: 0.4159629941, blue: 0.4159629941, alpha: 1)
         ])
-
-        
-        
-        guard let myUrl = URL(string: "https://www.google.com/") else { return nil }
-        footerPdfImage.add(attribute: PDFObjectAttribute.link(url: myUrl))
         
         // Page title
         let titleText = "  \(comparisonName)"
@@ -81,7 +70,6 @@ class PDFService {
         var tablesArray:[PDFTable] = [PDFTable]()
         
         let splittedAttributesArray = PDFService.splitArrayIntoChunks(array: comparisonAttibutesArray, chunkSize: 8)
-        print("SPLITTED:", splittedAttributesArray)
         
         for chunk in splittedAttributesArray {
             let attrsArray = chunk
@@ -134,8 +122,6 @@ class PDFService {
             }
             
         }
-        
-        document.add(.footerLeft, image: footerPdfImage)
         
         let generator = PDFGenerator(document: document)
         let url = try? generator.generateURL(filename: "\(comparisonName).pdf")
@@ -238,10 +224,6 @@ class PDFService {
 
                 tabRowsContent.append(rowContent)
             }
-        
-        
-        print("TABROW\n \n \n", tabRowsContent, "\n \n \n")
-
         
             mainTable.content = tabRowsContent
         

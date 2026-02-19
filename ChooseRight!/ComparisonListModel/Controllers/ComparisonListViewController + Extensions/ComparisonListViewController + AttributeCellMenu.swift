@@ -46,7 +46,6 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
                         
                     }
                     
-                    print("rename attribute tapped \(changingAttribute.unwrappedName)")
                 }
                 
                 let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), identifier: nil, attributes: .destructive) { action in
@@ -57,7 +56,6 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
                         self.sharedData.deleteComparisonAttribute(attribute: changingAttribute)
                     }
                     
-                        print("deleteAction tapped \(changingAttribute.unwrappedName)")
                 }
                 
 //                let deleteMenu = UIMenu(title: "", image: nil, identifier: nil, options: [.displayInline, .destructive], children: [deleteAction])
@@ -84,7 +82,6 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
 //             
 //        
 //        
-//        print("HIGHLITED")
 //                return UITargetedPreview(view: labelSnapshot!, parameters: parameters)
 //    }
     
@@ -125,14 +122,12 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
 //                    //
 //                    //                    self.dismissAttributeChangeNameAlertGesture = UITapGestureRecognizer(target: self, action: #selector(dismissAttributeChangenameAlert))
 //                    
-//                    print("rename attribute tapped \(changingAttribute.unwrappedName)")
 //                }
 //                
 //                let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), identifier: nil, attributes: .destructive) { action in
 //                    
 //                    self.sharedData.deleteComparisonAttribute(attribute: changingAttribute)
 //                    
-//                    print("deleteAction tapped \(changingAttribute.unwrappedName)")
 //                }
 //                                
 //                let deleteMenu = UIMenu(title: "", image: nil, identifier: nil, options: [.displayInline, .destructive], children: [deleteAction])
@@ -165,10 +160,8 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
             let savingResult = self.sharedData.updateComparisonAttributeName(for: attribute, newName: textfieldText)
             
             if savingResult == false {
-                print("comparison doesn`t changed")
             } else {
                 self.attributesCollectionView.reloadData()
-                print("attribute name -\(textfieldText)- saved")
             }
         }
         
@@ -232,7 +225,6 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
 //    @objc func AttributeCellLongPress(gesture: UILongPressGestureRecognizer) {
 //        
 //        if gesture.state != .ended {
-//            print("!=ended")
 //            return
 //        }
 //        
@@ -240,9 +232,7 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
 //        
 //        if let indexPath = self.attributesCollectionView.indexPathForItem(at: press) {
 //            let cell = self.attributesCollectionView.cellForItem(at: indexPath)
-//            print("longPress")
 //        } else {
-//            print("couldn`t find indexPath")
 //        }
 //    }
 //    
@@ -260,7 +250,6 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
 //        
 //        let location = sender.location(in: self.attributesCollectionView)
 //        
-//        print("long press")
 //        
 //        if self.tableCompressed {
 //        

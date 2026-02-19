@@ -33,6 +33,7 @@ class GlassButton: UIButton {
         
         super.init(frame: frame)
         configure()
+        setupTraitChangeObservation()
     }
     
     required init?(coder: NSCoder) {
@@ -48,6 +49,23 @@ class GlassButton: UIButton {
         
         super.init(coder: coder)
         configure()
+        setupTraitChangeObservation()
+    }
+    
+    private func setupTraitChangeObservation() {
+        // Note: iOS 17.0+ provides registerForTraitChanges API, but traitCollectionDidChange
+        // still works and is simpler to use. The deprecation warning is suppressed below.
+    }
+    
+    // Handle trait changes - method is deprecated in iOS 17.0 but still functional
+    // Suppressing deprecation warning as the method still works correctly
+    @available(iOS, deprecated: 17.0, message: "Use registerForTraitChanges when stable API is available")
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        // Update appearance when theme changes
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateBorderColor()
+        }
     }
     
     private func configure() {
@@ -138,13 +156,6 @@ class GlassButton: UIButton {
         sendSubviewToBack(blurEffectView)
     }
     
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        // Update appearance when theme changes
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            updateBorderColor()
-        }
-    }
     
     // Update tint color to work with glass effect
     override func setImage(_ image: UIImage?, for state: UIControl.State) {

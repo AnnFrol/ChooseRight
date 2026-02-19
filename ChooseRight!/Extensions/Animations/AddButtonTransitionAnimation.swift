@@ -9,67 +9,107 @@ import Foundation
 import UIKit
 
 class AddButtonTransitionAnimation: NSObject, UIViewControllerAnimatedTransitioning {
+        
+    let presentationViewController: UIViewController.Type
     
-    let presentationStartButton: UIButton
-    init(presentationStartButton: UIButton) {
-        self.presentationStartButton = presentationStartButton
+    let isPresenting: Bool
+    
+    init(presentationViewController: UIViewController.Type, isPresenting: Bool) {
+        self.presentationViewController = presentationViewController
+        self.isPresenting = isPresenting
     }
-    
-    
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         0.3
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        if isPresenting {
+            present(using: transitionContext)
+        } else {
+            dismiss(using: transitionContext)
+        }
+        
+
+    }
+    
+    func present(using transitionContext: UIViewControllerContextTransitioning) {
         
         let containerView = transitionContext.containerView
         
         guard let presentedViewController = transitionContext.viewController(forKey: .to),
-              let presentedView = transitionContext.view(forKey: .to) else {
+              let presentedView = transitionContext.view(forKey: .to)
+              
+        else {
             transitionContext.completeTransition(false)
             return
         }
         
         let finalFarme = transitionContext.finalFrame(for: presentedViewController)
-        let startButtonFrame = presentationStartButton.convert(presentationStartButton.bounds, to: containerView) // ???bounds?
-        let startButtonCenter = CGPoint(x: startButtonFrame.midX, y: startButtonFrame.midY)
         
-        let circleView = createCircleView(for: presentedView)
+        let bluredView = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
+        bluredView.frame = containerView.frame
+        bluredView.alpha = 0.1
         
-        containerView.addSubview(circleView)
+        containerView.addSubview(bluredView)
         containerView.addSubview(presentedView)
         
-        
-        
-        presentedView.center = startButtonCenter
-        presentedView.transform = CGAffineTransform(scaleX: 0.05, y: 0.05)
-        
-        circleView.center = presentedView.center
-        circleView.transform = CGAffineTransform(scaleX: 0.05, y: 0.05)
+        presentedView.center = CGPoint(x: containerView.frame.midX, y: containerView.frame.height * 1.5)
         
         UIView.animate(withDuration: transitionDuration(using: transitionContext)) {
+            
             presentedView.transform = CGAffineTransform(scaleX: 1, y: 1)
             presentedView.frame = finalFarme
             
-            circleView.transform = CGAffineTransform(scaleX: 1, y: 1)
-            circleView.center = presentedView.center
-            
-            circleView.backgroundColor = #colorLiteral(red: 0.7339547873, green: 0.7940633893, blue: 1, alpha: 1)
+            bluredView.alpha = 1
             
         } completion: { finished in
+            bluredView.removeFromSuperview()
             transitionContext.completeTransition(finished)
         }
-        }
-
-    func createCircleView(for view: UIView) -> UIView {
-        let d = sqrt(view.bounds.width * view.bounds.height + view.bounds.height * view.bounds.height)
-        let circleView = UIView(frame: CGRect(x: 0, y: 0, width: d, height: d))
-        circleView.layer.cornerRadius = d / 2
-        circleView.layer.masksToBounds = true
-        circleView.alpha = 0
-        return circleView
-        
     }
+    
+    func dismiss(using transitionContext: UIViewControllerContextTransitioning) {
+        
+        let containerView = transitionContext.containerView
+        
+        guard let dismissedView = transitionContext.view(forKey: .from),
+              let presentedView = transitionContext.view(forKey: .to) else {
+            transitionContext.completeTransition(false)
+            return
+        }
+        
+
+        
+        let bluredView = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
+        bluredView.frame = containerView.frame
+        bluredView.alpha = 1
+        
+        
+//        containerView.addSubview(bluredView)
+        containerView.insertSubview(bluredView, belowSubview: dismissedView)
+        containerView.insertSubview(presentedView, belowSubview: bluredView)
+        
+        
+        UIView.animate(withDuration: 0.3) {
+            
+            dismissedView.center = CGPoint(x: containerView.frame.midX, y: containerView.frame.height * 1.5)
+            
+            bluredView.alpha = 0
+            
+        } completion: { finished in
+            bluredView.removeFromSuperview()
+            transitionContext.completeTransition(finished)
+        }
+    }
+//    func createCircleView(for view: UIView) -> UIView {
+//        let d = sqrt(view.bounds.width * view.bounds.height + view.bounds.height * view.bounds.height)
+//        let circleView = UIView(frame: CGRect(x: 0, y: 0, width: d, height: d))
+//        circleView.layer.cornerRadius = d / 2
+//        circleView.layer.masksToBounds = true
+//        circleView.alpha = 1
+//        return circleView
+//
+//    }
     
 }

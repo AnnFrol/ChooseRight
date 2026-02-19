@@ -30,7 +30,7 @@ class AddAttributeButton: UIButton {
         titleLabel?.font = .sfProTextRegular14()
 //        titleLabel?.alpha = 0.6
         alpha = 0.6
-        titleLabel?.text = "AddParameterButton"
+        titleLabel?.text = "AddAttributeButton"
         titleLabel?.textAlignment = .right
         
         

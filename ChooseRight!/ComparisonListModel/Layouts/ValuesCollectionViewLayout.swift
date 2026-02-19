@@ -45,7 +45,7 @@ class ValuesCollectionViewLayout: UICollectionViewFlowLayout {
         
         guard let collectionView = collectionView else { return }
         
-
+        
         if collectionView.numberOfSections > 0 {
             for section in 0..<collectionView.numberOfSections {
 
@@ -80,8 +80,6 @@ class ValuesCollectionViewLayout: UICollectionViewFlowLayout {
             let contentHeight = Double(collectionView.numberOfSections) * self.cellHeight
             self.contentSize = CGSize(width: contentWidth,
                                       height: contentHeight)
-        print("prepare layout")
-        print(self.contentSize.debugDescription)
         }
 
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
@@ -97,14 +95,14 @@ class ValuesCollectionViewLayout: UICollectionViewFlowLayout {
     }
 
     override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-
+        
+        
+        
         let attrs = UICollectionViewLayoutAttributes()
-
-
-            guard let resultAttrs = cellAttrsDictionary[indexPath as NSIndexPath] else {
-                return attrs
-            }
-            return resultAttrs
+        guard let resultAttrs = cellAttrsDictionary[indexPath as NSIndexPath] else {
+            return attrs
+        }
+        return resultAttrs
 
     }
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {

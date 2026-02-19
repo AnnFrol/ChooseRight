@@ -38,6 +38,9 @@ class ValuesColectionView: UICollectionView{
         backgroundColor = .clear
         translatesAutoresizingMaskIntoConstraints = false
         bounces = true
+        
+        alwaysBounceVertical = true
+        alwaysBounceHorizontal = true
         clipsToBounds = true
     }
     

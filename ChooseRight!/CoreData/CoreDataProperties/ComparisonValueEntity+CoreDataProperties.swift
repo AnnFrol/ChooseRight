@@ -21,9 +21,34 @@ extension ComparisonValueEntity {
     @NSManaged public var comment: String?
     @NSManaged public var item: ComparisonItemEntity?
     @NSManaged public var attribute: ComparisonAttributeEntity?
+    @NSManaged public var comparison: ComparisonEntity?
+    
+    public var unwrappedComment: String {
+        comment ?? "No comment"
+    }
+    
+    public var relatedItem: ComparisonItemEntity {
+        item ?? ComparisonItemEntity()
+    }
+    
+    public var relatedAttribute: ComparisonAttributeEntity {
+        attribute ?? ComparisonAttributeEntity()
+    }
+    
+    public var booleanValue: Bool {
+        value
+    }
 
 }
 
 extension ComparisonValueEntity : Identifiable {
 
+}
+
+extension ComparisonValueEntity {
+
+    public override func didSave() {
+//     item?.updateTrueValuesCount()
+
+    }
 }
