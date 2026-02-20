@@ -25,6 +25,8 @@ xcuserdata/
 Pods/
 *.xcworkspace
 !default.xcworkspace
+# Package.resolved нужен для Xcode Cloud (SPM)
+!**/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 
 # macOS
 .DS_Store
