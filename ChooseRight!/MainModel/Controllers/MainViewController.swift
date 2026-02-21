@@ -150,6 +150,11 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // iOS 26: контент не должен заходить под статус-бар (изменения safe area в iOS 26)
+        if #available(iOS 26.0, *) {
+            edgesForExtendedLayout = [.bottom]
+        }
+        
         setupViews()
         setConstraints()
         setBottomInset()
@@ -301,7 +306,12 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
 
 extension MainViewController {
     private func setConstraints() {
-        titleStackTopAnchor = titleStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10)
+        // Отступ по гайдам iOS 26: заголовок ниже от safe area (доп. верхний отступ)
+        let titleTopConstant: CGFloat = {
+            if #available(iOS 26.0, *) { return 44 } // iOS 26 HIG — больший отступ для заголовка
+            return 28
+        }()
+        titleStackTopAnchor = titleStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: titleTopConstant)
         
         tableViewTopAnchor = tableView.topAnchor.constraint(equalTo: mainLabel.bottomAnchor, constant: 20)
         

@@ -23,7 +23,7 @@ struct AddButtonView: View {
             }
             action()
         }) {
-            Image("addButton")
+            Image("AddButton")
                 .resizable()
                 .scaledToFit()
                 .rotationEffect(.degrees(isRotating ? 180 : 0))

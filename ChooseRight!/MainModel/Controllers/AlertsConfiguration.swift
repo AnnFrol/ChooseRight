@@ -85,17 +85,28 @@ extension MainViewController: UITextFieldDelegate {
             }
             
             let textfieldText = createNewComparisonListAlert?.textFields?[0].text ?? "NoText"
-                
+                let trimmed = textfieldText.trimmingCharacters(in: .whitespacesAndNewlines)
+
                 // Smart Import: Check if the text (or clipboard) contains a table
-                // This allows users to import tables by pasting them here
                 if let _ = TableImportService.parseTableFromClipboard(textfieldText) {
                     createNewComparisonListAlert?.dismiss(animated: true) {
                         self.processTableImport(textfieldText)
                     }
                     return
                 }
-                
-                let savingResult = self.sharedDataBase.createComparison(name: textfieldText, color: currentColor)
+
+                // Если введён запрос на сравнение (например "Compare X and Y by A, B, C") — обрабатываем как AI-запрос
+                let lower = trimmed.lowercased()
+                let looksLikeCompareRequest = (lower.contains("compare") || lower.contains("сравн")) &&
+                    (lower.contains(" by ") || lower.contains(" по ") || lower.contains(" and ") || lower.contains(" и ") || lower.contains(" vs "))
+                if looksLikeCompareRequest {
+                    createNewComparisonListAlert?.dismiss(animated: true) {
+                        self.processAIRequest(trimmed)
+                    }
+                    return
+                }
+
+                let savingResult = self.sharedDataBase.createComparison(name: trimmed, color: currentColor)
                 
                 if savingResult == nil {
                             let emoji = self.warningMessageEmoji.randomElement() ?? ""

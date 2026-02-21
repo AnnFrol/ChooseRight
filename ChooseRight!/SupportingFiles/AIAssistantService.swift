@@ -325,23 +325,28 @@ final class AIAssistantService: @unchecked Sendable {
         // CRITICAL: If commas are found, parse as list and return immediately - never group items
         let allCompareKeywords = ["compare", "сравнить", "сравни", "хочу сравнить", "i want to compare", 
                                   "comparar", "quiero comparar", "comparer", "je veux comparer"]
+        var afterCompareForAttributes: String? = nil // Часть после "by"/"по" для формата "Compare X and Y by A, B, C"
         for keyword in allCompareKeywords {
-            if let compareIndex = lowercased.range(of: keyword), compareIndex.upperBound < request.endIndex {
-                let afterCompare = String(request[compareIndex.upperBound...])
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                
-                // Remove criteria keywords and everything after them (all languages)
-                // This helps us identify where the items list ends
-                let criteriaStartWords = ["по", "in terms of", "by", "criteria", "критери", "parameters",
-                                          "por", "en términos de", "según", "par", "en termes de", "selon"]
-                var itemsString = afterCompare
-                for criteriaWord in criteriaStartWords {
-                    if let criteriaIndex = itemsString.lowercased().range(of: criteriaWord) {
-                        itemsString = String(itemsString[..<criteriaIndex.lowerBound])
-                            .trimmingCharacters(in: .whitespacesAndNewlines)
-                        break
-                    }
+            // Индексы берём из request (индексы lowercased и request в Swift несовместимы)
+            guard let compareRange = request.range(of: keyword, options: .caseInsensitive),
+                  compareRange.upperBound < request.endIndex else { continue }
+            let afterCompare = String(request[compareRange.upperBound...])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+
+            let criteriaStartWords = ["по", "in terms of", "by", "criteria", "критери", "parameters",
+                                      "por", "en términos de", "según", "par", "en termes de", "selon"]
+            var itemsString = afterCompare
+            var criteriaPart: String? = nil
+            for criteriaWord in criteriaStartWords {
+                if let criteriaIndex = itemsString.lowercased().range(of: criteriaWord) {
+                    let afterCriteria = String(itemsString[criteriaIndex.upperBound...])
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !afterCriteria.isEmpty { criteriaPart = afterCriteria }
+                    itemsString = String(itemsString[..<criteriaIndex.lowerBound])
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                    break
                 }
+            }
                 
                 // Check if there are commas in the string (indicates a list) - works for all languages
                 if afterCompare.contains(",") {
@@ -351,10 +356,8 @@ final class AIAssistantService: @unchecked Sendable {
                     // Never group items together - each comma-separated item is separate
                     if itemsList.count >= 2 {
                         items = itemsList
-                        // Explicitly prevent grouping - items are already separate
                         groupName = nil
-                        // Mark that we found items via comma list - don't continue with other patterns
-                        // We'll continue to parse attributes, but items are final
+                        if let part = criteriaPart { afterCompareForAttributes = part }
                     } else if itemsList.count == 1 && itemsString.contains(",") {
                         // Edge case: parseItemsList might have failed, try manual split
                         let manualParts = itemsString.components(separatedBy: ",")
@@ -362,34 +365,41 @@ final class AIAssistantService: @unchecked Sendable {
                             .filter { !$0.isEmpty }
                         if manualParts.count >= 2 {
                             items = manualParts.map { cleanItemName($0) }.filter { !$0.isEmpty }
-                            if items.count < manualParts.count {
-                                // If cleaning removed items, use original parts
-                                items = manualParts
-                            }
+                            if items.count < manualParts.count { items = manualParts }
                             groupName = nil
+                            if let part = criteriaPart { afterCompareForAttributes = part }
                         }
                     }
-                    // If items were found, break immediately to prevent other patterns from overwriting
-                    if !items.isEmpty {
-                        break
-                    }
+                    if !items.isEmpty { break }
                 } else {
-                    // No commas found - try to parse as space-separated list
-                    // This handles cases like "compare London Dubai Moscow Tokyo" (without commas)
                     if !itemsString.isEmpty {
                         let itemsList = parseItemsList(itemsString)
-                        // CRITICAL: If we found multiple items via space-separated list, use them
-                        // Never group items together - each item is separate
                         if itemsList.count >= 2 {
                             items = itemsList
-                            // Explicitly prevent grouping - items are already separate
                             groupName = nil
-                            // Break immediately to prevent other patterns from overwriting
+                            if let part = criteriaPart { afterCompareForAttributes = part }
                             break
                         }
                     }
                 }
+        }
+
+        // Формат "Compare X and Y by A, B, C": атрибуты из части после "by"
+        if !items.isEmpty, let criteriaString = afterCompareForAttributes, attributes.isEmpty {
+            let rawAttributes = criteriaString.components(separatedBy: ",")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            attributes = rawAttributes
+                .map { cleanAttribute($0) }
+                .filter { !$0.isEmpty && $0.count > 1 }
+                .map { normalizeAttributeName($0) }
+            var uniqueAttributes: [String] = []
+            var seen = Set<String>()
+            for attr in attributes {
+                let key = attr.lowercased()
+                if !seen.contains(key) { seen.insert(key); uniqueAttributes.append(attr) }
             }
+            attributes = uniqueAttributes
         }
         
         // Patterns for finding items (supports English, Russian, Spanish, and French)
@@ -1971,12 +1981,14 @@ final class AIAssistantService: @unchecked Sendable {
     /// Вызов Groq API (бесплатный tier, очень быстрый)
     /// Получите API ключ на https://console.groq.com/
     private func callGroqAPI(prompt: String) async throws -> String {
-        // Получаем API ключ из Info.plist или используем значение по умолчанию
-        // Для настройки: добавьте ключ в Info.plist как "GroqAPIKey" или замените значение ниже
-        let apiKey = Bundle.main.object(forInfoDictionaryKey: "GroqAPIKey") as? String ?? "YOUR_GROQ_API_KEY"
+        // Ключ подставляется из Secrets.xcconfig → ChooseRight.xcconfig → INFOPLIST_KEY_GroqAPIKey
+        let rawKey = Bundle.main.object(forInfoDictionaryKey: "GroqAPIKey") as? String ?? ""
+        let apiKey = rawKey.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        // Проверяем, что ключ настроен
-        guard apiKey != "YOUR_GROQ_API_KEY", !apiKey.isEmpty else {
+        // Проверяем, что ключ настроен (не пустой и не плейсхолдер)
+        guard !apiKey.isEmpty,
+              apiKey != "YOUR_GROQ_API_KEY",
+              !apiKey.hasPrefix("$(") else {
             throw AIAssistantError.networkError
         }
         

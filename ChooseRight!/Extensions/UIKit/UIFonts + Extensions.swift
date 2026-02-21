@@ -2,92 +2,72 @@
 //  UIFonts + Extensions.swift
 //  ChooseRight!
 //
-//  Created by Александр Фрольцов on 02.04.2023.
+//  Uses system San Francisco font (same as SF Pro). No bundled fonts needed.
 //
 
 import UIKit
 
 extension UIFont {
-    
-    //MARK: - SF-Pro-Text-Bold
-    
-    static func SFProDisplayHeavy12() -> UIFont? {
-        UIFont.init(name:"SFProDisplay-Heavy", size: 12)
-    }
-    
-    //MARK: - SF-Pro-Text-Bold
-    
-    static func sfProTextBold12() -> UIFont? {
-        UIFont.init(name: "SFProText-Bold", size: 12)
-    }
-    static func sfProTextBold33() -> UIFont? {
-        UIFont.init(name: "SFProText-Bold", size: 33)
-    }
-    
-    
-    
-    //MARK: - SF-Pro-Text-Medium
-    static func sfProTextMedium12() -> UIFont? {
-        UIFont.init(name: "SFProText-Medium", size: 12)
-    }
-    static func sfProTextMedium16() -> UIFont? {
-        UIFont.init(name: "SFProText-Medium", size: 16)
-    }
-    static func sfProTextMedium24() -> UIFont? {
-        UIFont.init(name: "SFProText-Medium", size: 24)
+
+    static func SFProDisplayHeavy12() -> UIFont {
+        .systemFont(ofSize: 12, weight: .heavy)
     }
 
-    
-    
-    //MARK: - SF-Pro-Text-Regular
-    static func sfProTextRegular11() -> UIFont? {
-        UIFont.init(name: "SFProText-Regular", size: 11)
+    static func sfProTextBold12() -> UIFont {
+        .systemFont(ofSize: 12, weight: .bold)
     }
-    static func sfProTextRegular14() -> UIFont? {
-        UIFont.init(name: "SFProText-Regular", size: 14)
-    }
-    static func sfProTextRegular16() -> UIFont? {
-        UIFont.init(name: "SFProText-Regular", size: 16)
-    }
-    static func sfProTextRegular20() -> UIFont? {
-        UIFont.init(name: "SFProText-Regular", size: 20)
-    }
-    
-    static func sfProTextRegular23() -> UIFont? {
-        UIFont.init(name: "SFProText-Regular", size: 23)
-    }
-    
-    
-    //MARK: - SF-Pro-Text-Semibold
-    static func sfProTextSemibold18() -> UIFont? {
-        UIFont.init(name: "SFProText-Semibold", size: 18)
-    }
-    static func sfProTextSemibold33() -> UIFont? {
-        UIFont.init(name: "SFProText-Semibold", size: 33)
-    }
-    static func sfProTextSemibold80() -> UIFont? {
-        UIFont.init(name: "SFProText-Semibold", size: 80)
-    }
-    
-    //MARK: - SF-Pro-Text-Bold
-    static func sfProTextBold18() -> UIFont? {
-        UIFont.init(name: "SFProText-Bold", size: 18)
-    }
-    
-    //MARK: - SF-Pro-Display-Regular
-    static func sfProDisplayRegular15() -> UIFont? {
-        UIFont.init(name: "SFProDisplay-Regular", size: 15)
-    }
-    
-    
-    //MARK: - SF-Pro-Display-Semibold
-    
-    static func sfProDisplaySemibold12() -> UIFont? {
-        UIFont.init(name: "SFProDisplay-Semibold", size: 12)
-    }
-    
-    static func sfProDisplaySemibold15() -> UIFont? {
-        UIFont.init(name: "SFProDisplay-Semibold", size: 15)
+    static func sfProTextBold33() -> UIFont {
+        .systemFont(ofSize: 33, weight: .bold)
     }
 
+    static func sfProTextMedium12() -> UIFont {
+        .systemFont(ofSize: 12, weight: .medium)
+    }
+    static func sfProTextMedium16() -> UIFont {
+        .systemFont(ofSize: 16, weight: .medium)
+    }
+    static func sfProTextMedium24() -> UIFont {
+        .systemFont(ofSize: 24, weight: .medium)
+    }
+
+    static func sfProTextRegular11() -> UIFont {
+        .systemFont(ofSize: 11, weight: .regular)
+    }
+    static func sfProTextRegular14() -> UIFont {
+        .systemFont(ofSize: 14, weight: .regular)
+    }
+    static func sfProTextRegular16() -> UIFont {
+        .systemFont(ofSize: 16, weight: .regular)
+    }
+    static func sfProTextRegular20() -> UIFont {
+        .systemFont(ofSize: 20, weight: .regular)
+    }
+    static func sfProTextRegular23() -> UIFont {
+        .systemFont(ofSize: 23, weight: .regular)
+    }
+
+    static func sfProTextSemibold18() -> UIFont {
+        .systemFont(ofSize: 18, weight: .semibold)
+    }
+    static func sfProTextSemibold33() -> UIFont {
+        .systemFont(ofSize: 33, weight: .semibold)
+    }
+    static func sfProTextSemibold80() -> UIFont {
+        .systemFont(ofSize: 80, weight: .semibold)
+    }
+
+    static func sfProTextBold18() -> UIFont {
+        .systemFont(ofSize: 18, weight: .bold)
+    }
+
+    static func sfProDisplayRegular15() -> UIFont {
+        .systemFont(ofSize: 15, weight: .regular)
+    }
+
+    static func sfProDisplaySemibold12() -> UIFont {
+        .systemFont(ofSize: 12, weight: .semibold)
+    }
+    static func sfProDisplaySemibold15() -> UIFont {
+        .systemFont(ofSize: 15, weight: .semibold)
+    }
 }

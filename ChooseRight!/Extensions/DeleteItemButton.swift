@@ -28,8 +28,6 @@ class DeleteItemButton: UIButton {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .specialColors.subviewBackground
         titleLabel?.font = .sfProTextRegular16()
-//        titleLabel?.textColor = .red
-        titleLabel?.text = "Delete item"
         tintColor = .red
     }
 }

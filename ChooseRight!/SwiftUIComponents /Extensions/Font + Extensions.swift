@@ -2,81 +2,63 @@
 //  Font + Extensions.swift
 //  ChooseRight!
 //
-//  SwiftUI Font extensions matching UIKit fonts
+//  SwiftUI Font extensions using system San Francisco. No bundled fonts needed.
 //
 
 import SwiftUI
 
 extension Font {
-    // MARK: - SF-Pro-Text-Bold
+
     static func sfProTextBold12() -> Font {
-        .custom("SFProText-Bold", size: 12)
+        .system(size: 12, weight: .bold)
     }
-    
     static func sfProTextBold33() -> Font {
-        .custom("SFProText-Bold", size: 33)
+        .system(size: 33, weight: .bold)
     }
-    
-    // MARK: - SF-Pro-Text-Medium
+
     static func sfProTextMedium12() -> Font {
-        .custom("SFProText-Medium", size: 12)
+        .system(size: 12, weight: .medium)
     }
-    
     static func sfProTextMedium16() -> Font {
-        .custom("SFProText-Medium", size: 16)
+        .system(size: 16, weight: .medium)
     }
-    
     static func sfProTextMedium24() -> Font {
-        .custom("SFProText-Medium", size: 24)
+        .system(size: 24, weight: .medium)
     }
-    
-    // MARK: - SF-Pro-Text-Regular
+
     static func sfProTextRegular11() -> Font {
-        .custom("SFProText-Regular", size: 11)
+        .system(size: 11, weight: .regular)
     }
-    
     static func sfProTextRegular14() -> Font {
-        .custom("SFProText-Regular", size: 14)
+        .system(size: 14, weight: .regular)
     }
-    
     static func sfProTextRegular16() -> Font {
-        .custom("SFProText-Regular", size: 16)
+        .system(size: 16, weight: .regular)
     }
-    
     static func sfProTextRegular20() -> Font {
-        .custom("SFProText-Regular", size: 20)
+        .system(size: 20, weight: .regular)
     }
-    
     static func sfProTextRegular23() -> Font {
-        .custom("SFProText-Regular", size: 23)
+        .system(size: 23, weight: .regular)
     }
-    
-    // MARK: - SF-Pro-Text-Semibold
+
     static func sfProTextSemibold33() -> Font {
-        .custom("SFProText-Semibold", size: 33)
+        .system(size: 33, weight: .semibold)
     }
-    
     static func sfProTextSemibold80() -> Font {
-        .custom("SFProText-Semibold", size: 80)
+        .system(size: 80, weight: .semibold)
     }
-    
-    // MARK: - SF-Pro-Display-Regular
+
     static func sfProDisplayRegular15() -> Font {
-        .custom("SFProDisplay-Regular", size: 15)
+        .system(size: 15, weight: .regular)
     }
-    
-    // MARK: - SF-Pro-Display-Semibold
     static func sfProDisplaySemibold12() -> Font {
-        .custom("SFProDisplay-Semibold", size: 12)
+        .system(size: 12, weight: .semibold)
     }
-    
     static func sfProDisplaySemibold15() -> Font {
-        .custom("SFProDisplay-Semibold", size: 15)
+        .system(size: 15, weight: .semibold)
     }
-    
-    // MARK: - SF-Pro-Display-Heavy
     static func SFProDisplayHeavy12() -> Font {
-        .custom("SFProDisplay-Heavy", size: 12)
+        .system(size: 12, weight: .heavy)
     }
 }
-

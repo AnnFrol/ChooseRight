@@ -50,7 +50,7 @@ class PDFService {
         // Footer elements
         let footerPageNumber = NSMutableAttributedString(string: " ", attributes: [
             NSAttributedString.Key.kern: -0.13,
-            NSAttributedString.Key.font: UIFont(name: "SFProText-Regular", size: 11) as Any,
+            NSAttributedString.Key.font: UIFont.sfProTextRegular11(),
             NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.4159629941, green: 0.4159629941, blue: 0.4159629941, alpha: 1)
         ])
         
@@ -58,7 +58,7 @@ class PDFService {
         let titleText = "  \(comparisonName)"
         let attributedTitleText = NSMutableAttributedString(string: titleText, attributes: [
             NSAttributedString.Key.kern: -1,
-            NSAttributedString.Key.font: UIFont(name: "SFProText-Bold", size: 24) as Any,
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 24, weight: .bold),
             NSAttributedString.Key.foregroundColor: UIColor(.black)
         ])
 
@@ -158,7 +158,7 @@ class PDFService {
                         
                         let attributedNameShorted = NSMutableAttributedString(string: nameShorted, attributes: [
                             NSAttributedString.Key.kern: -0.13,
-                            NSAttributedString.Key.font: UIFont(name: "SFProText-Regular", size: 11) as Any,
+                            NSAttributedString.Key.font: UIFont.sfProTextRegular11(),
                             NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.4159629941, green: 0.4159629941, blue: 0.4159629941, alpha: 1)
                         ])
                         tabRowsContent[0].append(attributedNameShorted)
@@ -166,7 +166,7 @@ class PDFService {
                         
                         let attributedNameShorted = NSMutableAttributedString(string: cellContent, attributes: [
                             NSAttributedString.Key.kern: -0.13,
-                            NSAttributedString.Key.font: UIFont(name: "SFProText-Regular", size: 11) as Any,
+                            NSAttributedString.Key.font: UIFont.sfProTextRegular11(),
                             NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.4159629941, green: 0.4159629941, blue: 0.4159629941, alpha: 1)
                         ])
                         tabRowsContent[0].append(attributedNameShorted)
@@ -186,7 +186,7 @@ class PDFService {
 //                let itemRelevanceContent: String = "\(itemRelevance)%"
                 let itemRelevanceContent = NSMutableAttributedString(string:  String("\(itemRelevance)%"), attributes: [
                     NSAttributedString.Key.kern: -0.2,
-                    NSAttributedString.Key.font: UIFont(name: "SFProDisplay-Heavy", size: 12) as Any,
+                    NSAttributedString.Key.font: UIFont.SFProDisplayHeavy12(),
                     NSAttributedString.Key.foregroundColor: UIColor(.black)
                 ])
                 
@@ -194,7 +194,7 @@ class PDFService {
                     string: item.unwrappedName , 
                     attributes: [
                     NSAttributedString.Key.kern: -0.15,
-                    NSAttributedString.Key.font: UIFont(name: "SFProText-Medium", size: 12) as Any,
+                    NSAttributedString.Key.font: UIFont.sfProTextMedium12(),
                     NSAttributedString.Key.foregroundColor: UIColor(.black)
                 ])
                 
@@ -210,7 +210,7 @@ class PDFService {
                         string: cellText,
                         attributes: [
                         NSAttributedString.Key.kern: -0.1,
-                        NSAttributedString.Key.font: UIFont(name: "SFProText-Medium", size: 12) as Any,
+                        NSAttributedString.Key.font: UIFont.sfProTextMedium12(),
                         NSAttributedString.Key.foregroundColor: UIColor(.black)
                     ])
                     
@@ -255,7 +255,7 @@ class PDFService {
         let tableStyle = PDFTableStyle()
         tableStyle.columnHeaderStyle = PDFTableCellStyle(
             colors: (fill: .white, text: UIColor.specialColors.pdfAttributeTextColor ?? .gray),
-            font: .sfProTextRegular11() ?? .boldSystemFont(ofSize: 11))
+            font: .sfProTextRegular11())
         
 //        tableStyle.rowHeaderStyle = PDFTableCellStyle(
 //            colors: (fill: .white, text: .black),
@@ -361,7 +361,7 @@ class PDFService {
 //        let tableStyle = PDFTableStyle()
 //        tableStyle.columnHeaderStyle = PDFTableCellStyle(
 //            colors: (fill: .white, text: UIColor.specialColors.pdfAttributeTextColor ?? .gray),
-//            font: .sfProTextRegular11() ?? .boldSystemFont(ofSize: 11))
+//            font: .sfProTextRegular11())
 //        
 //        tableStyle.rowHeaderStyle = PDFTableCellStyle(
 //            colors: (fill: .white, text: .black),

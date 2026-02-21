@@ -39,7 +39,7 @@ class DetailsView: UIView {
        let label = UILabel()
         label.text = "Name exists!"
         label.textColor = UIColor.specialColors.detailsMainLabelText
-        label.font = UIFont(name: "SFProDisplay-Regular", size: 15)
+        label.font = UIFont.sfProDisplayRegular15()
         label.alpha = 0.4
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

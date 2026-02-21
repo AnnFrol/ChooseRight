@@ -97,7 +97,7 @@ extension MainViewController {
             attributes: [],
             state: .off) { action in
                 
-                let email = "ann.desi.d@gmail.com"
+                let email = "support@annfro.com"
                 let subject = "ChooseRight! service request"
                 let body = "Please describe your issue here"
                 let coded = "mailto:\(email)?subject=\(subject)&body=\(body)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
@@ -114,7 +114,7 @@ extension MainViewController {
             title: "Telegram",
             image: UIImage(named: "telegramLogo")
         ) { action in
-                if let url = URL(string: "https://t.me/AnnKolnobro") {
+                if let url = URL(string: "https://t.me/AnnFroCom") {
                     UIApplication.shared.open(url)
                 }
             }
@@ -123,7 +123,7 @@ extension MainViewController {
             title: "Instagram",
             image: UIImage(named:"instagramLogo")
         ) { action in
-                if let url = URL(string: "https://www.instagram.com/ann_kolnobr/") {
+                if let url = URL(string: "https://www.instagram.com/annfroltsova/") {
                     UIApplication.shared.open(url)
                 }
             }

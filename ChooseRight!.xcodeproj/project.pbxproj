@@ -36,7 +36,6 @@
 		8532F39A29DE09A600E1830C /* DeleteItemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8532F39929DE09A600E1830C /* DeleteItemButton.swift */; };
 		8532F39C29DE10CA00E1830C /* AddAttributeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8532F39B29DE10CA00E1830C /* AddAttributeButton.swift */; };
 		85362F742C8DFF0600F3B91E /* TPPDF in Frameworks */ = {isa = PBXBuildFile; productRef = 85362F732C8DFF0600F3B91E /* TPPDF */; };
-		85362F792C92223100F3B91E /* SFProDisplay-Heavy.otf in Resources */ = {isa = PBXBuildFile; fileRef = 85362F782C92223100F3B91E /* SFProDisplay-Heavy.otf */; };
 		853AF5BC2B87468C00889414 /* UINavigationController + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 853AF5BB2B87468C00889414 /* UINavigationController + Extensions.swift */; };
 		855046982A55911E00AC59F8 /* ComparisonsBase.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 855046962A55911D00AC59F8 /* ComparisonsBase.xcdatamodeld */; };
 		855046AC2A55B25C00AC59F8 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 855046AB2A55B25C00AC59F8 /* CoreDataManager.swift */; };
@@ -72,16 +71,8 @@
 		85A21C6829D8988300A066E9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C6629D8988300A066E9 /* LaunchScreen.storyboard */; };
 		85A21C7329D89F7300A066E9 /* UILabel + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A21C7229D89F7300A066E9 /* UILabel + Extensions.swift */; };
 		85A21C7729D8B2BC00A066E9 /* UIFonts + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A21C7629D8B2BC00A066E9 /* UIFonts + Extensions.swift */; };
-		85A21C7B29D8BF2B00A066E9 /* SFProText-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C7A29D8BF2B00A066E9 /* SFProText-Bold.otf */; };
-		85A21C7E29D8BF4800A066E9 /* SFProText-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C7C29D8BF4800A066E9 /* SFProText-Regular.otf */; };
-		85A21C7F29D8BF4800A066E9 /* SFProText-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C7D29D8BF4800A066E9 /* SFProText-Medium.otf */; };
-		85A21C8129D8C20900A066E9 /* SFProDisplay-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C8029D8C20900A066E9 /* SFProDisplay-Semibold.otf */; };
-		85A21C8329D8C26700A066E9 /* SFProDisplay-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C8229D8C26700A066E9 /* SFProDisplay-Regular.otf */; };
-		85A21C8529D8C27A00A066E9 /* SFProText-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C8429D8C27A00A066E9 /* SFProText-Semibold.otf */; };
 		85A21C8829D8C9DA00A066E9 /* CloseButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A21C8729D8C9DA00A066E9 /* CloseButton.swift */; };
-		85A21C8929D8C9DA00A066E9 /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A21C8A29D8C9DA00A066E9 /* GlassButton.swift */; };
 		85AIASSIST1A2B3C4D5E6F7G8H9I0 /* AIAssistantService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85AIASSIST1A2B3C4D5E6F7G8H9I1 /* AIAssistantService.swift */; };
-		85E6E11029E050090008794E /* ChangeValueButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E10F29E050090008794E /* ChangeValueButton.swift */; };
 		85E6E15429EAA7810008794E /* ObjectTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E15329EAA7810008794E /* ObjectTableViewCell.swift */; };
 		85E6E15E29F2F74A0008794E /* CompairsonListSettingsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E15D29F2F74A0008794E /* CompairsonListSettingsMenu.swift */; };
 		85E6E16629F52C480008794E /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E16529F52C480008794E /* MainViewController.swift */; };
@@ -142,7 +133,6 @@
 		8532F39729DC858D00E1830C /* NewItemTextfield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewItemTextfield.swift; sourceTree = "<group>"; };
 		8532F39929DE09A600E1830C /* DeleteItemButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteItemButton.swift; sourceTree = "<group>"; };
 		8532F39B29DE10CA00E1830C /* AddAttributeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAttributeButton.swift; sourceTree = "<group>"; };
-		85362F782C92223100F3B91E /* SFProDisplay-Heavy.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProDisplay-Heavy.otf"; sourceTree = "<group>"; };
 		853AF5BB2B87468C00889414 /* UINavigationController + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigationController + Extensions.swift"; sourceTree = "<group>"; };
 		855046972A55911E00AC59F8 /* ComparisonsBase.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ComparisonsBase.xcdatamodel; sourceTree = "<group>"; };
 		855046AB2A55B25C00AC59F8 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
@@ -182,16 +172,8 @@
 		85A21C9229D8988300A066E9 /* ChooseRight.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ChooseRight.xcconfig; sourceTree = "<group>"; };
 		85A21C7229D89F7300A066E9 /* UILabel + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel + Extensions.swift"; sourceTree = "<group>"; };
 		85A21C7629D8B2BC00A066E9 /* UIFonts + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFonts + Extensions.swift"; sourceTree = "<group>"; };
-		85A21C7A29D8BF2B00A066E9 /* SFProText-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProText-Bold.otf"; sourceTree = "<group>"; };
-		85A21C7C29D8BF4800A066E9 /* SFProText-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProText-Regular.otf"; sourceTree = "<group>"; };
-		85A21C7D29D8BF4800A066E9 /* SFProText-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProText-Medium.otf"; sourceTree = "<group>"; };
-		85A21C8029D8C20900A066E9 /* SFProDisplay-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProDisplay-Semibold.otf"; sourceTree = "<group>"; };
-		85A21C8229D8C26700A066E9 /* SFProDisplay-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProDisplay-Regular.otf"; sourceTree = "<group>"; };
-		85A21C8429D8C27A00A066E9 /* SFProText-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProText-Semibold.otf"; sourceTree = "<group>"; };
 		85A21C8729D8C9DA00A066E9 /* CloseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseButton.swift; sourceTree = "<group>"; };
-		85A21C8A29D8C9DA00A066E9 /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
 		85AIASSIST1A2B3C4D5E6F7G8H9I1 /* AIAssistantService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistantService.swift; sourceTree = "<group>"; };
-		85E6E10F29E050090008794E /* ChangeValueButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeValueButton.swift; sourceTree = "<group>"; };
 		85E6E15329EAA7810008794E /* ObjectTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectTableViewCell.swift; sourceTree = "<group>"; };
 		85E6E15D29F2F74A0008794E /* CompairsonListSettingsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompairsonListSettingsMenu.swift; sourceTree = "<group>"; };
 		85E6E16529F52C480008794E /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
@@ -446,7 +428,6 @@
 		85A21C7129D8996100A066E9 /* SupportingFiles */ = {
 			isa = PBXGroup;
 			children = (
-				85A21C7929D8BE5400A066E9 /* Fonts */,
 				85A21C6429D8988300A066E9 /* Assets.xcassets */,
 				85A21C9129D8A00100A066E9 /* DocumentIcon.png */,
 				85A21C9229D8988300A066E9 /* ChooseRight.xcconfig */,
@@ -491,30 +472,14 @@
 			path = UIKit;
 			sourceTree = "<group>";
 		};
-		85A21C7929D8BE5400A066E9 /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				85362F782C92223100F3B91E /* SFProDisplay-Heavy.otf */,
-				85A21C7C29D8BF4800A066E9 /* SFProText-Regular.otf */,
-				85A21C7D29D8BF4800A066E9 /* SFProText-Medium.otf */,
-				85A21C7A29D8BF2B00A066E9 /* SFProText-Bold.otf */,
-				85A21C8429D8C27A00A066E9 /* SFProText-Semibold.otf */,
-				85A21C8229D8C26700A066E9 /* SFProDisplay-Regular.otf */,
-				85A21C8029D8C20900A066E9 /* SFProDisplay-Semibold.otf */,
-			);
-			name = Fonts;
-			sourceTree = "<group>";
-		};
 		85A21C8629D8C9AA00A066E9 /* CustomisedViews */ = {
 			isa = PBXGroup;
 			children = (
 				85A21C8729D8C9DA00A066E9 /* CloseButton.swift */,
-				85A21C8A29D8C9DA00A066E9 /* GlassButton.swift */,
 				8532F38F29DC10CB00E1830C /* AddButton.swift */,
 				8532F39729DC858D00E1830C /* NewItemTextfield.swift */,
 				8532F39929DE09A600E1830C /* DeleteItemButton.swift */,
 				8532F39B29DE10CA00E1830C /* AddAttributeButton.swift */,
-				85E6E10F29E050090008794E /* ChangeValueButton.swift */,
 				855046AD2A56A98E00AC59F8 /* CreateNewComparisonAlert.swift */,
 				850703412B4C285E0037987F /* PlusMinusButton.swift */,
 				857ADE8E2BA31875009BBB61 /* AttributesPopOver.swift */,
@@ -697,20 +662,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				85A21C8129D8C20900A066E9 /* SFProDisplay-Semibold.otf in Resources */,
 				85A21C6829D8988300A066E9 /* LaunchScreen.storyboard in Resources */,
 				85A21C6529D8988300A066E9 /* Assets.xcassets in Resources */,
-				85A21C7E29D8BF4800A066E9 /* SFProText-Regular.otf in Resources */,
-				85A21C8529D8C27A00A066E9 /* SFProText-Semibold.otf in Resources */,
 				DFE47FAE2EE6F5DB0071D342 /* README.md in Resources */,
 				DFE47FAF2EE6F5DB0071D342 /* HOW_TO_ADD_TO_XCODE.md in Resources */,
 				DFE47FB02EE6F5DB0071D342 /* INTEGRATION_GUIDE.md in Resources */,
-				85A21C7F29D8BF4800A066E9 /* SFProText-Medium.otf in Resources */,
-				85A21C8329D8C26700A066E9 /* SFProDisplay-Regular.otf in Resources */,
 				DF5B57622EFBFE6F0051D7C6 /* AppIcon.icon in Resources */,
 				85A21C9029D8A00100A066E9 /* DocumentIcon.png in Resources */,
-				85A21C7B29D8BF2B00A066E9 /* SFProText-Bold.otf in Resources */,
-				85362F792C92223100F3B91E /* SFProDisplay-Heavy.otf in Resources */,
 				85PRIVACY02A066E9 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -728,7 +686,6 @@
 				85077C112A3F946300673636 /* ComparisonListTransitionAnimation.swift in Sources */,
 				850FC5172AEC2E5B00896560 /* String + Extensions.swift in Sources */,
 				85A21C8829D8C9DA00A066E9 /* CloseButton.swift in Sources */,
-				85A21C8929D8C9DA00A066E9 /* GlassButton.swift in Sources */,
 				855046C02A5B520300AC59F8 /* ComparisonEntity+CoreDataProperties.swift in Sources */,
 				857ADE8D2BA311D7009BBB61 /* #UIWindow + Extensions.swift in Sources */,
 				8532F39629DC5F7100E1830C /* AttributesTableViewCell.swift in Sources */,
@@ -797,7 +754,6 @@
 				8532F39029DC10CB00E1830C /* AddButton.swift in Sources */,
 				853AF5BC2B87468C00889414 /* UINavigationController + Extensions.swift in Sources */,
 				85A21C7329D89F7300A066E9 /* UILabel + Extensions.swift in Sources */,
-				85E6E11029E050090008794E /* ChangeValueButton.swift in Sources */,
 				85A133282C305342002E679B /* ComparisonListViewController + ObjectCellMenu.swift in Sources */,
 				8574D49F2C7FBC7200E66A03 /* AttributesTableViewMenu.swift in Sources */,
 				855046C22A5B520300AC59F8 /* ComparisonItemEntity+CoreDataProperties.swift in Sources */,
@@ -960,6 +916,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ChooseRight!/SupportingFiles/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Choose Right";
+				INFOPLIST_KEY_GroqAPIKey = "$(GROQ_API_KEY)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -997,6 +954,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ChooseRight!/SupportingFiles/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Choose Right";
+				INFOPLIST_KEY_GroqAPIKey = "$(GROQ_API_KEY)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;

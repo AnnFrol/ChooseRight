@@ -59,7 +59,7 @@ class OnboardingViewController: UIViewController {
     private var pages: [(imageName: String, text: String, backgroundColor: UIColor)] {
         let darkTraitCollection = UITraitCollection(userInterfaceStyle: .dark)
         return [
-            ("hello1", "Hi! This is ChooseRight!", UIColor.specialColors.fourPinkBriliantLavender?.resolvedColor(with: darkTraitCollection) ?? .systemPink),
+            ("hello1", "Hi! This is\nChoose Right!", UIColor.specialColors.fourPinkBriliantLavender?.resolvedColor(with: darkTraitCollection) ?? .systemPink),
             ("hello2", "Not sure what the right choice is?", UIColor.specialColors.threeBlueLavender?.resolvedColor(with: darkTraitCollection) ?? .systemBlue),
             ("hello3", "We help you choose — without the stress.\nStart with 1 free comparison.", UIColor.specialColors.ninePinkPaleMagenta?.resolvedColor(with: darkTraitCollection) ?? .systemPink)
         ]
@@ -120,15 +120,15 @@ class OnboardingViewController: UIViewController {
         containerView.addSubview(textLabel)
         
         NSLayoutConstraint.activate([
-            textLabel.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor, constant: 60),
+            textLabel.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor, constant: 44),
             textLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 30),
             textLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -30),
             textLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             
             imageView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            imageView.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 40),
+            imageView.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 20),
             imageView.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.75),
-            imageView.heightAnchor.constraint(equalTo: containerView.heightAnchor, multiplier: 0.5)
+            imageView.heightAnchor.constraint(equalTo: containerView.heightAnchor, multiplier: 0.42)
         ])
         
         return containerView
