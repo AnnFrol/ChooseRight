@@ -61,7 +61,7 @@ class OnboardingViewController: UIViewController {
         return [
             ("hello1", "Hi! This is ChooseRight!", UIColor.specialColors.fourPinkBriliantLavender?.resolvedColor(with: darkTraitCollection) ?? .systemPink),
             ("hello2", "Not sure what the right choice is?", UIColor.specialColors.threeBlueLavender?.resolvedColor(with: darkTraitCollection) ?? .systemBlue),
-            ("hello3", "We help you choose — without the stress", UIColor.specialColors.ninePinkPaleMagenta?.resolvedColor(with: darkTraitCollection) ?? .systemPink)
+            ("hello3", "We help you choose — without the stress.\nStart with 1 free comparison.", UIColor.specialColors.ninePinkPaleMagenta?.resolvedColor(with: darkTraitCollection) ?? .systemPink)
         ]
     }
     

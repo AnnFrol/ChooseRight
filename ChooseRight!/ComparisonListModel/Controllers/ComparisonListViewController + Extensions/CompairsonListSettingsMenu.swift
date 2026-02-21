@@ -42,7 +42,6 @@ extension ComparisonListViewController {
         let shareLinkAction = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up"), handler: { _ in
             // Always use file for sharing
             guard let shareFile = ComparisonSharingService.createShareFile(from: self.comparisonEntity) else {
-                // Show error alert
                 let alert = UIAlertController(
                     title: "Error",
                     message: "Failed to create share file",
@@ -53,7 +52,7 @@ extension ComparisonListViewController {
                 return
             }
             
-            let shareText = "Check out this comparison from ChooseRight! https://apps.apple.com/app/id6758289216"
+            let shareText = "Check out this comparison from ChooseRight! https://apps.apple.com/app/id6759388003"
             let activityViewController = UIActivityViewController(activityItems: [shareText, shareFile], applicationActivities: nil)
             
             if let popover = activityViewController.popoverPresentationController {

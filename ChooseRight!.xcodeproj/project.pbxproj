@@ -92,6 +92,7 @@
 		85TABLEIMP1A2B3C4D5E6F7G8H9I0 /* TableImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85TABLEIMP1A2B3C4D5E6F7G8H9I1 /* TableImportService.swift */; };
 		B289ECEF73D34ABC8DEC0C419BA9EECA /* ColorPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B289ECEE73D34ABC8DEC0C419BA9EEC9 /* ColorPickerViewController.swift */; };
 		DF5B57622EFBFE6F0051D7C6 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = DF5B57612EFBFE6F0051D7C6 /* AppIcon.icon */; };
+		85A21C9029D8A00100A066E9 /* DocumentIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C9129D8A00100A066E9 /* DocumentIcon.png */; };
 		DFE47FA12EE6F5DB0071D342 /* SceneDelegateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F952EE6F5DB0071D342 /* SceneDelegateExtension.swift */; };
 		DFE47FA22EE6F5DB0071D342 /* CloseButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F8D2EE6F5DB0071D342 /* CloseButtonView.swift */; };
 		DFE47FA32EE6F5DB0071D342 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F9B2EE6F5DB0071D342 /* MainView.swift */; };
@@ -108,6 +109,7 @@
 		DFE47FAE2EE6F5DB0071D342 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DFE47F9F2EE6F5DB0071D342 /* README.md */; };
 		DFE47FAF2EE6F5DB0071D342 /* HOW_TO_ADD_TO_XCODE.md in Resources */ = {isa = PBXBuildFile; fileRef = DFE47F9D2EE6F5DB0071D342 /* HOW_TO_ADD_TO_XCODE.md */; };
 		DFE47FB02EE6F5DB0071D342 /* INTEGRATION_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = DFE47F9E2EE6F5DB0071D342 /* INTEGRATION_GUIDE.md */; };
+		85PRIVACY02A066E9 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 85PRIVACY01A066E9 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -173,8 +175,10 @@
 		85A21C5B29D8988100A066E9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		85A21C5D29D8988100A066E9 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		85A21C6429D8988300A066E9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		85A21C9129D8A00100A066E9 /* DocumentIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DocumentIcon.png; sourceTree = "<group>"; };
 		85A21C6729D8988300A066E9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		85A21C6929D8988300A066E9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		85PRIVACY01A066E9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		85A21C9229D8988300A066E9 /* ChooseRight.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ChooseRight.xcconfig; sourceTree = "<group>"; };
 		85A21C7229D89F7300A066E9 /* UILabel + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel + Extensions.swift"; sourceTree = "<group>"; };
 		85A21C7629D8B2BC00A066E9 /* UIFonts + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFonts + Extensions.swift"; sourceTree = "<group>"; };
@@ -444,10 +448,12 @@
 			children = (
 				85A21C7929D8BE5400A066E9 /* Fonts */,
 				85A21C6429D8988300A066E9 /* Assets.xcassets */,
+				85A21C9129D8A00100A066E9 /* DocumentIcon.png */,
 				85A21C9229D8988300A066E9 /* ChooseRight.xcconfig */,
 				DF5B57612EFBFE6F0051D7C6 /* AppIcon.icon */,
 				85A21C6629D8988300A066E9 /* LaunchScreen.storyboard */,
 				85A21C6929D8988300A066E9 /* Info.plist */,
+				85PRIVACY01A066E9 /* PrivacyInfo.xcprivacy */,
 				85AIASSIST1A2B3C4D5E6F7G8H9I1 /* AIAssistantService.swift */,
 				85SUBSCRIP1A2B3C4D5E6F7G8H9I1 /* SubscriptionManager.swift */,
 				85TABLEIMP1A2B3C4D5E6F7G8H9I1 /* TableImportService.swift */,
@@ -702,8 +708,10 @@
 				85A21C7F29D8BF4800A066E9 /* SFProText-Medium.otf in Resources */,
 				85A21C8329D8C26700A066E9 /* SFProDisplay-Regular.otf in Resources */,
 				DF5B57622EFBFE6F0051D7C6 /* AppIcon.icon in Resources */,
+				85A21C9029D8A00100A066E9 /* DocumentIcon.png in Resources */,
 				85A21C7B29D8BF2B00A066E9 /* SFProText-Bold.otf in Resources */,
 				85362F792C92223100F3B91E /* SFProDisplay-Heavy.otf in Resources */,
+				85PRIVACY02A066E9 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -957,6 +965,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UISupportsDocumentBrowser = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 18;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -993,6 +1002,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UISupportsDocumentBrowser = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 18;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -5,21 +5,25 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeIconFiles</key>
-			<array>
-				<string>AppIcon</string>
-			</array>
 			<key>CFBundleTypeName</key>
 			<string>ChooseRight Comparison</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>chooseright</string>
+			</array>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
-			<key>LSIsAppleDefaultApplication</key>
+			<key>LSTypeIsPackage</key>
 			<false/>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.chooseright.comparison</string>
+			</array>
+			<key>CFBundleTypeIconFiles</key>
+			<array>
+				<string>DocumentIcon</string>
 			</array>
 		</dict>
 	</array>
@@ -34,12 +38,13 @@
 	</array>
 	<key>GroqAPIKey</key>
 	<string>$(GROQ_API_KEY)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>mailto</string>
 		<string>https</string>
 		<string>http</string>
-		<string>tg</string>
 	</array>
 	<key>UIAppFonts</key>
 	<array>
@@ -68,26 +73,26 @@
 			</array>
 		</dict>
 	</dict>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>UISupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.chooseright.comparison</string>
+			<key>UTTypeDescription</key>
+			<string>ChooseRight Comparison</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
 				<string>public.content</string>
 			</array>
-			<key>UTTypeDescription</key>
-			<string>ChooseRight Comparison</string>
 			<key>UTTypeIconFiles</key>
 			<array>
-				<string>AppIcon</string>
+				<string>DocumentIcon</string>
 			</array>
-			<key>UTTypeIconReference</key>
-			<string>AppIcon</string>
-			<key>UTTypeIdentifier</key>
-			<string>com.chooseright.comparison</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -96,7 +101,7 @@
 				</array>
 				<key>public.mime-type</key>
 				<array>
-					<string>application/json</string>
+					<string>application/x-chooseright</string>
 				</array>
 			</dict>
 		</dict>

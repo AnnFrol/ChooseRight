@@ -10,6 +10,12 @@ import StoreKit
 
 class SubscriptionViewController: UIViewController {
     
+    /// URLs required for App Store IAP review.
+    private enum LegalURLs {
+        static let termsOfUse = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
+        static let privacyPolicy = URL(string: "https://annfro.com/chooseright/privacy-policy")!
+    }
+    
     private let subscriptionManager = SubscriptionManager.shared
     
     private let scrollView: UIScrollView = {
@@ -37,7 +43,7 @@ class SubscriptionViewController: UIViewController {
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "One-time purchase. Create unlimited comparison lists and make better decisions"
+        label.text = "Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions."
         label.font = .sfProTextRegular16()
         label.textColor = .secondaryLabel
         label.textAlignment = .center
@@ -72,6 +78,15 @@ class SubscriptionViewController: UIViewController {
         button.titleLabel?.font = .sfProTextRegular14()
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
+    }()
+    
+    private let legalLinksStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
     }()
     
     private let closeButton: UIButton = {
@@ -128,6 +143,9 @@ class SubscriptionViewController: UIViewController {
         contentView.addSubview(featuresStackView)
         contentView.addSubview(purchaseButton)
         contentView.addSubview(restoreButton)
+        contentView.addSubview(legalLinksStackView)
+        
+        setupLegalLinks()
         
         // Кнопка закрытия добавляется последней, чтобы быть поверх всех элементов
         view.addSubview(closeButton)
@@ -139,6 +157,32 @@ class SubscriptionViewController: UIViewController {
         super.viewDidLayoutSubviews()
         // Убеждаемся, что кнопка закрытия всегда поверх
         view.bringSubviewToFront(closeButton)
+    }
+    
+    private func setupLegalLinks() {
+        let termsButton = makeLinkButton(title: "Terms of Use")
+        termsButton.addTarget(self, action: #selector(openTermsOfUse), for: .touchUpInside)
+        let privacyButton = makeLinkButton(title: "Privacy Policy")
+        privacyButton.addTarget(self, action: #selector(openPrivacyPolicy), for: .touchUpInside)
+        legalLinksStackView.addArrangedSubview(termsButton)
+        legalLinksStackView.addArrangedSubview(privacyButton)
+    }
+    
+    private func makeLinkButton(title: String) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: .normal)
+        button.setTitleColor(.secondaryLabel, for: .normal)
+        button.titleLabel?.font = .sfProTextRegular14()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }
+    
+    @objc private func openTermsOfUse() {
+        UIApplication.shared.open(LegalURLs.termsOfUse)
+    }
+    
+    @objc private func openPrivacyPolicy() {
+        UIApplication.shared.open(LegalURLs.privacyPolicy)
     }
     
     private func setupFeatures() {
@@ -228,7 +272,9 @@ class SubscriptionViewController: UIViewController {
             
             restoreButton.topAnchor.constraint(equalTo: purchaseButton.bottomAnchor, constant: 24),
             restoreButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            restoreButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40)
+            legalLinksStackView.topAnchor.constraint(equalTo: restoreButton.bottomAnchor, constant: 20),
+            legalLinksStackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            legalLinksStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40)
         ])
     }
     

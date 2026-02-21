@@ -29,7 +29,7 @@ extension MainViewController {
                 image: UIImage(systemName: "square.and.arrow.up"),
                 state: .off) { action in
                     
-                    guard let url = URL(string: "https://apps.apple.com/app/id6758289216") else { return }
+                    guard let url = URL(string: "https://apps.apple.com/app/id6759388003") else { return }
                     
                     let items = [url]
                     
