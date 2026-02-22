@@ -29,16 +29,21 @@ extension MainViewController: UITextFieldDelegate {
     func alertConfigurationForCreate() {
 
         //New comparison configuration
+        let examplesMessage = """
+        For example:
+        • Compare New York and London by cost of living, technology, price.
+        • Compare Apples, Pears, and Peaches.
+        """
         self.createNewComparisonListAlert? = UIAlertController(
             title: "Create new comparison",
-            message: "",
+            message: examplesMessage,
             preferredStyle: .alert)
         
         createNewComparisonListAlert?.addTextField { alertTextfield in
             alertTextfield.autocapitalizationType = .sentences
             alertTextfield.clearButtonMode = .always
             alertTextfield.delegate = self
-            alertTextfield.placeholder = "Name your comparison"
+            alertTextfield.placeholder = "e.g. Compare 5 cities"
             alertTextfield.addTarget(self, action: #selector(self.textFieldChanged), for: .editingChanged)
         }
         
@@ -95,10 +100,16 @@ extension MainViewController: UITextFieldDelegate {
                     return
                 }
 
-                // Если введён запрос на сравнение (например "Compare X and Y by A, B, C") — обрабатываем как AI-запрос
+                // Если введён запрос на сравнение — отправляем в AI (в т.ч. "Compare 5 cities", "Compare X and Y by ...")
                 let lower = trimmed.lowercased()
-                let looksLikeCompareRequest = (lower.contains("compare") || lower.contains("сравн")) &&
-                    (lower.contains(" by ") || lower.contains(" по ") || lower.contains(" and ") || lower.contains(" и ") || lower.contains(" vs "))
+                let hasCompareKeyword = lower.contains("compare") || lower.contains("comparar") || lower.contains("comparer") || lower.contains("сравн")
+                let hasExplicitList = lower.contains(" by ") || lower.contains(" по ") || lower.contains(" and ") || lower.contains(" и ") || lower.contains(" vs ")
+                let hasGroupPrefix = lower.hasPrefix("compare ") && trimmed.count > 8
+                    || lower.hasPrefix("comparar ") && trimmed.count > 9
+                    || lower.hasPrefix("comparer ") && trimmed.count > 9
+                    || lower.hasPrefix("сравни ") && trimmed.count > 7
+                    || lower.hasPrefix("сравнить ") && trimmed.count > 9
+                let looksLikeCompareRequest = hasCompareKeyword && (hasExplicitList || hasGroupPrefix)
                 if looksLikeCompareRequest {
                     createNewComparisonListAlert?.dismiss(animated: true) {
                         self.processAIRequest(trimmed)
@@ -225,7 +236,7 @@ extension MainViewController: UITextFieldDelegate {
             textField.autocapitalizationType = .sentences
             textField.clearButtonMode = .always
             textField.delegate = self
-            textField.placeholder = "Describe comparison..."
+            textField.placeholder = "e.g. Compare 5 cities"
             textField.addTarget(self, action: #selector(self.aiTextFieldChanged), for: .editingChanged)
         }
         
@@ -926,6 +937,10 @@ extension MainViewController: UITextFieldDelegate {
                 errorMessage = "Network error when accessing the AI service. Check your internet connection and API settings."
             case .invalidResponse:
                 errorMessage = "AI service returned an invalid response format. Try again or check your API settings."
+            case .rateLimitExceeded:
+                errorMessage = "Too many requests right now. The AI service has a limit on requests per minute. Please try again in a minute."
+            default:
+                break
             }
         } else {
             // For other errors (e.g., JSON parsing)

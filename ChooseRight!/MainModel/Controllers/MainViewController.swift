@@ -159,6 +159,7 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
         setConstraints()
         setBottomInset()
         setDelegate()
+        setupAccessibility()
         
         self.addButton.layer.cornerRadius = self.addButton.frame.height / 2
         
@@ -228,6 +229,23 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     private func addGestureToPlaceholder() {
         let tapToAnimateAddButton = UITapGestureRecognizer(target: self, action: #selector(placeholderTapped))
         self.placeholderLabel.addGestureRecognizer(tapToAnimateAddButton)
+    }
+    
+    private func setupAccessibility() {
+        view.accessibilityLabel = NSLocalizedString("Main screen", comment: "Accessibility: main screen")
+        view.accessibilityHint = NSLocalizedString("Shows your comparison lists. Use the add button to create a new comparison.", comment: "Accessibility: main screen hint")
+        
+        addButton.accessibilityLabel = NSLocalizedString("Create new comparison", comment: "Accessibility: add button")
+        addButton.accessibilityHint = NSLocalizedString("Double tap to create a new comparison.", comment: "Accessibility: add button hint")
+        
+        settingsButton.accessibilityLabel = NSLocalizedString("Settings", comment: "Accessibility: settings button")
+        settingsButton.accessibilityHint = NSLocalizedString("Double tap to open menu with settings and options.", comment: "Accessibility: settings button hint")
+        
+        mainLabel.accessibilityLabel = NSLocalizedString("Choose Right", comment: "Accessibility: app title")
+        mainLabel.accessibilityTraits = .header
+        
+        placeholderLabel.accessibilityLabel = NSLocalizedString("Tap the button below to create your first comparison", comment: "Accessibility: placeholder")
+        placeholderLabel.accessibilityHint = NSLocalizedString("Double tap the add button to get started.", comment: "Accessibility: placeholder hint")
     }
     
     private func setDelegate() {

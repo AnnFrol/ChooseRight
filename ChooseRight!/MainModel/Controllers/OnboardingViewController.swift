@@ -85,6 +85,13 @@ class OnboardingViewController: UIViewController {
         
         skipButton.addTarget(self, action: #selector(skipButtonTapped), for: .touchUpInside)
         getStartedButton.addTarget(self, action: #selector(getStartedButtonTapped), for: .touchUpInside)
+        
+        skipButton.accessibilityLabel = NSLocalizedString("Skip", comment: "Accessibility: skip onboarding")
+        skipButton.accessibilityHint = NSLocalizedString("Double tap to skip onboarding.", comment: "Accessibility: skip hint")
+        getStartedButton.accessibilityLabel = NSLocalizedString("Let's go!", comment: "Accessibility: get started")
+        getStartedButton.accessibilityHint = NSLocalizedString("Double tap to start using the app.", comment: "Accessibility: get started hint")
+        pageControl.accessibilityLabel = NSLocalizedString("Onboarding pages", comment: "Accessibility: page control")
+        pageControl.accessibilityHint = NSLocalizedString("Swipe to see more pages.", comment: "Accessibility: page control hint")
     }
     
     private func setupPages() {

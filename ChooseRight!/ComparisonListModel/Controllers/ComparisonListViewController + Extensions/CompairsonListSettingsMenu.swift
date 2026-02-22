@@ -69,6 +69,11 @@ extension ComparisonListViewController {
             self.showDeleteComparisonAlert()
         })
         
+        let generateValuesAction = UIAction(title: "Generate values", image: UIImage(systemName: "sparkles"), handler: { [weak self] _ in
+            guard let self = self else { return }
+            self.showGenerateValuesInTableAlert()
+        })
+        
         
 //        let verticalOrientationAction = UIAction(title: "Vertical", image: UIImage(named: "arrowDown"), state: .on, handler: { _ in
 //            print("Vertical")})
@@ -108,6 +113,7 @@ extension ComparisonListViewController {
                 
         menu = UIMenu(title: "", image: nil,children: [
             sortingSubMenu,
+            generateValuesAction,
             shareLinkAction,
             sharePDFAction,
             deleteListAction,
@@ -161,5 +167,102 @@ extension ComparisonListViewController {
         
         // Возвращаемся на главный экран
         navigationController?.popViewController(animated: true)
+    }
+    
+    // MARK: - Generate values in table (AI)
+    func showGenerateValuesInTableAlert() {
+        let items = comparisonEntity.itemsArray
+        let attributes = comparisonEntity.attributesArray
+        guard items.count >= 2, attributes.count >= 1 else {
+            let alert = UIAlertController(
+                title: "Cannot generate values",
+                message: "You need at least 2 items and 1 attribute to generate values.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            if let popover = alert.popoverPresentationController {
+                popover.sourceView = view
+                popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
+            present(alert, animated: true)
+            return
+        }
+        
+        let alert = UIAlertController(
+            title: "Generate values",
+            message: "AI will fill the table with +/‑ for each item and criterion. Existing values will be overwritten.\n\nAI can make mistakes — please verify the values.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Generate", style: .default) { [weak self] _ in
+            self?.startGenerateValuesInTable()
+        })
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        present(alert, animated: true)
+    }
+    
+    private func startGenerateValuesInTable() {
+        let items = comparisonEntity.itemsArray.map { $0.unwrappedName }
+        let attributes = comparisonEntity.attributesArray.map { $0.unwrappedName }
+        
+        let loadingAlert = UIAlertController(
+            title: "Generating values",
+            message: "Please wait...",
+            preferredStyle: .alert
+        )
+        present(loadingAlert, animated: true)
+        
+        Task {
+            do {
+                let matrix = try await AIAssistantService.shared.generateValuesForTable(items: items, attributes: attributes)
+                await MainActor.run {
+                    loadingAlert.dismiss(animated: true) { [weak self] in
+                        self?.applyGeneratedValuesToTable(matrix)
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    loadingAlert.dismiss(animated: true) { [weak self] in
+                        self?.showGenerateValuesError(error)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func applyGeneratedValuesToTable(_ matrix: [[Bool]]) {
+        let items = comparisonEntity.itemsArray
+        let attributes = comparisonEntity.attributesArray
+        for (i, itemEntity) in items.enumerated() {
+            guard i < matrix.count else { break }
+            for (j, attrEntity) in attributes.enumerated() {
+                guard j < matrix[i].count else { break }
+                let valueEntity = sharedData.fetchValue(item: itemEntity, attribute: attrEntity)
+                sharedData.updateComparisonValue(for: valueEntity, newValue: matrix[i][j], nil)
+            }
+        }
+        objectTableView.reloadData()
+        valuesCollectionView.reloadData()
+    }
+    
+    private func showGenerateValuesError(_ error: Error) {
+        let message = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        let alert = UIAlertController(
+            title: "Error",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        present(alert, animated: true)
     }
 }

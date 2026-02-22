@@ -73,6 +73,7 @@
 		85A21C7729D8B2BC00A066E9 /* UIFonts + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A21C7629D8B2BC00A066E9 /* UIFonts + Extensions.swift */; };
 		85A21C8829D8C9DA00A066E9 /* CloseButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A21C8729D8C9DA00A066E9 /* CloseButton.swift */; };
 		85AIASSIST1A2B3C4D5E6F7G8H9I0 /* AIAssistantService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85AIASSIST1A2B3C4D5E6F7G8H9I1 /* AIAssistantService.swift */; };
+		85AITABLE1A2B3C4D5E6F7G8H9I0 /* AIAssistantService+TableValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85AITABLE1A2B3C4D5E6F7G8H9I1 /* AIAssistantService+TableValues.swift */; };
 		85E6E15429EAA7810008794E /* ObjectTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E15329EAA7810008794E /* ObjectTableViewCell.swift */; };
 		85E6E15E29F2F74A0008794E /* CompairsonListSettingsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E15D29F2F74A0008794E /* CompairsonListSettingsMenu.swift */; };
 		85E6E16629F52C480008794E /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E16529F52C480008794E /* MainViewController.swift */; };
@@ -174,6 +175,7 @@
 		85A21C7629D8B2BC00A066E9 /* UIFonts + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFonts + Extensions.swift"; sourceTree = "<group>"; };
 		85A21C8729D8C9DA00A066E9 /* CloseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseButton.swift; sourceTree = "<group>"; };
 		85AIASSIST1A2B3C4D5E6F7G8H9I1 /* AIAssistantService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistantService.swift; sourceTree = "<group>"; };
+		85AITABLE1A2B3C4D5E6F7G8H9I1 /* AIAssistantService+TableValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantService+TableValues.swift"; sourceTree = "<group>"; };
 		85E6E15329EAA7810008794E /* ObjectTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectTableViewCell.swift; sourceTree = "<group>"; };
 		85E6E15D29F2F74A0008794E /* CompairsonListSettingsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompairsonListSettingsMenu.swift; sourceTree = "<group>"; };
 		85E6E16529F52C480008794E /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
@@ -436,6 +438,7 @@
 				85A21C6929D8988300A066E9 /* Info.plist */,
 				85PRIVACY01A066E9 /* PrivacyInfo.xcprivacy */,
 				85AIASSIST1A2B3C4D5E6F7G8H9I1 /* AIAssistantService.swift */,
+				85AITABLE1A2B3C4D5E6F7G8H9I1 /* AIAssistantService+TableValues.swift */,
 				85SUBSCRIP1A2B3C4D5E6F7G8H9I1 /* SubscriptionManager.swift */,
 				85TABLEIMP1A2B3C4D5E6F7G8H9I1 /* TableImportService.swift */,
 			);
@@ -725,6 +728,7 @@
 				8532F38E29DB331400E1830C /* DetailsView.swift in Sources */,
 				855046C62A6C1A7B00AC59F8 /* AlertsConfiguration.swift in Sources */,
 				85AIASSIST1A2B3C4D5E6F7G8H9I0 /* AIAssistantService.swift in Sources */,
+				85AITABLE1A2B3C4D5E6F7G8H9I0 /* AIAssistantService+TableValues.swift in Sources */,
 				85SUBSCRIP1A2B3C4D5E6F7G8H9I0 /* SubscriptionManager.swift in Sources */,
 				85SUBSCRIP2A2B3C4D5E6F7G8H9I0 /* SubscriptionViewController.swift in Sources */,
 				85TABLEIMP1A2B3C4D5E6F7G8H9I0 /* TableImportService.swift in Sources */,

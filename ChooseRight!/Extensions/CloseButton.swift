@@ -22,5 +22,7 @@ class CloseButton: UIButton {
     private func configure() {
         setBackgroundImage(UIImage(named: "closeButton"), for: .normal)
         translatesAutoresizingMaskIntoConstraints = false
+        accessibilityLabel = NSLocalizedString("Close", comment: "Accessibility: close button")
+        accessibilityHint = NSLocalizedString("Double tap to close.", comment: "Accessibility: close button hint")
     }    
 }

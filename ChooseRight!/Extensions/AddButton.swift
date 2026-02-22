@@ -23,6 +23,9 @@ class AddButton: UIButton {
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
         clipsToBounds = true
+        
+        accessibilityLabel = NSLocalizedString("Create new comparison", comment: "Accessibility: add button")
+        accessibilityHint = NSLocalizedString("Double tap to create a new comparison.", comment: "Accessibility: add button hint")
 
         let backgroundColor = UIColor.specialColors.threeBlueLavender ?? .systemBlue
 

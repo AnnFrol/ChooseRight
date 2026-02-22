@@ -133,6 +133,8 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
         setConstraints()
         addGesture()
         setDelegates()
+        closeButton.accessibilityLabel = NSLocalizedString("Close details", comment: "Accessibility: close details screen")
+        closeButton.accessibilityHint = NSLocalizedString("Double tap to close and save.", comment: "Accessibility: close details hint")
     }
     
 
@@ -831,7 +833,7 @@ extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
     
     func alertConfigurationForAttributeChangeName(attribute: ComparisonAttributeEntity) {
         
-        self.attributeChangeNameAlert = UIAlertController(title: "Edit attibute", message: "", preferredStyle: .alert)
+        self.attributeChangeNameAlert = UIAlertController(title: "Edit attribute", message: "", preferredStyle: .alert)
         
         attributeChangeNameAlert?.addTextField { textfield in
             textfield.delegate = self

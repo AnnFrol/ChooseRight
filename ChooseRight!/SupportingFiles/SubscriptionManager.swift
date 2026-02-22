@@ -45,7 +45,9 @@ class SubscriptionManager: ObservableObject {
         do {
             products = try await Product.products(for: [premiumProductID])
         } catch {
+            #if DEBUG
             print("Failed to load products: \(error)")
+            #endif
         }
     }
     
@@ -86,7 +88,9 @@ class SubscriptionManager: ObservableObject {
                     break
                 }
             } catch {
+                #if DEBUG
                 print("Failed to verify transaction: \(error)")
+                #endif
             }
         }
         
@@ -100,7 +104,9 @@ class SubscriptionManager: ObservableObject {
                         break
                     }
                 } catch {
+                    #if DEBUG
                     print("Failed to verify transaction: \(error)")
+                    #endif
                 }
             }
         }
@@ -127,7 +133,9 @@ class SubscriptionManager: ObservableObject {
                     await transaction.finish()
                     await self.updatePurchasedStatus()
                 } catch {
+                    #if DEBUG
                     print("Transaction verification failed: \(error)")
+                    #endif
                 }
             }
         }

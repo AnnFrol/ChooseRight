@@ -144,7 +144,7 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
     
     func alertConfigurationForAttributeChangeName(attribute: ComparisonAttributeEntity) {
         
-        self.attributeChangeNameAlert = UIAlertController(title: "Edit attibute", message: "", preferredStyle: .alert)
+        self.attributeChangeNameAlert = UIAlertController(title: "Edit attribute", message: "", preferredStyle: .alert)
         
         attributeChangeNameAlert?.addTextField { textfield in
             textfield.delegate = self

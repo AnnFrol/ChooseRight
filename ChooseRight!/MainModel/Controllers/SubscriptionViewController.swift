@@ -113,11 +113,28 @@ class SubscriptionViewController: UIViewController {
         setupViews()
         setupConstraints()
         setupActions()
+        setupAccessibility()
         updatePurchaseButtonColor()
         // Устанавливаем начальный текст кнопки сразу
         updateButtons()
         // Затем загружаем продукты и обновляем цену
         loadProducts()
+    }
+    
+    private func setupAccessibility() {
+        view.accessibilityLabel = NSLocalizedString("Unlock Premium", comment: "Accessibility: subscription screen")
+        
+        titleLabel.accessibilityLabel = NSLocalizedString("Unlock Unlimited Comparisons", comment: "Accessibility: subscription title")
+        titleLabel.accessibilityTraits = .header
+        
+        purchaseButton.accessibilityLabel = NSLocalizedString("Unlock Premium", comment: "Accessibility: purchase button")
+        purchaseButton.accessibilityHint = NSLocalizedString("Double tap to purchase unlimited comparisons.", comment: "Accessibility: purchase button hint")
+        
+        restoreButton.accessibilityLabel = NSLocalizedString("Restore Purchases", comment: "Accessibility: restore button")
+        restoreButton.accessibilityHint = NSLocalizedString("Double tap to restore previous purchases.", comment: "Accessibility: restore button hint")
+        
+        closeButton.accessibilityLabel = NSLocalizedString("Close", comment: "Accessibility: close subscription")
+        closeButton.accessibilityHint = NSLocalizedString("Double tap to close this screen.", comment: "Accessibility: close button hint")
     }
     
     // Handle trait changes - method is deprecated in iOS 17.0 but still functional
@@ -174,6 +191,8 @@ class SubscriptionViewController: UIViewController {
         button.setTitleColor(.secondaryLabel, for: .normal)
         button.titleLabel?.font = .sfProTextRegular14()
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityLabel = title
+        button.accessibilityHint = NSLocalizedString("Double tap to open in browser.", comment: "Accessibility: legal link hint")
         return button
     }
     

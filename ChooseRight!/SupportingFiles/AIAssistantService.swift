@@ -40,6 +40,38 @@ struct AIComparisonResult: Codable {
     // Значения больше не генерируются - таблица создается пустой, пользователь заполняет вручную
 }
 
+// MARK: - Groq API Models (сетевой слой)
+struct GroqRequest: Encodable {
+    let model: String
+    let messages: [GroqMessage]
+    let temperature: Double
+    let max_tokens: Int?
+    let response_format: [String: String]?
+    
+    init(model: String, messages: [GroqMessage], temperature: Double, maxTokens: Int? = 500, responseFormat: [String: String]? = ["type": "json_object"]) {
+        self.model = model
+        self.messages = messages
+        self.temperature = temperature
+        self.max_tokens = maxTokens
+        self.response_format = responseFormat
+    }
+}
+
+struct GroqMessage: Encodable {
+    let role: String
+    let content: String
+}
+
+struct GroqResponse: Decodable {
+    struct Choice: Decodable {
+        struct Message: Decodable {
+            let content: String
+        }
+        let message: Message
+    }
+    let choices: [Choice]
+}
+
 /// Сервис для работы с AI ассистентом
 final class AIAssistantService: @unchecked Sendable {
     
@@ -47,117 +79,66 @@ final class AIAssistantService: @unchecked Sendable {
     
     private init() {}
     
-    /// Обрабатывает запрос пользователя и возвращает структурированные данные сравнения
-    /// УПРОЩЕННАЯ ВЕРСИЯ: Ассистент только определяет items и attributes, БЕЗ генерации значений
-    /// - Parameter userRequest: Запрос пользователя (например, "Хочу сравнить Москву и Дубай по уровню жизни, технологичности, стоимости")
-    /// - Returns: Результат сравнения с items и attributes, но БЕЗ значений (таблица создается пустой)
+    /// Обрабатывает запрос пользователя и возвращает структурированные данные сравнения.
+    /// Гибрид: быстрый парсинг регулярками + при необходимости дополнение через LLM (inferredCategory, недостающие items/attributes).
     func processComparisonRequest(_ userRequest: String) async throws -> AIComparisonResult {
-        
-        // Определяем язык запроса пользователя
         let detectedLanguage = detectLanguage(userRequest)
         
-        // Массив разделителей (слов-связок) для всех языков
-        let separators = [" и ", " and ", " vs ", " versus ", " против ", " y ", " et ", " con ", " avec "]
+        // 1. Быстрый парсинг регулярками (локально)
+        let simpleParsed = parseUserRequest(userRequest)
         
-        // Проверяем, является ли запрос коротким (2-3 слова) и без явных разделителей
-        let words = userRequest.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
-        let hasExplicitSeparator = separators.contains { userRequest.contains($0) }
-        let hasComma = userRequest.contains(",")
-        let isShortRequest = words.count <= 3 && !hasExplicitSeparator && !hasComma
+        // 2. Нужен ли LLM? — если нет объектов или нет атрибутов, даём шанс LLM дополнить (в т.ч. inferredCategory)
+        let needsLLM = simpleParsed.items == nil || simpleParsed.attributes == nil
         
-        // Для коротких запросов без разделителей сначала спрашиваем LLM
-        var parsedData: (items: [String]?, attributes: [String]?, groupName: String?, attributeGroupName: String?, inferredCategory: String?)
+        var items: [String] = simpleParsed.items ?? []
+        var attributes: [String] = simpleParsed.attributes ?? []
+        var category: String? = nil
+        var groupName = simpleParsed.groupName
+        var attrGroupName = simpleParsed.attributeGroupName
         
-        if isShortRequest {
-            // Используем LLM для парсинга коротких запросов
+        if needsLLM {
             do {
-                parsedData = try await parseUserRequestWithLLM(userRequest, language: detectedLanguage)
+                let llmParsed = try await parseUserRequestWithLLM(userRequest, language: detectedLanguage)
+                if items.isEmpty { items = llmParsed.items ?? [] }
+                if attributes.isEmpty { attributes = llmParsed.attributes ?? [] }
+                if groupName == nil { groupName = llmParsed.groupName }
+                if attrGroupName == nil { attrGroupName = llmParsed.attributeGroupName }
+                category = llmParsed.inferredCategory
             } catch {
-                // Если LLM не сработал, используем обычный парсинг
-                let simpleParsed = parseUserRequest(userRequest)
-                parsedData = (simpleParsed.items, simpleParsed.attributes, simpleParsed.groupName, simpleParsed.attributeGroupName, nil)
-            }
-        } else {
-            // Для длинных запросов или с разделителями используем обычный парсинг
-            let simpleParsed = parseUserRequest(userRequest)
-            parsedData = (simpleParsed.items, simpleParsed.attributes, simpleParsed.groupName, simpleParsed.attributeGroupName, nil)
-            
-            // Если обычный парсинг не дал результатов, пробуем LLM
-            if parsedData.items == nil && parsedData.groupName == nil && parsedData.attributes == nil {
-                do {
-                    parsedData = try await parseUserRequestWithLLM(userRequest, language: detectedLanguage)
-                } catch {
-                    // Оставляем результат обычного парсинга
-                }
+                if items.isEmpty && groupName == nil { throw AIAssistantError.parsingFailed }
             }
         }
         
-        var items: [String]
+        // 3. Групповые запросы (например, "Сравни электрокары")
+        if items.isEmpty, let gName = groupName {
+            items = try await generateItemsFromGroup(gName, language: detectedLanguage)
+        }
         
-        // Если указана группа, генерируем объекты из группы
-        if let groupName = parsedData.groupName {
-            // Генерируем 5 популярных объектов из группы через AI на том же языке
-            items = try await generateItemsFromGroup(groupName, language: detectedLanguage)
-        } else if let parsedItems = parsedData.items, parsedItems.count >= 2 {
-            // Используем распарсенные объекты (они уже на правильном языке)
-            items = parsedItems
-        } else {
-            // Не удалось распарсить ни объекты, ни группу
+        guard items.count >= 2 else {
             throw AIAssistantError.parsingFailed
         }
         
-        // Если указана группа атрибутов (например, "minerals" в скобках), генерируем атрибуты из группы
-        var attributes = parsedData.attributes ?? []
-        
-        // CRITICAL: Если пользователь четко указал атрибут(ы) в запросе (например, "по размеру", "by size"),
-        // используем ТОЛЬКО указанные атрибуты, БЕЗ генерации дополнительных
-        if let attributeGroupName = parsedData.attributeGroupName {
-            // Генерируем 5 популярных атрибутов из группы через AI на том же языке
-            attributes = try await generateItemsFromGroup(attributeGroupName, language: detectedLanguage)
+        // 4. Обработка атрибутов
+        if let aGroupName = attrGroupName {
+            attributes = try await generateItemsFromGroup(aGroupName, language: detectedLanguage)
         } else if !attributes.isEmpty {
-            // Пользователь четко указал атрибут(ы) - используем ТОЛЬКО их, без генерации дополнительных
-            // Нормализуем указанные атрибуты
-            attributes = attributes.map { normalizeAttributeName(cleanAttribute($0)) }
-                .filter { !$0.isEmpty }
-        } else if attributes.isEmpty {
-            // Атрибуты не указаны - генерируем релевантные критерии через AI на том же языке
-            // Приоритет: нечисловые атрибуты (качественные характеристики)
-            let allGeneratedAttributes = try await generateAttributesForItems(items, language: detectedLanguage)
-            
-            // Разделяем на числовые и нечисловые атрибуты
-            var numericalAttributes: [String] = []
-            var nonNumericalAttributes: [String] = []
-            
-            for attr in allGeneratedAttributes {
-                if isNumericalAttribute(attr) {
-                    numericalAttributes.append(attr)
-                } else {
-                    nonNumericalAttributes.append(attr)
-                }
+            attributes = attributes.map { normalizeAttributeName(cleanAttribute($0)) }.filter { !$0.isEmpty }
+        } else {
+            let allGenerated = try await generateAttributesForItems(items, language: detectedLanguage)
+            var numerical: [String] = []
+            var nonNumerical: [String] = []
+            for attr in allGenerated {
+                if isNumericalAttribute(attr) { numerical.append(attr) }
+                else { nonNumerical.append(attr) }
             }
-            
-            // Используем нечисловые атрибуты как основные
-            // Числовые используем только если нечисловых нет
-            if !nonNumericalAttributes.isEmpty {
-                attributes = nonNumericalAttributes
-            } else {
-                // Fallback: если сгенерировались только числовые, используем их
-                attributes = numericalAttributes
-            }
+            attributes = nonNumerical.isEmpty ? numerical : nonNumerical
         }
         
-        // Валидация: проверяем, что есть хотя бы 1 критерий
         guard attributes.count >= 1 else {
             throw AIAssistantError.parsingFailed
         }
         
-        // ВАЖНО: Значения НЕ генерируются - таблица создается пустой
-        // Пользователь заполняет значения вручную
-        return AIComparisonResult(
-            items: items,
-            attributes: attributes,
-            category: parsedData.inferredCategory
-        )
+        return AIComparisonResult(items: items, attributes: attributes, category: category)
     }
     
     /// Парсит запрос пользователя через LLM для сложных случаев
@@ -172,50 +153,80 @@ final class AIAssistantService: @unchecked Sendable {
         }
         
         let prompt = """
-        You are an analytical assistant for the Choose Right application.
-        
-        TASK:
-        Parse the user's request and extract:
-        1. Items to compare (if specific items are mentioned)
-        2. Attributes/criteria for comparison (if mentioned)
-        3. Group name (if user mentions a category like "домашние животные", "beautiful cities", "tropical fruits")
-        4. Attribute group name (if user mentions a group of attributes like "minerals", "vitamins")
-        5. Inferred category name (determine the common category for the items, e.g. "Fruits" for apple/pear, "Cities" for Moscow/Dubai)
-        
-        User request: "\(request)"
-        
-        CRITICAL RULES:
-        1. Return ONLY valid JSON, without any text before or after
-        2. DO NOT use markdown code blocks (```json or ```)
-        3. DO NOT add explanations or comments
-        4. If user mentions specific items (e.g., "Moscow and Dubai", "кошка и собака"), return them in "items" array
-        5. If user mentions a category/group (e.g., "домашние животные", "beautiful cities", "тропические фрукты"), return it in "groupName"
-        6. If user mentions specific attributes (e.g., "по размеру", "by size"), return them in "attributes" array
-        7. If user mentions an attribute group (e.g., "minerals", "витамины"), return it in "attributeGroupName"
-        8. ALWAYS determine the "inferredCategory" based on the items or groupName. It should be a short, general category name in \(languageName) (plural, capitalized, NOMINATIVE case - e.g. "Фрукты", NOT "Фруктов").
-        9. Return all text in \(languageName) language (same as user request)
-        10. If the request is ambiguous (e.g., "домашних животных"), determine if it's:
-           - A group name (category) → return in "groupName"
-           - A list of items → return in "items"
-        
-        IMPORTANT: For requests like "домашних животных" (domestic animals), this is a GROUP/CATEGORY, not individual items.
-        Return it as "groupName": "домашних животных"
-        
-        REQUIRED JSON FORMAT:
+        ### SYSTEM
+        You are a high-precision data extraction engine for the "Choose Right!" app. Your task is to parse comparison requests into structured JSON.
+
+        ### TARGET LANGUAGE
+        The user is writing in: \(languageName).
+        ALL values in the JSON (items, attributes, categories) MUST be in \(languageName).
+
+        ### TASK
+        Extract these components from the user request:
+        1. "items": Specific entities to compare (e.g., ["iPhone 15", "Pixel 8"]).
+        2. "attributes": Specific criteria mentioned (e.g., ["Price", "Camera quality"]).
+        3. "groupName": Use if the user asks for a number of items or a category (e.g., "3 cars", "5 best cities", "smartphones").
+        4. "attributeGroupName": If a set of criteria is requested (e.g., "technical specs", "nutrients").
+        5. "inferredCategory": A general, plural, capitalized noun representing the subject in \(languageName) (e.g., "Smartphones", "Cities", "Фрукты").
+
+        ### CRITICAL RULES
+        - NO VALUES: Do not generate comparison data. The table must be empty.
+        - NOMINATIVE CASE: Ensure all extracted text is in the Nominative case (e.g., "Москва", not "Москвы").
+        - JSON ONLY: Return ONLY a raw JSON object. No markdown blocks (```json), no preamble, no explanations.
+        - NULLS: Use null for missing fields.
+
+        ### USER REQUEST
+        "\(request)"
+
+        ### OUTPUT FORMAT
         {
-          "items": ["item1", "item2"] or null,
-          "attributes": ["attribute1", "attribute2"] or null,
-          "groupName": "category name" or null,
-          "attributeGroupName": "attribute group name" or null,
-          "inferredCategory": "General Category Name" (required)
+          "items": ["string"] or null,
+          "attributes": ["string"] or null,
+          "groupName": "string" or null,
+          "attributeGroupName": "string" or null,
+          "inferredCategory": "string"
         }
-        
-        IMPORTANT: Return ONLY the JSON object starting with { and ending with }. No other text!
         """
         
         let jsonResponse = try await callLLMAPI(prompt: prompt)
+        let raw = parseJSONSafe(jsonResponse)
         
-        // Парсим JSON ответ
+        // Нормализуем items, attributes и категорию (именительный падеж и т.д.)
+        let normalizedItems = raw.items?.map { normalizeItemToNominative($0) }.filter { !$0.isEmpty }
+        let normalizedAttributes = raw.attributes?.map { normalizeAttributeName($0) }.filter { !$0.isEmpty }
+        let normalizedCategory = raw.inferredCategory.map { normalizeCategoryToNominative($0) }
+        let groupNameTrimmed = raw.groupName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let attributeGroupNameTrimmed = raw.attributeGroupName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        return (
+            items: normalizedItems?.isEmpty == false ? normalizedItems : nil,
+            attributes: normalizedAttributes?.isEmpty == false ? normalizedAttributes : nil,
+            groupName: (groupNameTrimmed?.isEmpty == false) ? groupNameTrimmed : nil,
+            attributeGroupName: (attributeGroupNameTrimmed?.isEmpty == false) ? attributeGroupNameTrimmed : nil,
+            inferredCategory: normalizedCategory?.isEmpty == false ? normalizedCategory : nil
+        )
+    }
+    
+    /// Улучшенная обработка JSON (Safe Parsing): очистка от markdown и лишнего текста AI, декодирование без падений
+    private func parseJSONSafe(_ rawString: String) -> (items: [String]?, attributes: [String]?, groupName: String?, attributeGroupName: String?, inferredCategory: String?) {
+        var cleaned = rawString.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // 1. Убираем Markdown блоки если они есть
+        if cleaned.hasPrefix("```") {
+            cleaned = cleaned.components(separatedBy: "\n")
+                .filter { !$0.hasPrefix("```") }
+                .joined(separator: "\n")
+        }
+        
+        // 2. Находим границы JSON объекта на случай лишнего текста от AI
+        if let firstBrace = cleaned.firstIndex(of: "{"),
+           let lastBrace = cleaned.lastIndex(of: "}") {
+            cleaned = String(cleaned[firstBrace...lastBrace])
+        }
+        
+        guard let data = cleaned.data(using: .utf8) else {
+            return (nil, nil, nil, nil, nil)
+        }
+        
         struct ParseResponse: Codable {
             let items: [String]?
             let attributes: [String]?
@@ -224,49 +235,14 @@ final class AIAssistantService: @unchecked Sendable {
             let inferredCategory: String?
         }
         
-        // Очищаем ответ от возможных markdown блоков
-        var cleanedJSON = jsonResponse.trimmingCharacters(in: .whitespacesAndNewlines)
-        if cleanedJSON.hasPrefix("```json") {
-            cleanedJSON = String(cleanedJSON.dropFirst(7))
-        } else if cleanedJSON.hasPrefix("```") {
-            cleanedJSON = String(cleanedJSON.dropFirst(3))
-        }
-        if cleanedJSON.hasSuffix("```") {
-            cleanedJSON = String(cleanedJSON.dropLast(3))
-        }
-        cleanedJSON = cleanedJSON.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // Ищем начало JSON объекта
-        if let startIndex = cleanedJSON.firstIndex(of: "{"),
-           let endIndex = cleanedJSON.lastIndex(of: "}"),
-           startIndex <= endIndex {
-            cleanedJSON = String(cleanedJSON[startIndex...endIndex])
-        }
-        
-        guard let data = cleanedJSON.data(using: .utf8) else {
-            return (items: nil, attributes: nil, groupName: nil, attributeGroupName: nil, inferredCategory: nil)
-        }
-        
-        let decoder = JSONDecoder()
         do {
-            let response = try decoder.decode(ParseResponse.self, from: data)
-            
-            // Нормализуем items
-            let normalizedItems = response.items?.map { normalizeItemToNominative($0) }.filter { !$0.isEmpty }
-            let normalizedAttributes = response.attributes?.map { normalizeAttributeName($0) }.filter { !$0.isEmpty }
-            
-            // Нормализуем категорию к именительному падежу (для русского языка)
-            let normalizedCategory = response.inferredCategory.map { normalizeCategoryToNominative($0) }
-            
-            return (
-                items: normalizedItems?.isEmpty == false ? normalizedItems : nil,
-                attributes: normalizedAttributes?.isEmpty == false ? normalizedAttributes : nil,
-                groupName: response.groupName?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false ? response.groupName?.trimmingCharacters(in: .whitespacesAndNewlines) : nil,
-                attributeGroupName: response.attributeGroupName?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false ? response.attributeGroupName?.trimmingCharacters(in: .whitespacesAndNewlines) : nil,
-                inferredCategory: normalizedCategory?.isEmpty == false ? normalizedCategory : nil
-            )
+            let res = try JSONDecoder().decode(ParseResponse.self, from: data)
+            return (res.items, res.attributes, res.groupName, res.attributeGroupName, res.inferredCategory)
         } catch {
-            return (items: nil, attributes: nil, groupName: nil, attributeGroupName: nil, inferredCategory: nil)
+            #if DEBUG
+            print("AI JSON Parsing Error: \(error)")
+            #endif
+            return (nil, nil, nil, nil, nil)
         }
     }
     
@@ -274,16 +250,55 @@ final class AIAssistantService: @unchecked Sendable {
     /// Возвращает: items, attributes, groupName (для объектов), attributeGroupName (для атрибутов в скобках)
     func parseUserRequest(_ request: String) -> (items: [String]?, attributes: [String]?, groupName: String?, attributeGroupName: String?) {
         
-        let lowercased = request.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let spaceSet = CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "\u{00A0}\u{FEFF}"))
+        let trimmedRequest = request.trimmingCharacters(in: spaceSet)
+        let lowercased = trimmedRequest.lowercased()
         var items: [String] = []
         var attributes: [String] = []
         var groupName: String? = nil
         var attributeGroupName: String? = nil
         
+        // --- БЛОК ДЛЯ ГРУПП: "Compare 5 cities", "Compare cities", "Сравни города"
+        let groupKeywords = ["сравнить", "сравни", "compare", "comparar", "comparer"]
+        for keyword in groupKeywords {
+            guard lowercased.hasPrefix(keyword) else { continue }
+            let potentialGroup = String(lowercased.dropFirst(keyword.count))
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !potentialGroup.isEmpty else { continue }
+            // Список: " и ", " and ", " vs ". Запятая — только если есть 2+ непустых части (не в конце).
+            let hasAndVs = [" и ", " and ", " vs ", " versus ", " против "].contains { lowercased.contains($0) }
+            let commaParts = lowercased.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+            let hasCommaList = commaParts.count >= 2
+            if !hasAndVs && !hasCommaList {
+                return (items: nil, attributes: nil, groupName: potentialGroup, attributeGroupName: nil)
+            }
+        }
+        // --- КОНЕЦ БЛОКА ДЛЯ ГРУПП ---
+        
+        // Запасной разбор «число + группа»: "I want to compare 5 cities"
+        let lowerTrimmed = lowercased
+        // Сначала префиксы с пробелом, затем без (на случай неразрывного пробела или "Compare5 cities")
+        let comparePrefixes = [
+            "i want to compare ", "i'd like to compare ",
+            "compare ", "comparar ", "comparer ", "сравни ", "сравнить ",
+            "compare", "comparar", "comparer", "сравни", "сравнить"
+        ]
+        for prefix in comparePrefixes {
+            guard lowerTrimmed.hasPrefix(prefix) else { continue }
+            let afterPrefix = String(trimmedRequest.dropFirst(prefix.count)).trimmingCharacters(in: spaceSet)
+            guard !afterPrefix.isEmpty, let first = afterPrefix.first, first.isNumber else { continue }
+            var countEnd = afterPrefix.startIndex
+            while countEnd < afterPrefix.endIndex, afterPrefix[countEnd].isNumber { countEnd = afterPrefix.index(after: countEnd) }
+            let countStr = String(afterPrefix[..<countEnd])
+            let group = String(afterPrefix[countEnd...]).trimmingCharacters(in: spaceSet)
+            guard !countStr.isEmpty, Int(countStr) != nil, !group.isEmpty else { continue }
+            return (items: nil, attributes: nil, groupName: "\(countStr) \(group)", attributeGroupName: nil)
+        }
+        
         // PRIORITY CHECK: Check for "Compare [criterion] of [items]" pattern - e.g., "Compare the calorie content of carrots, beets, and potatoes"
         // This must be checked BEFORE generic list parsing to avoid incorrect parsing where criterion becomes part of the first item
-        if lowercased.hasPrefix("compare") || lowercased.hasPrefix("comparar") || lowercased.hasPrefix("comparer") {
-            let compareOfPattern = #"(?:compare|comparar|comparer)\s+(?:the\s+)?(.+?)\s+(?:of|de)\s+(.+?)$"#
+        if lowercased.hasPrefix("compare") || lowercased.hasPrefix("comparar") || lowercased.hasPrefix("comparer") || lowercased.hasPrefix("сравни") || lowercased.hasPrefix("сравнить") {
+            let compareOfPattern = #"(?:compare|comparar|comparer|сравни|сравнить)\s+(?:the\s+)?(.+?)\s+(?:of|de|des|из|от)\s+(.+?)$"#
             if let regex = try? NSRegularExpression(pattern: compareOfPattern, options: .caseInsensitive) {
                 let nsString = request as NSString
                 let results = regex.matches(in: request, options: [], range: NSRange(location: 0, length: nsString.length))
@@ -660,8 +675,8 @@ final class AIAssistantService: @unchecked Sendable {
         }
         
         // Second, check for "X of Y" pattern (criterion of group) - e.g., "Caloric content of cereals"
-        // Supports English "of", Spanish "de", French "de"
-        let ofPattern = #"(.+?)\s+(?:of|de)\s+(.+?)$"#
+        // Supports English "of", Spanish "de", French "de/des", Russian "из/от"
+        let ofPattern = #"(.+?)\s+(?:of|de|des|из|от)\s+(.+?)$"#
         if items.isEmpty && attributes.isEmpty && groupName == nil {
             if let regex = try? NSRegularExpression(pattern: ofPattern, options: .caseInsensitive) {
                 let nsString = request as NSString
@@ -1207,7 +1222,7 @@ final class AIAssistantService: @unchecked Sendable {
         return items
     }
     
-    /// Очищает название объекта от лишних слов
+    /// Очищает название объекта: префиксы/суффиксы запроса, артикли и падежи — в т.ч. испанские (el, la, los, las) и французские (le, la, les) через normalizeItemToNominative.
     private func cleanItemName(_ name: String) -> String {
         var cleaned = name.trimmingCharacters(in: .whitespacesAndNewlines)
         
@@ -1241,8 +1256,8 @@ final class AIAssistantService: @unchecked Sendable {
         return cleaned
     }
     
-    /// Нормализует названия к именительному падежу (для русского) или убирает артикли (для испанского/французского)
-    /// Например: "Москву" -> "Москва", "la manzana" -> "manzana", "le chat" -> "chat"
+    /// Нормализует названия к именительному падежу (русский) и убирает артикли (EN: the/a/an, ES: el/la/los/las, FR: le/la/les).
+    /// Для сложных падежей и мультиязычности приоритет у LLM: в промпте указано CRITICAL RULES - NOMINATIVE CASE.
     private func normalizeItemToNominative(_ name: String) -> String {
         var normalized = name.trimmingCharacters(in: .whitespacesAndNewlines)
         
@@ -1550,7 +1565,7 @@ final class AIAssistantService: @unchecked Sendable {
     /// Определяет язык запроса пользователя
     /// - Parameter text: Текст запроса
     /// - Returns: Код языка ("en", "ru", "es", "fr")
-    private func detectLanguage(_ text: String) -> String {
+    func detectLanguage(_ text: String) -> String {
         // Проверяем наличие кириллицы (русский)
         if text.range(of: "[а-яё]", options: .regularExpression) != nil {
             return "ru"
@@ -1570,135 +1585,61 @@ final class AIAssistantService: @unchecked Sendable {
         return "en"
     }
     
-    /// Генерирует популярные объекты из группы через AI
-    /// - Parameter groupName: Название группы (например, "фрукты", "города", "телефоны")
+    /// Генерирует популярные объекты из группы через AI. Число берётся из строки (например, "5" из "5 cities"), иначе 5.
+    /// - Parameter groupName: Название группы (например, "5 cities", "10 смартфонов", "города")
     /// - Parameter language: Язык для генерации ("en", "ru", "es", "fr")
-    /// - Returns: Массив из 5 популярных объектов из группы
+    /// - Returns: Массив из запрошенного количества популярных объектов
     private func generateItemsFromGroup(_ groupName: String, language: String = "en") async throws -> [String] {
-        // Определяем, содержит ли название группы описательное прилагательное
-        let hasAdjective = detectAdjectiveInGroupName(groupName, language: language)
-        
-        // Проверяем, состоит ли группа из 2+ слов (вероятно содержит прилагательное)
-        let words = groupName.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
-        let hasMultipleWords = words.count >= 2
-        
-        let languageInstruction: String
-        switch language {
-        case "ru":
-            languageInstruction = "CRITICAL: Return all item names in RUSSIAN language."
-        case "es":
-            languageInstruction = "CRITICAL: Return all item names in SPANISH language."
-        case "fr":
-            languageInstruction = "CRITICAL: Return all item names in FRENCH language."
-        default:
-            languageInstruction = "CRITICAL: Return all item names in ENGLISH language."
-        }
-        
-        // ВСЕГДА учитываем полное название группы, особенно если оно состоит из нескольких слов
-        // Это критически важно для групп с прилагательными
-        let categoryInstruction = (hasAdjective || hasMultipleWords) ? """
-        
-        CRITICAL: The category name is "\(groupName)". 
-        
-        IMPORTANT: This category name contains MULTIPLE WORDS. You MUST consider ALL words in the name, not just the last word.
-        
-        If the name contains a descriptive adjective (like "красивые", "beautiful", "tropical", "тропические", "hermosas", "belles"), 
-        you MUST select items that match BOTH the adjective AND the noun.
-        
-        Examples of correct interpretation:
-        - Category "красивые города" (beautiful cities) → select BEAUTIFUL cities like Paris, Venice, Prague, NOT just any cities
-        - Category "домашних животных" (domestic animals) → select DOMESTIC/PET animals like dog, cat, rabbit, NOT wild animals
-        - Category "тропические фрукты" (tropical fruits) → select TROPICAL fruits like mango, pineapple, papaya, NOT temperate fruits
-        - Category "beautiful cities" → select BEAUTIFUL cities, NOT just any cities
-        - Category "tropical fruits" → select TROPICAL fruits, NOT just any fruits
-        - Category "ciudades hermosas" → select BEAUTIFUL cities (hermosas = beautiful)
-        - Category "belles villes" → select BEAUTIFUL cities (belles = beautiful)
-        
-        DO NOT ignore any words in the category name! Every word is important for defining the category.
-        If the first word is an adjective, it describes what kind of items you should select.
-        """ : """
-        
-        IMPORTANT: The category name is "\(groupName)". 
-        Select items that belong to this specific category.
-        """
+        let countStr = groupName.components(separatedBy: CharacterSet.decimalDigits.inverted)
+            .filter { !$0.isEmpty }
+            .first
+        let finalCount = Int(countStr ?? "5") ?? 5
         
         let prompt = """
-        You are an analytical assistant for the Choose Right application.
-
-        TASK:
-        Create a list of 5 most popular and well-known items from the category "\(groupName)".
-        Return the result STRICTLY in JSON format.
-        \(languageInstruction)\(categoryInstruction)
-
-        CRITICAL RULES:
-        1. Return ONLY valid JSON, without any text before or after
-        2. DO NOT use markdown code blocks (```json or ```)
-        3. DO NOT add explanations or comments
-        4. Select exactly 5 most popular and well-known items from this category
-        5. Use short item names (1-3 words)
-        6. Names must be clear and specific
-        7. Items MUST match the FULL category name "\(groupName)" - consider ALL words in the name, especially if it contains descriptive adjectives
-
-        REQUIRED JSON FORMAT:
-        {
-          "items": ["item 1", "item 2", "item 3", "item 4", "item 5"]
-        }
-
-        IMPORTANT: Return ONLY the JSON object starting with { and ending with }. No other text!
+        ### TASK
+        Generate exactly \(finalCount) specific items for: "\(groupName)".
+        Language: \(language).
+        Format: JSON {"result": ["Item1", "Item2", ...]}
+        Rules: Nominative case, no descriptions, ONLY names.
         """
         
-        let jsonResponse = try await callLLMAPI(prompt: prompt)
-        
-        // Парсим JSON ответ
-        struct ItemsResponse: Codable {
-            let items: [String]
+        let response = try await callLLMAPI(prompt: prompt)
+        let items = parseResultArray(from: response, maxCount: finalCount)
+        if !items.isEmpty {
+            return items
         }
-        
-        // Очищаем ответ от возможных markdown блоков
-        var cleanedJSON = jsonResponse.trimmingCharacters(in: .whitespacesAndNewlines)
-        if cleanedJSON.hasPrefix("```json") {
-            cleanedJSON = String(cleanedJSON.dropFirst(7))
-        } else if cleanedJSON.hasPrefix("```") {
-            cleanedJSON = String(cleanedJSON.dropFirst(3))
+        return Array(getFallbackItemsForGroup(groupName, language: language).prefix(finalCount))
+    }
+    
+    /// Извлекает первое число из строки (например, "5" из "5 лучших городов", "10" из "10 смартфонов").
+    private func extractNumber(from text: String) -> Int? {
+        let pattern = #"\d+"#
+        guard let range = text.range(of: pattern, options: .regularExpression),
+              let number = Int(text[range]) else {
+            return nil
         }
-        if cleanedJSON.hasSuffix("```") {
-            cleanedJSON = String(cleanedJSON.dropLast(3))
+        return number
+    }
+    
+    /// Парсит JSON-ответ LLM: ищет массив по ключу "result" или "items" и возвращает до maxCount строк.
+    private func parseResultArray(from response: String, maxCount: Int = 20) -> [String] {
+        var cleaned = response.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleaned.hasPrefix("```json") { cleaned = String(cleaned.dropFirst(7)) }
+        else if cleaned.hasPrefix("```") { cleaned = String(cleaned.dropFirst(3)) }
+        if cleaned.hasSuffix("```") { cleaned = String(cleaned.dropLast(3)) }
+        cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let start = cleaned.firstIndex(of: "{"), let end = cleaned.lastIndex(of: "}"), start <= end {
+            cleaned = String(cleaned[start...end])
         }
-        cleanedJSON = cleanedJSON.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // Ищем начало JSON объекта
-        if let startIndex = cleanedJSON.firstIndex(of: "{"),
-           let endIndex = cleanedJSON.lastIndex(of: "}"),
-           startIndex <= endIndex {
-            cleanedJSON = String(cleanedJSON[startIndex...endIndex])
+        guard let data = cleaned.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return []
         }
-        
-        guard let data = cleanedJSON.data(using: .utf8) else {
-            // Fallback: возвращаем дефолтные объекты в зависимости от группы и языка
-            return getFallbackItemsForGroup(groupName, language: language)
-        }
-        
-        let decoder = JSONDecoder()
-        do {
-            let response = try decoder.decode(ItemsResponse.self, from: data)
-            // Фильтруем и валидируем объекты
-            let validItems = response.items
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                .filter { !$0.isEmpty && $0.count > 1 }
-            
-            // Если получили валидные объекты, возвращаем их (ровно 5)
-            if !validItems.isEmpty {
-                return Array(validItems.prefix(5))
-            }
-        } catch _ {
-            // Если парсинг не удался, пытаемся извлечь вручную
-            if let items = extractItemsManually(from: cleanedJSON) {
-                return items
-            }
-        }
-        
-        // Fallback: возвращаем дефолтные объекты на правильном языке
-        return getFallbackItemsForGroup(groupName, language: language)
+        let raw = (json["result"] as? [String]) ?? (json["items"] as? [String]) ?? []
+        let valid = raw
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && $0.count > 1 }
+        return Array(valid.prefix(maxCount))
     }
     
     /// Извлекает объекты вручную из текста, если JSON парсинг не удался
@@ -1978,14 +1919,12 @@ final class AIAssistantService: @unchecked Sendable {
         return try await callGroqAPI(prompt: prompt)
     }
     
-    /// Вызов Groq API (бесплатный tier, очень быстрый)
-    /// Получите API ключ на https://console.groq.com/
-    private func callGroqAPI(prompt: String) async throws -> String {
-        // Ключ подставляется из Secrets.xcconfig → ChooseRight.xcconfig → INFOPLIST_KEY_GroqAPIKey
+    /// Вызов Groq API (типизированный сетевой слой). Доступен для расширений (например, генерация значений таблицы).
+    /// Ключ: Secrets.xcconfig → INFOPLIST_KEY_GroqAPIKey. Модель и system-промпт настраиваются ниже.
+    func callGroqAPI(prompt: String, maxTokens: Int = 500) async throws -> String {
+        // 1. Конфигурация: ключ из Info.plist (подставляется из Secrets.xcconfig)
         let rawKey = Bundle.main.object(forInfoDictionaryKey: "GroqAPIKey") as? String ?? ""
         let apiKey = rawKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // Проверяем, что ключ настроен (не пустой и не плейсхолдер)
         guard !apiKey.isEmpty,
               apiKey != "YOUR_GROQ_API_KEY",
               !apiKey.hasPrefix("$(") else {
@@ -1993,96 +1932,93 @@ final class AIAssistantService: @unchecked Sendable {
         }
         
         guard let url = URL(string: "https://api.groq.com/openai/v1/chat/completions") else {
-            throw AIAssistantError.networkError
+            throw AIAssistantError.invalidURL
         }
+        
+        // 2. Системный промпт: JSON и nominative case для стабильности на всех языках
+        let systemContent = """
+        You are a helpful assistant that always responds in JSON format and respects the nominative case for all languages.
+        """
+        
+        let requestBody = GroqRequest(
+            model: "llama-3.3-70b-versatile",
+            messages: [
+                GroqMessage(role: "system", content: systemContent),
+                GroqMessage(role: "user", content: prompt)
+            ],
+            temperature: 0.0,
+            maxTokens: maxTokens,
+            responseFormat: ["type": "json_object"]
+        )
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(requestBody)
         
-        // Системные правила для модели
-        let systemRules = """
-        Ты — аналитический модуль приложения "ChooseRight!". 
-        Твоя задача: сравнивать объекты по критериям, используя только "+" и "-".
-
-        КРИТИЧЕСКИ ВАЖНО:
-        - Ты ОБЯЗАН сравнивать объекты относительно друг друга
-        - Для КАЖДОГО критерия хотя бы ОДИН объект ДОЛЖЕН получить "+"
-        - НЕДОПУСТИМО ставить "-" для всех объектов по какому-либо критерию
-        - Если объекты кажутся равными, выбери лучший и поставь ему "+"
-        - ИСПОЛЬЗУЙ КОНКРЕТНЫЕ ЧИСЛОВЫЕ ДАННЫЕ из твоих знаний, а не общие впечатления
-
-        ПРАВИЛА ОЦЕНКИ (ИСПОЛЬЗУЙ РЕАЛЬНЫЕ ДАННЫЕ):
-        1. "+" — это преимущество, наличие полезного свойства или высокий показатель (для позитивных качеств).
-        2. "-" — это недостаток, отсутствие или низкий показатель.
-        3. Если критерий "Цена/Стоимость/Cost/Price": Используй РЕАЛЬНЫЕ ЦЕНЫ. "+" — это доступная цена (дешево), "-" — это дорого.
-        4. Если критерий "Калории/Calories": Используй РЕАЛЬНОЕ СОДЕРЖАНИЕ КАЛОРИЙ. Сравни конкретные числа (ккал на 100г). "+" — это высокое содержание, "-" — низкое.
-        5. Если критерий "Technology/Технологии": Используй РЕАЛЬНЫЕ ФАКТЫ о технологическом развитии. "+" — лучшие технологии, "-" — хуже.
-        6. Если критерий "Education/Образование": Используй РЕАЛЬНЫЕ ДАННЫЕ об образовании (университеты, рейтинги). "+" — лучшие возможности, "-" — хуже.
-        7. Для ВСЕХ критериев: Используй КОНКРЕТНЫЕ ЧИСЛА и ФАКТЫ из твоих знаний, сравнивай РЕАЛЬНЫЕ ЗНАЧЕНИЯ.
-        8. Отвечай СТРОГО в формате JSON без вводных слов.
-        """
-        
-        let body: [String: Any] = [
-            "model": "llama-3.1-8b-instant", // Быстрая модель, можно заменить на "mixtral-8x7b-32768" для лучшего качества
-            "messages": [
-                ["role": "system", "content": systemRules], // Ключевой апгрейд здесь
-                ["role": "user", "content": prompt]
-            ],
-            "temperature": 0.0, // Установлено в 0 для максимальной детерминированности
-            "top_p": 1.0, // Используем все токены для максимальной детерминированности
-            "max_tokens": 500,
-            "response_format": ["type": "json_object"] // Обязательно для стабильного парсинга
-        ]
-        
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        
+        // 3. Выполнение запроса
         let (data, response) = try await URLSession.shared.data(for: request)
         
-        // Проверяем статус ответа
-        if let httpResponse = response as? HTTPURLResponse {
-            if httpResponse.statusCode == 401 {
-                throw AIAssistantError.networkError // Неверный API ключ
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw AIAssistantError.invalidResponse
+        }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            // 429 Too Many Requests — лимиты Groq (RPM на бесплатном уровне)
+            if httpResponse.statusCode == 429 {
+                throw AIAssistantError.rateLimitExceeded
             }
-            if httpResponse.statusCode != 200 {
-                throw AIAssistantError.networkError
-            }
+            let errorMsg = String(data: data, encoding: .utf8) ?? "HTTP \(httpResponse.statusCode)"
+            throw AIAssistantError.apiError(errorMsg)
         }
         
-        // Парсим ответ Groq (OpenAI-совместимый формат)
-        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-            // Проверяем наличие ошибки
-            if json["error"] is [String: Any] {
-                throw AIAssistantError.networkError
+        // 4. Парсинг ответа через типизированную модель
+        let groqResult: GroqResponse
+        do {
+            groqResult = try JSONDecoder().decode(GroqResponse.self, from: data)
+        } catch {
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any], json["error"] != nil {
+                let errorMsg = String(data: data, encoding: .utf8) ?? "API error"
+                throw AIAssistantError.apiError(errorMsg)
             }
-            
-            if let choices = json["choices"] as? [[String: Any]],
-               let firstChoice = choices.first,
-               let message = firstChoice["message"] as? [String: Any],
-               let content = message["content"] as? String {
-                return content
-            }
+            throw AIAssistantError.invalidResponse
         }
         
-        throw AIAssistantError.invalidResponse
+        guard let content = groqResult.choices.first?.message.content, !content.isEmpty else {
+            throw AIAssistantError.noData
+        }
+        
+        return content
     }
     
 }
 
 enum AIAssistantError: LocalizedError {
+    case invalidURL
+    case noData
     case parsingFailed
     case networkError
     case invalidResponse
+    case apiError(String)
+    /// 429 Too Many Requests — превышен лимит запросов в минуту (Groq RPM)
+    case rateLimitExceeded
     
     var errorDescription: String? {
         switch self {
+        case .invalidURL:
+            return "Invalid API URL"
+        case .noData:
+            return "No content in AI response"
         case .parsingFailed:
             return "Failed to recognize items and criteria in your request"
         case .networkError:
             return "Network error when accessing the AI service"
         case .invalidResponse:
             return "Invalid response format from the AI service"
+        case .apiError(let message):
+            return message.isEmpty ? "API error" : message
+        case .rateLimitExceeded:
+            return "Too many requests. Please try again in a minute."
         }
     }
 }

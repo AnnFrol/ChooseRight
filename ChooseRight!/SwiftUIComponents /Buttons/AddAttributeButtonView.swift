@@ -24,7 +24,6 @@ struct AddAttributeButtonView: View {
 #Preview("Add Attribute Button") {
     VStack(spacing: 20) {
         AddAttributeButtonView(title: "+ Add attribute", action: {})
-        AddAttributeButtonView(title: "+ Добавить атрибут", action: {})
     }
     .padding()
     .background(Color.specialColors.background)
