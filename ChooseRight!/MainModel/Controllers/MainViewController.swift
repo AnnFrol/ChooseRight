@@ -161,8 +161,6 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
         setDelegate()
         setupAccessibility()
         
-        self.addButton.layer.cornerRadius = self.addButton.frame.height / 2
-        
         NotificationCenter.default.addObserver(self, selector: #selector(updateMenu), name: .didChangeTheme, object: nil)
         
         

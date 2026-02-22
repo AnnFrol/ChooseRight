@@ -51,9 +51,10 @@ class AddButton: UIButton {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        if #available(iOS 15.0, *) { } else {
-            layer.cornerRadius = bounds.height / 2
-        }
+        // Always set cornerRadius from bounds so the button stays round (avoids wrong radius when frame was zero at init).
+        let radius = min(bounds.width, bounds.height) / 2
+        guard radius > 0 else { return }
+        layer.cornerRadius = radius
     }
 
     @objc private func buttonPressed() {
