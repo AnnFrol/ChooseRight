@@ -98,9 +98,6 @@
 		DFE47FAB2EE6F5DB0071D342 /* AddAttributeButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F8B2EE6F5DB0071D342 /* AddAttributeButtonView.swift */; };
 		DFE47FAC2EE6F5DB0071D342 /* PreviewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F982EE6F5DB0071D342 /* PreviewHelpers.swift */; };
 		DFE47FAD2EE6F5DB0071D342 /* MainViewHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE47F942EE6F5DB0071D342 /* MainViewHostingController.swift */; };
-		DFE47FAE2EE6F5DB0071D342 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DFE47F9F2EE6F5DB0071D342 /* README.md */; };
-		DFE47FAF2EE6F5DB0071D342 /* HOW_TO_ADD_TO_XCODE.md in Resources */ = {isa = PBXBuildFile; fileRef = DFE47F9D2EE6F5DB0071D342 /* HOW_TO_ADD_TO_XCODE.md */; };
-		DFE47FB02EE6F5DB0071D342 /* INTEGRATION_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = DFE47F9E2EE6F5DB0071D342 /* INTEGRATION_GUIDE.md */; };
 		85PRIVACY02A066E9 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 85PRIVACY01A066E9 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
@@ -667,9 +664,6 @@
 			files = (
 				85A21C6829D8988300A066E9 /* LaunchScreen.storyboard in Resources */,
 				85A21C6529D8988300A066E9 /* Assets.xcassets in Resources */,
-				DFE47FAE2EE6F5DB0071D342 /* README.md in Resources */,
-				DFE47FAF2EE6F5DB0071D342 /* HOW_TO_ADD_TO_XCODE.md in Resources */,
-				DFE47FB02EE6F5DB0071D342 /* INTEGRATION_GUIDE.md in Resources */,
 				DF5B57622EFBFE6F0051D7C6 /* AppIcon.icon in Resources */,
 				85A21C9029D8A00100A066E9 /* DocumentIcon.png in Resources */,
 				85PRIVACY02A066E9 /* PrivacyInfo.xcprivacy in Resources */,
