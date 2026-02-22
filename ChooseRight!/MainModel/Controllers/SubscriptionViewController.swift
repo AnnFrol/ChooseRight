@@ -66,8 +66,8 @@ class SubscriptionViewController: UIViewController {
         button.titleLabel?.font = .sfProTextSemibold18()
         button.layer.cornerRadius = 32
         button.translatesAutoresizingMaskIntoConstraints = false
-        // Устанавливаем начальный текст сразу, чтобы он был виден без задержки
-        button.setTitle("Unlock Premium - $9.99", for: .normal)
+        // Без конкретной цены — после загрузки продукта подставится displayPrice для региона пользователя
+        button.setTitle(NSLocalizedString("Unlock Premium", comment: "Purchase button before price loads"), for: .normal)
         return button
     }()
     
@@ -316,17 +316,18 @@ class SubscriptionViewController: UIViewController {
     
     private func updateButtons() {
         let products = subscriptionManager.products
+        let unlockTitle = NSLocalizedString("Unlock Premium", comment: "Purchase button base title")
         
-        // Find premium product
         if let premium = products.first {
             premiumProduct = premium
+            // displayPrice — локализованная цена для региона пользователя (€, ¥, $ и т.д.)
             let price = premium.displayPrice
-            purchaseButton.setTitle("Unlock Premium - \(price)", for: .normal)
+            purchaseButton.setTitle("\(unlockTitle) – \(price)", for: .normal)
             purchaseButton.isEnabled = true
             purchaseButton.alpha = 1.0
         } else {
-            // Fallback price - $9.99
-            purchaseButton.setTitle("Unlock Premium - $9.99", for: .normal)
+            // Без конкретной валюты: продукт ещё не загружен или недоступен
+            purchaseButton.setTitle(unlockTitle, for: .normal)
             purchaseButton.isEnabled = true
             purchaseButton.alpha = 1.0
         }
