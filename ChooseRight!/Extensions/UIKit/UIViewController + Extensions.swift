@@ -128,7 +128,7 @@ extension UIViewController {
         
         // Title Label
         let titleLabel = UILabel()
-        titleLabel.text = "Comparison imported"
+        titleLabel.text = NSLocalizedString("Comparison imported", comment: "")
         titleLabel.font = .systemFont(ofSize: 20, weight: .semibold)
         titleLabel.textColor = .white
         titleLabel.textAlignment = .center
@@ -136,7 +136,7 @@ extension UIViewController {
         
         // Message Label
         let messageLabel = UILabel()
-        messageLabel.text = "The comparison has been successfully added to your list."
+        messageLabel.text = NSLocalizedString("The comparison has been successfully added to your list.", comment: "")
         messageLabel.font = .systemFont(ofSize: 16, weight: .regular)
         messageLabel.textColor = .lightGray
         messageLabel.textAlignment = .center
@@ -145,7 +145,7 @@ extension UIViewController {
         
         // OK Button
         let okButton = UIButton(type: .system)
-        okButton.setTitle("OK", for: .normal)
+        okButton.setTitle(NSLocalizedString("OK", comment: ""), for: .normal)
         okButton.setTitleColor(.white, for: .normal)
         okButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
         okButton.backgroundColor = UIColor(white: 0.2, alpha: 1.0)

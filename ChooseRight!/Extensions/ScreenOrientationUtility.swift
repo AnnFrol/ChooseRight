@@ -21,21 +21,16 @@ struct ScreenOrientationUtility {
         
         self.lockOrientation(orientation)
         
-        if #available(iOS 16.0, *) {
-                guard
-                    let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                    let rootViewController = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController
-                else { return }
-                rootViewController.setNeedsUpdateOfSupportedInterfaceOrientations()
-                windowScene.requestGeometryUpdate(.iOS(
-                    interfaceOrientations: windowScene.interfaceOrientation.isLandscape
-                        ? .portrait
-                        : .landscapeRight
-                ))
-            } else {
-                UIDevice.current.setValue(rotateOrientation.rawValue, forKey: "orientation")
-                UINavigationController.attemptRotationToDeviceOrientation()
-            }
+        guard
+            let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let rootViewController = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+        else { return }
+        rootViewController.setNeedsUpdateOfSupportedInterfaceOrientations()
+        windowScene.requestGeometryUpdate(.iOS(
+            interfaceOrientations: windowScene.interfaceOrientation.isLandscape
+                ? .portrait
+                : .landscapeRight
+        ))
     }
     
 }

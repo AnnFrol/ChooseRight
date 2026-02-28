@@ -1,0 +1,115 @@
+/* Main & onboarding (app name not translated) */
+"Choose Right" = "Choose Right";
+"Choose Right!" = "Choose Right!";
+"Tap the button to create your first comparison" = "Toca el botón para crear tu primera comparación";
+"Create new comparison" = "Crear nueva comparación";
+"Enter a name for your comparison" = "Introduce un nombre para tu comparación";
+"Comparison name" = "Nombre de la comparación";
+"Delete comparison?" = "¿Eliminar comparación?";
+"Rename your comparison" = "Renombrar comparación";
+"The old name is no good?" = "¿El nombre anterior no te convence?";
+"Change name" = "Cambiar nombre";
+"Change color" = "Cambiar color";
+"Delete" = "Eliminar";
+"Cancel" = "Cancelar";
+"Start" = "Comenzar";
+"Save" = "Guardar";
+"OK" = "Aceptar";
+"Error" = "Error";
+"New name" = "Nuevo nombre";
+
+/* Menu & settings */
+"Version %@" = "Versión %@";
+"Dark" = "Oscuro";
+"Light" = "Claro";
+"Email" = "Correo";
+"Telegram" = "Telegram";
+"Instagram" = "Instagram";
+"Contact us " = "Contáctanos";
+"Premium unlocked" = "Premium desbloqueado";
+"Unlock Premium" = "Desbloquear Premium";
+"Settings" = "Ajustes";
+
+/* Alerts - AI & generate */
+"Generate" = "Generar";
+"Create" = "Crear";
+"Processing Request" = "Procesando solicitud";
+"Generating comparison..." = "Generando comparación...";
+"Describe what you want to compare. For example: \"Compare New York and London by cost of living, technology, price, education opportunities\"" = "Describe qué quieres comparar. Por ejemplo: \"Compara Nueva York y Londres por coste de vida, tecnología, precio, oportunidades de educación\"";
+"Warning" = "Advertencia";
+"Failed to get data from AI. Created comparison with default values. You can fill it manually." = "No se pudieron obtener datos del asistente. Se creó la comparación con valores por defecto. Puedes rellenarla manualmente.";
+"Could not parse the table. Please make sure the format is correct." = "No se pudo interpretar la tabla. Comprueba que el formato sea correcto.";
+"Could not create comparison. A comparison with this name may already exist." = "No se pudo crear la comparación. Puede que ya exista una con este nombre.";
+"Could not find the created comparison." = "No se encontró la comparación creada.";
+"Cannot access file" = "No se puede acceder al archivo";
+
+/* Comparison list & table */
+"Download PDF" = "Descargar PDF";
+"Share" = "Compartir";
+"Delete list" = "Eliminar lista";
+"Generate values" = "Generar valores";
+"Failed to create share file" = "Error al crear el archivo para compartir";
+"Sort" = "Ordenar";
+"Percent" = "Porcentaje";
+"Created" = "Creado";
+"Name" = "Nombre";
+"Edit attribute" = "Editar atributo";
+"Delete attribute" = "Eliminar atributo";
+"New attribute" = "Nuevo atributo";
+"Enter attribute for comparison" = "Introduce el atributo para la comparación";
+"This action cannot be undone." = "Esta acción no se puede deshacer.";
+"Cannot generate values" = "No se pueden generar valores";
+"You need at least 2 items and 1 attribute to generate values." = "Necesitas al menos 2 elementos y 1 atributo para generar valores.";
+"AI will fill the table with +/‑ for each item and criterion. Existing values will be overwritten.\n\nAI can make mistakes — please verify the values." = "El asistente rellenará la tabla con +/‑ para cada elemento y criterio. Los valores actuales se sobrescribirán.\n\nPuede haber errores — comprueba los valores.";
+"Generating values" = "Generando valores";
+"Please wait..." = "Espera un momento...";
+"Edit" = "Editar";
+"+ Add attribute" = "+ Añadir atributo";
+"Delete item" = "Eliminar elemento";
+"Shake to reorder" = "Agita para reordenar";
+"e.g. Compare 5 cities" = "ej. Compara 5 ciudades";
+
+/* Create comparison alert – example requests */
+"For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches." = "Por ejemplo:\n• Compara Nueva York y Londres por coste de vida, tecnología y precio.\n• Compara manzanas, peras y melocotones.";
+
+/* Subscription */
+"Unlock Unlimited Comparisons" = "Desbloquea comparaciones ilimitadas";
+"Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions." = "Gratis: 1 comparación. Compra única para comparaciones ilimitadas y mejores decisiones.";
+"Restore Purchases" = "Restaurar compras";
+"Terms of Use" = "Términos de uso";
+"Privacy Policy" = "Política de privacidad";
+"Success" = "Éxito";
+"Upgrade" = "Actualizar";
+
+/* Import success */
+"Comparison imported" = "Comparación importada";
+"The comparison has been successfully added to your list." = "La comparación se ha añadido correctamente a tu lista.";
+
+/* Onboarding */
+"Skip" = "Omitir";
+"Let's go!" = "¡Vamos!";
+"Hi! This is\nChoose Right!" = "¡Hola! Esto es\nChoose Right!";
+"Not sure what the right choice is?" = "¿No sabes cuál es la mejor opción?";
+"We help you choose — without the stress.\nStart with 1 free comparison." = "Te ayudamos a elegir — sin estrés.\nEmpieza con 1 comparación gratis.";
+
+/* Delete item */
+"Delete %@?" = "¿Eliminar %@?";
+
+/* Accessibility */
+"Main screen" = "Pantalla principal";
+"Tap the button below to create your first comparison" = "Toca el botón de abajo para crear tu primera comparación";
+"Double tap the add button to get started." = "Toca dos veces el botón añadir para empezar.";
+"Double tap to open menu with settings and options." = "Toca dos veces para abrir el menú de ajustes y opciones.";
+"Double tap to create a new comparison." = "Toca dos veces para crear una nueva comparación.";
+"Close" = "Cerrar";
+"Double tap to close." = "Toca dos veces para cerrar.";
+"Close details" = "Cerrar detalles";
+"Double tap to close and save." = "Toca dos veces para cerrar y guardar.";
+"Double tap to open in browser." = "Toca dos veces para abrir en el navegador.";
+"Double tap to purchase unlimited comparisons." = "Toca dos veces para desbloquear comparaciones ilimitadas.";
+"Double tap to restore previous purchases." = "Toca dos veces para restaurar compras anteriores.";
+"Double tap to close this screen." = "Toca dos veces para cerrar esta pantalla.";
+"Swipe to see more pages." = "Desliza para ver más páginas.";
+"Double tap to skip onboarding." = "Toca dos veces para omitir la presentación.";
+"Double tap to start using the app." = "Toca dos veces para empezar a usar la app.";
+"Onboarding pages" = "Páginas de presentación";

@@ -37,7 +37,7 @@ class OnboardingViewController: UIViewController {
     
     private let skipButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Skip", for: .normal)
+        button.setTitle(NSLocalizedString("Skip", comment: ""), for: .normal)
         button.titleLabel?.font = .sfProTextRegular16()
         button.setTitleColor(.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -46,7 +46,7 @@ class OnboardingViewController: UIViewController {
     
     private let getStartedButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Let's go!", for: .normal)
+        button.setTitle(NSLocalizedString("Let's go!", comment: ""), for: .normal)
         button.titleLabel?.font = .sfProTextMedium16()
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .black
@@ -59,9 +59,9 @@ class OnboardingViewController: UIViewController {
     private var pages: [(imageName: String, text: String, backgroundColor: UIColor)] {
         let darkTraitCollection = UITraitCollection(userInterfaceStyle: .dark)
         return [
-            ("hello1", "Hi! This is\nChoose Right!", UIColor.specialColors.fourPinkBriliantLavender?.resolvedColor(with: darkTraitCollection) ?? .systemPink),
-            ("hello2", "Not sure what the right choice is?", UIColor.specialColors.threeBlueLavender?.resolvedColor(with: darkTraitCollection) ?? .systemBlue),
-            ("hello3", "We help you choose — without the stress.\nStart with 1 free comparison.", UIColor.specialColors.ninePinkPaleMagenta?.resolvedColor(with: darkTraitCollection) ?? .systemPink)
+            ("hello1", NSLocalizedString("Hi! This is\nChoose Right!", comment: ""), UIColor.specialColors.fourPinkBriliantLavender?.resolvedColor(with: darkTraitCollection) ?? .systemPink),
+            ("hello2", NSLocalizedString("Not sure what the right choice is?", comment: ""), UIColor.specialColors.threeBlueLavender?.resolvedColor(with: darkTraitCollection) ?? .systemBlue),
+            ("hello3", NSLocalizedString("We help you choose — without the stress.\nStart with 1 free comparison.", comment: ""), UIColor.specialColors.ninePinkPaleMagenta?.resolvedColor(with: darkTraitCollection) ?? .systemPink)
         ]
     }
     
@@ -95,8 +95,8 @@ class OnboardingViewController: UIViewController {
     }
     
     private func setupPages() {
-        for (_, page) in pages.enumerated() {
-            let pageView = createPageView(imageName: page.imageName, text: page.text, backgroundColor: page.backgroundColor)
+        for (index, page) in pages.enumerated() {
+            let pageView = createPageView(imageName: page.imageName, text: page.text, backgroundColor: page.backgroundColor, pageIndex: index)
             contentView.addArrangedSubview(pageView)
             
             // Set app wide equal to screen wide
@@ -104,7 +104,7 @@ class OnboardingViewController: UIViewController {
         }
     }
     
-    private func createPageView(imageName: String, text: String, backgroundColor: UIColor) -> UIView {
+    private func createPageView(imageName: String, text: String, backgroundColor: UIColor, pageIndex: Int) -> UIView {
         let containerView = UIView()
         containerView.backgroundColor = backgroundColor
         containerView.translatesAutoresizingMaskIntoConstraints = false
@@ -126,8 +126,10 @@ class OnboardingViewController: UIViewController {
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(textLabel)
         
+        // Первые два экрана: опускаем текст и картинку на 60 pt
+        let topOffset: CGFloat = pageIndex < 2 ? 44 + 60 : 44
         NSLayoutConstraint.activate([
-            textLabel.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor, constant: 44),
+            textLabel.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor, constant: topOffset),
             textLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 30),
             textLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -30),
             textLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),

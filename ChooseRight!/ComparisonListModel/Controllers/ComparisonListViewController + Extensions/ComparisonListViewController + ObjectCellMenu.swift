@@ -15,12 +15,12 @@ extension ComparisonListViewController {
         guard let changingComparisonItem = self.comparisonItemsFetchResultsController.fetchedObjects?[indexPath.section] else { return }
         let menuTitle = changingComparisonItem.unwrappedName
         
-        let changeColor = UIAction(title: "Change color", image: UIImage(systemName: "paintpalette")) { [weak self] _ in
+        let changeColor = UIAction(title: NSLocalizedString("Change color", comment: ""), image: UIImage(systemName: "paintpalette")) { [weak self] _ in
             guard let self = self else { return }
             self.showColorPicker(for: changingComparisonItem, at: indexPath)
         }
         
-        let deleteItem = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [self] _ in
+        let deleteItem = UIAction(title: NSLocalizedString("Delete", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { [self] _ in
             guard let deleteItem = self.comparisonItemsFetchResultsController.fetchedObjects?[indexPath.section] else { return }
             
             self.alertConfigurationForDeleteItemConfirmation(comparisonItem: deleteItem)
@@ -50,18 +50,18 @@ extension ComparisonListViewController {
         let itemName = itemToDelete.unwrappedName
         
         self.deleteItemAlert = UIAlertController(
-            title: "Delete \(itemName)?",
+            title: String(format: NSLocalizedString("Delete %@?", comment: ""), itemName),
             message: "",
             preferredStyle: .actionSheet)
         
         let deleteButton = UIAlertAction(
-            title: "Delete",
+            title: NSLocalizedString("Delete", comment: ""),
             style: .destructive) { [self] _ in
                 self.sharedData.deleteComparisonItem(item: itemToDelete)
             }
         
         let cancelButton = UIAlertAction(
-            title: "Cancel",
+            title: NSLocalizedString("Cancel", comment: ""),
             style: .default)
         
         deleteItemAlert?.addAction(deleteButton)
@@ -123,13 +123,11 @@ extension ComparisonListViewController {
             }
         )
         
-        if #available(iOS 15.0, *) {
-            if let sheet = colorPicker.sheetPresentationController {
-                sheet.detents = [.custom { _ in
-                    return UIScreen.main.bounds.height / 3
-                }]
-                sheet.prefersGrabberVisible = true
-            }
+        if let sheet = colorPicker.sheetPresentationController {
+            sheet.detents = [.custom { _ in
+                return UIScreen.main.bounds.height / 3
+            }]
+            sheet.prefersGrabberVisible = true
         }
         
         colorPicker.modalPresentationStyle = .pageSheet

@@ -76,14 +76,16 @@ class SubscriptionManager: ObservableObject {
     }
     
     func updatePurchasedStatus() async {
-        // Проверяем все завершенные транзакции для единовременной покупки
+        // Проверяем текущие entitlements. 
+        // Это самый надежный способ для StoreKit 2: он содержит только АКТИВНЫЕ покупки.
+        // Если был возврат (Refund), покупка исчезнет из этого списка автоматически.
         var purchased = false
         
-        // Проверяем текущие entitlements (для подписок и consumables)
         for await result in Transaction.currentEntitlements {
             do {
                 let transaction = try checkVerified(result)
                 if transaction.productID == premiumProductID {
+                    // Для Non-Consumable достаточно найти одну активную транзакцию
                     purchased = true
                     break
                 }
@@ -94,24 +96,23 @@ class SubscriptionManager: ObservableObject {
             }
         }
         
-        // Для единовременных покупок также проверяем все завершенные транзакции
-        if !purchased {
-            for await result in Transaction.all {
-                do {
-                    let transaction = try checkVerified(result)
-                    if transaction.productID == premiumProductID {
-                        purchased = true
-                        break
-                    }
-                } catch {
-                    #if DEBUG
-                    print("Failed to verify transaction: \(error)")
-                    #endif
-                }
-            }
-        }
+        // Transaction.all проверять не нужно для Non-Consumable, так как он содержит и отозванные (refunded) покупки.
+        // Доверяем currentEntitlements.
         
         hasPurchasedPremium = purchased
+        
+        // Уведомляем другие части приложения об изменении статуса
+        NotificationCenter.default.post(name: .premiumStatusChanged, object: nil)
+    }
+    
+    // MARK: - Restore
+    
+    func restorePurchases() async throws {
+        // Принудительная синхронизация с App Store.
+        // Это заставляет устройство загрузить отсутствующие транзакции (например, на новом устройстве).
+        // Требует ввода пароля Apple ID (в Sandbox тоже может попросить).
+        try await AppStore.sync()
+        await updatePurchasedStatus()
     }
     
     // MARK: - Helper Methods
@@ -153,4 +154,8 @@ class SubscriptionManager: ObservableObject {
 
 enum StoreError: Error {
     case failedVerification
+}
+
+extension Notification.Name {
+    static let premiumStatusChanged = Notification.Name("premiumStatusChanged")
 }

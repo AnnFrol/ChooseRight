@@ -1,0 +1,119 @@
+/* Main & onboarding */
+"Choose Right" = "Choose Right";
+"Choose Right!" = "Choose Right!";
+"Tap the button to create your first comparison" = "Tap the button to create your first comparison";
+"Create new comparison" = "Create new comparison";
+"Enter a name for your comparison" = "Enter a name for your comparison";
+"Comparison name" = "Comparison name";
+"Delete comparison?" = "Delete comparison?";
+"Rename your comparison" = "Rename your comparison";
+"The old name is no good?" = "The old name is no good?";
+"Change name" = "Change name";
+"Change color" = "Change color";
+"Delete" = "Delete";
+"Cancel" = "Cancel";
+"Start" = "Start";
+"Save" = "Save";
+"OK" = "OK";
+"Error" = "Error";
+"New name" = "New name";
+
+/* Menu & settings */
+"Version %@" = "Version %@";
+"Dark" = "Dark";
+"Light" = "Light";
+"Email" = "Email";
+"Telegram" = "Telegram";
+"Instagram" = "Instagram";
+"Contact us " = "Contact us ";
+"Premium unlocked" = "Premium unlocked";
+"Unlock Premium" = "Unlock Premium";
+"Settings" = "Settings";
+
+/* Alerts - AI & generate */
+"Generate" = "Generate";
+"Create" = "Create";
+"Processing Request" = "Processing Request";
+"Generating comparison..." = "Generating comparison...";
+"Describe what you want to compare. For example: \"Compare New York and London by cost of living, technology, price, education opportunities\"" = "Describe what you want to compare. For example: \"Compare New York and London by cost of living, technology, price, education opportunities\"";
+"Warning" = "Warning";
+"Failed to get data from AI. Created comparison with default values. You can fill it manually." = "Failed to get data from AI. Created comparison with default values. You can fill it manually.";
+"Could not parse the table. Please make sure the format is correct." = "Could not parse the table. Please make sure the format is correct.";
+"Could not create comparison. A comparison with this name may already exist." = "Could not create comparison. A comparison with this name may already exist.";
+"Could not find the created comparison." = "Could not find the created comparison.";
+"Cannot access file" = "Cannot access file";
+
+/* Comparison list & table */
+"Download PDF" = "Download PDF";
+"Share" = "Share";
+"Delete list" = "Delete list";
+"Generate values" = "Generate values";
+"Failed to create share file" = "Failed to create share file";
+"Sort" = "Sort";
+"Percent" = "Percent";
+"Created" = "Created";
+"Name" = "Name";
+"Edit attribute" = "Edit attribute";
+"Delete attribute" = "Delete attribute";
+"New attribute" = "New attribute";
+"Enter attribute for comparison" = "Enter attribute for comparison";
+"This action cannot be undone." = "This action cannot be undone.";
+"Cannot generate values" = "Cannot generate values";
+"You need at least 2 items and 1 attribute to generate values." = "You need at least 2 items and 1 attribute to generate values.";
+"AI will fill the table with +/‑ for each item and criterion. Existing values will be overwritten.\n\nAI can make mistakes — please verify the values." = "AI will fill the table with +/‑ for each item and criterion. Existing values will be overwritten.\n\nAI can make mistakes — please verify the values.";
+"Generating values" = "Generating values";
+"Please wait..." = "Please wait...";
+"Edit" = "Edit";
+"+ Add attribute" = "+ Add attribute";
+"Delete item" = "Delete item";
+"Shake to reorder" = "Shake to reorder";
+"e.g. Compare 5 cities" = "e.g. Compare 5 cities";
+
+/* Create comparison alert – example requests */
+"For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches." = "For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches.";
+
+/* Subscription */
+"Unlock Unlimited Comparisons" = "Unlock Unlimited Comparisons";
+"Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions." = "Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions.";
+"Restore Purchases" = "Restore Purchases";
+"Terms of Use" = "Terms of Use";
+"Privacy Policy" = "Privacy Policy";
+"Success" = "Success";
+"Upgrade" = "Upgrade";
+
+/* Import success */
+"Comparison imported" = "Comparison imported";
+"The comparison has been successfully added to your list." = "The comparison has been successfully added to your list.";
+
+/* Onboarding */
+"Skip" = "Skip";
+"Let's go!" = "Let's go!";
+"Hi! This is\nChoose Right!" = "Hi! This is\nChoose Right!";
+"Not sure what the right choice is?" = "Not sure what the right choice is?";
+"We help you choose — without the stress.\nStart with 1 free comparison." = "We help you choose — without the stress.\nStart with 1 free comparison.";
+
+/* Delete item */
+"Delete %@?" = "Delete %@?";
+
+/* Accessibility */
+"Main screen" = "Main screen";
+"Choose Right" = "Choose Right";
+"Tap the button below to create your first comparison" = "Tap the button below to create your first comparison";
+"Double tap the add button to get started." = "Double tap the add button to get started.";
+"Double tap to open menu with settings and options." = "Double tap to open menu with settings and options.";
+"Double tap to create a new comparison." = "Double tap to create a new comparison.";
+"Close" = "Close";
+"Double tap to close." = "Double tap to close.";
+"Close details" = "Close details";
+"Double tap to close and save." = "Double tap to close and save.";
+"Double tap to open in browser." = "Double tap to open in browser.";
+"Double tap to purchase unlimited comparisons." = "Double tap to purchase unlimited comparisons.";
+"Double tap to restore previous purchases." = "Double tap to restore previous purchases.";
+"Double tap to close this screen." = "Double tap to close this screen.";
+"Unlock Unlimited Comparisons" = "Unlock Unlimited Comparisons";
+"Skip" = "Skip";
+"Double tap to skip onboarding." = "Double tap to skip onboarding.";
+"Let's go!" = "Let's go!";
+"Double tap to start using the app." = "Double tap to start using the app.";
+"Onboarding pages" = "Onboarding pages";
+"Swipe to see more pages." = "Swipe to see more pages.";

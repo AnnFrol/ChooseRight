@@ -20,13 +20,13 @@ class ComparisonListViewController: UIViewController  {
     
     var attributeChangeNameAlert:
     UIAlertController? = UIAlertController(
-        title: "Edit attribute",
+        title: NSLocalizedString("Edit attribute", comment: ""),
         message: "",
         preferredStyle: .alert)
     
     var deleteItemAlert: 
     UIAlertController? = UIAlertController(
-        title: "Delete",
+        title: NSLocalizedString("Delete", comment: ""),
         message: "",
         preferredStyle: .alert)
     
@@ -86,8 +86,10 @@ class ComparisonListViewController: UIViewController  {
     let attributesCollectionView = AttributesCollectionView()
     let valuesCollectionView = ValuesColectionView()
     
-    private var objectTableIsActive = false
+    var objectTableIsActive = false
     private var attributesCollectionIsActive = false
+    
+    var isUserDrivenReordering = false
     
     private let mainLabel: UILabel = {
         let label = UILabel()
@@ -106,10 +108,11 @@ class ComparisonListViewController: UIViewController  {
     }()
     
     lazy var backButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
         button.tintColor = UIColor(named: "specialText")
-        let image = UIImage(named: "backButton")?.withRenderingMode(.alwaysTemplate)
-        button.setImage((image), for: .normal)
+        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)
+        let image = UIImage(systemName: "chevron.left", withConfiguration: config)
+        button.setImage(image, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -137,13 +140,9 @@ class ComparisonListViewController: UIViewController  {
         
         button.contentHorizontalAlignment = .right
         
-        if #available(iOS 15.0, *) {
-            var configuration = UIButton.Configuration.plain()
-            configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 10)
-            button.configuration = configuration
-        } else {
-            button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
-        }
+        var configuration = UIButton.Configuration.plain()
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 10)
+        button.configuration = configuration
         
         button.setTitle("+", for: .normal)
         button.titleLabel?.font = .sfProTextRegular14()
@@ -266,6 +265,11 @@ class ComparisonListViewController: UIViewController  {
         attributesCollectionView.delegate = weakCollectionViewDelegate
         attributesCollectionView.dataSource = weakCollectionViewDataSource
         attributesCollectionView.register(AttributesCollectionViewCell.self, forCellWithReuseIdentifier: AttributesCollectionViewCell.idAttributesCollectionViewCell)
+        
+        // Drag & Drop
+        attributesCollectionView.dragInteractionEnabled = true
+        attributesCollectionView.dragDelegate = self
+        attributesCollectionView.dropDelegate = self
         
         valuesCollectionView.delegate = weakCollectionViewDelegate
         valuesCollectionView.dataSource = weakCollectionViewDataSource
@@ -791,7 +795,7 @@ extension ComparisonListViewController: ObjectTableViewCellProtocol {
 extension ComparisonListViewController: UITextFieldDelegate {
     private func alertNewAttributeConfiguration() {
         
-        self.addAttributeAlert = UIAlertController(title: "New attribute", message: "", preferredStyle: .alert)
+        self.addAttributeAlert = UIAlertController(title: NSLocalizedString("New attribute", comment: ""), message: "", preferredStyle: .alert)
         
         addAttributeAlert.addTextField { alertTextfield in
             alertTextfield.delegate = self
@@ -803,7 +807,7 @@ extension ComparisonListViewController: UITextFieldDelegate {
             
         }
         
-        let saveButton = UIAlertAction(title: "Save", style: .default) { [weak self, weak addAttributeAlert] (_) in
+        let saveButton = UIAlertAction(title: NSLocalizedString("Save", comment: ""), style: .default) { [weak self, weak addAttributeAlert] (_) in
             
             guard let self = self else { return }
             
@@ -814,7 +818,7 @@ extension ComparisonListViewController: UITextFieldDelegate {
             }
         }
         
-        let cancelButton = UIAlertAction(title: "Cancel", style: .cancel) { action in
+        let cancelButton = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { action in
             self.addAttributeAlert.dismiss(animated: true)
             self.addAttributeAlert = UIAlertController()
             self.addAttributeAlert.view.superview?.subviews[0].isUserInteractionEnabled = true
@@ -868,4 +872,65 @@ extension ComparisonListViewController {
         
     }
     
+}
+
+// MARK: - Drag & Drop Attributes
+extension ComparisonListViewController: UICollectionViewDragDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        guard collectionView == attributesCollectionView else { return [] }
+        
+        // Получаем атрибут из контроллера
+        guard let attribute = comparisonAttributesFetchResultsController.fetchedObjects?[indexPath.item] else { return [] }
+        
+        let itemProvider = NSItemProvider(object: attribute.objectID.uriRepresentation().absoluteString as NSString)
+        let dragItem = UIDragItem(itemProvider: itemProvider)
+        dragItem.localObject = attribute // Локальный объект для передачи внутри приложения
+        return [dragItem]
+    }
+}
+
+extension ComparisonListViewController: UICollectionViewDropDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
+        
+        if collectionView == attributesCollectionView && collectionView.hasActiveDrag {
+            return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
+        }
+        return UICollectionViewDropProposal(operation: .forbidden)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
+        
+        guard let destinationIndexPath = coordinator.destinationIndexPath else { return }
+        
+        // Получаем sourceIndexPath (предполагаем один элемент)
+        guard let item = coordinator.items.first,
+              let sourceIndexPath = item.sourceIndexPath,
+              let attribute = item.dragItem.localObject as? ComparisonAttributeEntity else { return }
+        
+        // Обновляем порядок в Core Data
+        // Важно: destinationIndexPath может быть за пределами текущего количества элементов, если перетаскиваем в конец
+        // Но так как мы перетаскиваем внутри одной секции и одного collection view, source и destination всегда валидны
+        
+        // Выполняем обновление в batch updates, чтобы анимация была плавной
+        collectionView.performBatchUpdates {
+            // Удаляем и вставляем элемент в collection view
+            collectionView.deleteItems(at: [sourceIndexPath])
+            collectionView.insertItems(at: [destinationIndexPath])
+            
+            // Обновляем порядок в Core Data
+            // Обратите внимание: метод updateComparisonAttributeOrder должен корректно обрабатывать индексы
+            // В Core Data мы сортируем по дате (descending), поэтому первый элемент в UI (index 0) имеет самую позднюю дату
+            // Устанавливаем флаг, чтобы FRC не обновлял UI во время ручного перемещения
+            self.isUserDrivenReordering = true
+            sharedData.updateComparisonAttributeOrder(attribute: attribute, sourceIndex: sourceIndexPath.item, destinationIndex: destinationIndexPath.item)
+            
+        } completion: { _ in
+            // После завершения анимации перемещения атрибута, обновляем значения
+            // Так как порядок атрибутов изменился, ячейки значений тоже должны обновиться
+            self.isUserDrivenReordering = false
+            self.valuesCollectionView.reloadData()
+        }
+    }
 }

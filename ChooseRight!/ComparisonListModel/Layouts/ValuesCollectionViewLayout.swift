@@ -45,6 +45,7 @@ class ValuesCollectionViewLayout: UICollectionViewFlowLayout {
         
         guard let collectionView = collectionView else { return }
         
+        cellAttrsDictionary.removeAll()
         
         if collectionView.numberOfSections > 0 {
             for section in 0..<collectionView.numberOfSections {

@@ -15,38 +15,23 @@ extension MainViewController {
         
         
         //1st menu element (version & share)
-        let logo = UIImage(named: "AppstoreLogo")
-//        let logo = UIImage(named: "AppleLogo")
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         
-        var appInfoAction = UIAction { action in
-        }
-        
-        if #available(iOS 17.0, *) {
-             appInfoAction = UIAction(
-                title: "Choose Right!",
-                subtitle: "Version \(version)",
-                image: UIImage(systemName: "square.and.arrow.up"),
-                state: .off) { action in
-                    
-                    guard let url = URL(string: "https://apps.apple.com/app/id6759388003") else { return }
-                    
-                    let items = [url]
-                    
-                    let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
-                    
-                    // Configure popover for iPad
-                    if let popover = ac.popoverPresentationController {
-                        popover.sourceView = self.view
-                        popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-                        popover.permittedArrowDirections = []
-                    }
-                    
-                    self.present(ac, animated: true)
+        let appInfoAction = UIAction(
+            title: NSLocalizedString("Choose Right!", comment: ""),
+            subtitle: String(format: NSLocalizedString("Version %@", comment: ""), version),
+            image: UIImage(systemName: "square.and.arrow.up"),
+            state: .off) { action in
+                guard let url = URL(string: "https://apps.apple.com/app/id6759388003") else { return }
+                let items = [url]
+                let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+                if let popover = ac.popoverPresentationController {
+                    popover.sourceView = self.view
+                    popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                    popover.permittedArrowDirections = []
                 }
-        } else {
-             appInfoAction = UIAction(title: "Choose Right!\nVersion: \(version)", image: logo, identifier: nil, discoverabilityTitle: "discTitle", attributes: [], state: .off) { action in
-            }        }
+                self.present(ac, animated: true)
+            }
         
         
         let appInfoMenu = UIMenu(
@@ -62,7 +47,7 @@ extension MainViewController {
         var themeActions = [UIAction]()
         
         if isLightTheme {
-            let darkAction = UIAction(title: "Dark", image: UIImage(systemName: "moon.fill")) { action in
+            let darkAction = UIAction(title: NSLocalizedString("Dark", comment: ""), image: UIImage(systemName: "moon.fill")) { action in
                     ThemeManager.setTheme(isLight: false)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -71,7 +56,7 @@ extension MainViewController {
                 }
             themeActions.append(darkAction)
         } else {
-            let lightAction = UIAction(title: "Light", image: UIImage(systemName: "sun.max.fill")) { action in
+            let lightAction = UIAction(title: NSLocalizedString("Light", comment: ""), image: UIImage(systemName: "sun.max.fill")) { action in
                 ThemeManager.setTheme(isLight: true)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -91,7 +76,7 @@ extension MainViewController {
         
         
         let emailAction = UIAction(
-            title: "Email",
+            title: NSLocalizedString("Email", comment: ""),
             image: UIImage(named: "emailLogo"),
             identifier: nil,
             attributes: [],
@@ -111,7 +96,7 @@ extension MainViewController {
             }
         
         let telegramAction = UIAction(
-            title: "Telegram",
+            title: NSLocalizedString("Telegram", comment: ""),
             image: UIImage(named: "telegramLogo")
         ) { action in
                 if let url = URL(string: "https://t.me/AnnFroCom") {
@@ -120,7 +105,7 @@ extension MainViewController {
             }
         
         let instagramAction = UIAction(
-            title: "Instagram",
+            title: NSLocalizedString("Instagram", comment: ""),
             image: UIImage(named:"instagramLogo")
         ) { action in
                 if let url = URL(string: "https://www.instagram.com/annfroltsova/") {
@@ -129,7 +114,7 @@ extension MainViewController {
             }
                 
         let contactsMenu = UIMenu(
-            title: "Contact us ",
+            title: NSLocalizedString("Contact us ", comment: ""),
             options: [.displayInline],
             children: [
                 emailAction,
@@ -138,26 +123,42 @@ extension MainViewController {
                 instagramAction
             ])
         
-        // Purchase menu element (first)
-        let purchaseAction = UIAction(
-            title: "Unlock Premium",
-            image: UIImage(systemName: "star.fill")
-        ) { action in
-            let subscriptionVC = SubscriptionViewController()
-            subscriptionVC.modalPresentationStyle = .pageSheet
-            if #available(iOS 15.0, *) {
+        // Purchase / premium status element
+        let isPremiumUnlocked = SubscriptionManager.shared.hasActiveSubscription
+        
+        let purchaseMenu: UIMenu
+        if isPremiumUnlocked {
+            // Show non-tappable status when premium is already unlocked
+            let unlockedAction = UIAction(
+                title: NSLocalizedString("Premium unlocked", comment: ""),
+                image: UIImage(systemName: "checkmark.seal.fill"),
+                attributes: [.disabled]
+            ) { _ in }
+            
+            purchaseMenu = UIMenu(
+                title: "",
+                options: .displayInline,
+                children: [unlockedAction])
+        } else {
+            // Action to open purchase screen when premium is not unlocked yet
+            let purchaseAction = UIAction(
+                title: NSLocalizedString("Unlock Premium", comment: ""),
+                image: UIImage(systemName: "star.fill")
+            ) { _ in
+                let subscriptionVC = SubscriptionViewController()
+                subscriptionVC.modalPresentationStyle = .pageSheet
                 if let sheet = subscriptionVC.sheetPresentationController {
                     sheet.detents = [.large()]
                     sheet.prefersGrabberVisible = true
                 }
+                self.present(subscriptionVC, animated: true)
             }
-            self.present(subscriptionVC, animated: true)
+            
+            purchaseMenu = UIMenu(
+                title: "",
+                options: .displayInline,
+                children: [purchaseAction])
         }
-        
-        let purchaseMenu = UIMenu(
-            title: "",
-            options: .displayInline,
-            children: [purchaseAction])
         
         let menuChildren: [UIMenuElement] = [
             purchaseMenu,
@@ -171,9 +172,7 @@ extension MainViewController {
             children: menuChildren)
         
         
-        if #available(iOS 16.0, *) {
-            contactsMenu.preferredElementSize = .small
-        }
+        contactsMenu.preferredElementSize = .small
         
         return mainMenu
         

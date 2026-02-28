@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Group 50.svg",
+      "filename" : "LaunchMascot.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "LaunchMascot.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "LaunchMascot.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

@@ -23,8 +23,14 @@ struct AllComponentsPreview: View {
                         .padding(.horizontal)
                     
                     HStack(spacing: 20) {
-                        AddButtonView(action: {})
-                            .frame(width: 64, height: 64)
+                        Button(action: {}) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 22, weight: .regular))
+                                .foregroundColor(.black)
+                                .frame(width: 64, height: 64)
+                                .background(Color.specialColors.threeBlueLavender)
+                                .clipShape(Circle())
+                        }
                         
                         CloseButtonView(action: {})
                         

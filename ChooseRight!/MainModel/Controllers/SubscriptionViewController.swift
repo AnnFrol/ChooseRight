@@ -32,7 +32,7 @@ class SubscriptionViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Unlock Unlimited Comparisons"
+        label.text = NSLocalizedString("Unlock Unlimited Comparisons", comment: "")
         label.font = .sfProTextBold33()
         label.textColor = .label
         label.textAlignment = .center
@@ -43,7 +43,7 @@ class SubscriptionViewController: UIViewController {
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions."
+        label.text = NSLocalizedString("Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions.", comment: "")
         label.font = .sfProTextRegular16()
         label.textColor = .secondaryLabel
         label.textAlignment = .center
@@ -73,7 +73,7 @@ class SubscriptionViewController: UIViewController {
     
     private let restoreButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Restore Purchases", for: .normal)
+        button.setTitle(NSLocalizedString("Restore Purchases", comment: ""), for: .normal)
         button.setTitleColor(.secondaryLabel, for: .normal)
         button.titleLabel?.font = .sfProTextRegular14()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -106,10 +106,8 @@ class SubscriptionViewController: UIViewController {
         view.backgroundColor = .systemBackground
         
         // Разрешаем закрытие свайпом вниз
-        if #available(iOS 13.0, *) {
-            isModalInPresentation = false
-        }
-        
+        isModalInPresentation = false
+
         setupViews()
         setupConstraints()
         setupActions()
@@ -177,9 +175,9 @@ class SubscriptionViewController: UIViewController {
     }
     
     private func setupLegalLinks() {
-        let termsButton = makeLinkButton(title: "Terms of Use")
+        let termsButton = makeLinkButton(title: NSLocalizedString("Terms of Use", comment: ""))
         termsButton.addTarget(self, action: #selector(openTermsOfUse), for: .touchUpInside)
-        let privacyButton = makeLinkButton(title: "Privacy Policy")
+        let privacyButton = makeLinkButton(title: NSLocalizedString("Privacy Policy", comment: ""))
         privacyButton.addTarget(self, action: #selector(openPrivacyPolicy), for: .touchUpInside)
         legalLinksStackView.addArrangedSubview(termsButton)
         legalLinksStackView.addArrangedSubview(privacyButton)
@@ -358,19 +356,43 @@ class SubscriptionViewController: UIViewController {
         restoreButton.isEnabled = false
         
         Task {
-            await subscriptionManager.updatePurchasedStatus()
-            
-            await MainActor.run {
-                if subscriptionManager.hasPurchasedPremium {
-                    self.showSuccess("Purchase restored successfully!")
-                    // Небольшая задержка перед закрытием
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.dismiss(animated: true)
+            do {
+                // Вызываем принудительную синхронизацию
+                try await subscriptionManager.restorePurchases()
+                
+                await MainActor.run {
+                    if subscriptionManager.hasPurchasedPremium {
+                        self.showSuccess("Purchase restored successfully!")
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.dismiss(animated: true)
+                        }
+                    } else {
+                        // Если после синхронизации покупок нет
+                        self.showError("No active Premium purchase found.")
                     }
-                } else {
-                    self.showError("No purchase found to restore")
+                    self.restoreButton.isEnabled = true
                 }
-                self.restoreButton.isEnabled = true
+            } catch {
+                await MainActor.run {
+                    // Ошибка синхронизации
+                    // Игнорируем userCancelled (код ошибки 1 или сама ошибка)
+                    let isUserCancelled: Bool
+                    if let storeError = error as? StoreKitError {
+                        switch storeError {
+                        case .userCancelled:
+                            isUserCancelled = true
+                        default:
+                            isUserCancelled = false
+                        }
+                    } else {
+                        isUserCancelled = false
+                    }
+                    
+                    if !isUserCancelled {
+                        self.showError("Restore failed: \(error.localizedDescription)")
+                    }
+                    self.restoreButton.isEnabled = true
+                }
             }
         }
     }
@@ -409,14 +431,14 @@ class SubscriptionViewController: UIViewController {
     }
     
     private func showError(_ message: String) {
-        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        let alert = UIAlertController(title: NSLocalizedString("Error", comment: ""), message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
         present(alert, animated: true)
     }
     
     private func showSuccess(_ message: String) {
-        let alert = UIAlertController(title: "Success", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        let alert = UIAlertController(title: NSLocalizedString("Success", comment: ""), message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
         present(alert, animated: true)
     }
 }

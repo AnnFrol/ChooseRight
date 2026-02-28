@@ -12,9 +12,10 @@ struct CloseButtonView: View {
     
     var body: some View {
         Button(action: action) {
-            Image("closeButton")
-                .resizable()
-                .scaledToFit()
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 22, weight: .medium))
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(.primary)
         }
         .frame(width: 29, height: 29)
     }

@@ -110,8 +110,17 @@ final class AIAssistantService: @unchecked Sendable {
         }
         
         // 3. Групповые запросы (например, "Сравни электрокары")
-        if items.isEmpty, let gName = groupName {
-            items = try await generateItemsFromGroup(gName, language: detectedLanguage)
+        // Если объектов меньше 2, но есть название группы - генерируем объекты из группы
+        if items.count < 2 {
+            // Если группа не найдена, но есть 1 объект, который начинается с цифры - считаем это группой
+            if groupName == nil, let first = items.first, first.range(of: #"^\d+"#, options: .regularExpression) != nil {
+                groupName = first
+                items = [] // Очищаем items, чтобы сработала генерация
+            }
+            
+            if let gName = groupName {
+                items = try await generateItemsFromGroup(gName, language: detectedLanguage)
+            }
         }
         
         guard items.count >= 2 else {
@@ -258,19 +267,20 @@ final class AIAssistantService: @unchecked Sendable {
         var groupName: String? = nil
         var attributeGroupName: String? = nil
         
-        // --- БЛОК ДЛЯ ГРУПП: "Compare 5 cities", "Compare cities", "Сравни города"
-        let groupKeywords = ["сравнить", "сравни", "compare", "comparar", "comparer"]
+        // --- БЛОК ДЛЯ ГРУПП: "Compare 5 cities", "Compare cities", "Compara restaurantes en Barcelona", "Сравни города"
+        let groupKeywords = ["сравнить ", "сравни ", "compare ", "comparar ", "compara ", "comparer ", "comparez ", "quiero comparar ", "je veux comparer "]
         for keyword in groupKeywords {
             guard lowercased.hasPrefix(keyword) else { continue }
-            let potentialGroup = String(lowercased.dropFirst(keyword.count))
+            let rest = String(trimmedRequest.dropFirst(keyword.count))
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !potentialGroup.isEmpty else { continue }
-            // Список: " и ", " and ", " vs ". Запятая — только если есть 2+ непустых части (не в конце).
-            let hasAndVs = [" и ", " and ", " vs ", " versus ", " против "].contains { lowercased.contains($0) }
-            let commaParts = lowercased.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+            guard !rest.isEmpty else { continue }
+            let restLower = rest.lowercased()
+            // Не группа, если это список: "X и Y", "X and Y", запятые
+            let hasAndVs = [" и ", " and ", " vs ", " versus ", " против ", " y ", " et ", " con ", " avec "].contains { restLower.contains($0) }
+            let commaParts = restLower.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
             let hasCommaList = commaParts.count >= 2
             if !hasAndVs && !hasCommaList {
-                return (items: nil, attributes: nil, groupName: potentialGroup, attributeGroupName: nil)
+                return (items: nil, attributes: nil, groupName: rest, attributeGroupName: nil)
             }
         }
         // --- КОНЕЦ БЛОКА ДЛЯ ГРУПП ---
@@ -281,7 +291,9 @@ final class AIAssistantService: @unchecked Sendable {
         let comparePrefixes = [
             "i want to compare ", "i'd like to compare ",
             "compare ", "comparar ", "comparer ", "сравни ", "сравнить ",
-            "compare", "comparar", "comparer", "сравни", "сравнить"
+            "compara ", "comparez ", "quiero comparar ", "je veux comparer ",
+            "compare", "comparar", "comparer", "сравни", "сравнить",
+            "compara", "comparez"
         ]
         for prefix in comparePrefixes {
             guard lowerTrimmed.hasPrefix(prefix) else { continue }
@@ -339,7 +351,7 @@ final class AIAssistantService: @unchecked Sendable {
         // This must be checked BEFORE all other patterns to avoid incorrect parsing
         // CRITICAL: If commas are found, parse as list and return immediately - never group items
         let allCompareKeywords = ["compare", "сравнить", "сравни", "хочу сравнить", "i want to compare", 
-                                  "comparar", "quiero comparar", "comparer", "je veux comparer"]
+                                  "comparar", "compara", "quiero comparar", "comparer", "comparez", "je veux comparer"]
         var afterCompareForAttributes: String? = nil // Часть после "by"/"по" для формата "Compare X and Y by A, B, C"
         for keyword in allCompareKeywords {
             // Индексы берём из request (индексы lowercased и request в Swift несовместимы)
@@ -353,7 +365,8 @@ final class AIAssistantService: @unchecked Sendable {
             var itemsString = afterCompare
             var criteriaPart: String? = nil
             for criteriaWord in criteriaStartWords {
-                if let criteriaIndex = itemsString.lowercased().range(of: criteriaWord) {
+                // Use range in itemsString (case-insensitive), not in lowercased copy — indices must match
+                if let criteriaIndex = itemsString.range(of: criteriaWord, options: .caseInsensitive) {
                     let afterCriteria = String(itemsString[criteriaIndex.upperBound...])
                         .trimmingCharacters(in: .whitespacesAndNewlines)
                     if !afterCriteria.isEmpty { criteriaPart = afterCriteria }
@@ -399,11 +412,26 @@ final class AIAssistantService: @unchecked Sendable {
                 }
         }
 
-        // Формат "Compare X and Y by A, B, C": атрибуты из части после "by"
+        // Формат "Compare X and Y by A, B, C": атрибуты из части после "by"/"por"
+        // Поддержка "A, B y C" / "A, B and C" — разбиваем по запятой и по связкам " y ", " and ", " et "
         if !items.isEmpty, let criteriaString = afterCompareForAttributes, attributes.isEmpty {
-            let rawAttributes = criteriaString.components(separatedBy: ",")
+            let attributeSeparators = [" y ", " and ", " et ", " и "]
+            let rawParts = criteriaString.components(separatedBy: ",")
                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                 .filter { !$0.isEmpty }
+            var rawAttributes: [String] = []
+            for part in rawParts {
+                var expanded = [part]
+                for sep in attributeSeparators {
+                    if part.lowercased().contains(sep) {
+                        expanded = part.components(separatedBy: sep)
+                            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                            .filter { !$0.isEmpty }
+                        break
+                    }
+                }
+                rawAttributes.append(contentsOf: expanded)
+            }
             attributes = rawAttributes
                 .map { cleanAttribute($0) }
                 .filter { !$0.isEmpty && $0.count > 1 }
@@ -482,26 +510,37 @@ final class AIAssistantService: @unchecked Sendable {
         // CRITICAL: Skip this if:
         // 1. Items are already found (should not be overwritten)
         // 2. Request contains commas (already handled above)
+        // 3. Text after keyword looks like a group description (e.g. "restaurantes en Barcelona") — leave for groupPatterns
         if items.isEmpty && !request.contains(",") {
-            // Look after words "compare", "сравнить", "хочу сравнить", "comparar", "comparer"
-            let compareKeywords = ["compare", "сравнить", "хочу сравнить", "i want to compare", 
-                                   "comparar", "quiero comparar", "comparer", "je veux comparer"]
+            let compareKeywords = ["compare", "сравнить", "сравни", "хочу сравнить", "i want to compare", 
+                                   "comparar", "compara", "quiero comparar", "comparer", "comparez", "je veux comparer"]
+            let groupPhraseIndicators = [" en ", " in ", " of ", " de ", " à ", " at ", " du ", " des "]
             for keyword in compareKeywords {
                 if let compareIndex = lowercased.range(of: keyword), compareIndex.upperBound < request.endIndex {
                     let afterCompare = String(request[compareIndex.upperBound...])
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
                     
-                    // CRITICAL: If afterCompare contains commas, it's a list - skip this method
-                    if afterCompare.contains(",") {
+                    if afterCompare.contains(",") { continue }
+                    // Do not treat as "item1 and item2" when it's a group phrase like "restaurantes en Barcelona"
+                    if groupPhraseIndicators.contains(where: { afterCompare.lowercased().contains($0) }) {
+                        continue
+                    }
+                    if afterCompare.range(of: #"^\d+"#, options: .regularExpression) != nil {
                         continue
                     }
                     
-                    // Split by various separators (English, Russian, Spanish, French)
-                    let separators = CharacterSet(charactersIn: "и,and,with,vs,versus,против,или,or,y,et,con,avec,")
-                    var parts = afterCompare.components(separatedBy: separators)
-                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                        .filter { !$0.isEmpty }
+                    // Split by word separators (and, y, et, vs, etc.) — use string split, not CharacterSet
+                    let wordSeparators = [" and ", " y ", " et ", " vs ", " versus ", " против ", " или ", " or ", " con ", " avec ", " и "]
+                    var parts: [String] = [afterCompare]
+                    for sep in wordSeparators {
+                        if afterCompare.lowercased().contains(sep) {
+                            parts = afterCompare.components(separatedBy: sep)
+                                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                                .filter { !$0.isEmpty }
+                            break
+                        }
+                    }
                     
-                    // Remove parts that contain criteria keywords (this is the start of criteria)
                     let criteriaStartWords = ["по", "in terms of", "by", "criteria", "критери", "parameters",
                                               "por", "en términos de", "según", "par", "en termes de", "selon"]
                     parts = parts.filter { part in
@@ -509,13 +548,10 @@ final class AIAssistantService: @unchecked Sendable {
                         return !criteriaStartWords.contains { lowerPart.contains($0) }
                     }
                     
-                    // CRITICAL: Only take items if there are exactly 2 (not more, to avoid grouping)
                     if parts.count == 2 {
-                        // Take both as separate items
                         items = [cleanItemName(parts[0]), cleanItemName(parts[1])]
                         break
                     } else if parts.count > 2 {
-                        // If more than 2, it might be a list - try to parse it properly
                         let itemsString = parts.joined(separator: ", ")
                         let itemsList = parseItemsList(itemsString)
                         if itemsList.count >= 2 {
@@ -968,10 +1004,12 @@ final class AIAssistantService: @unchecked Sendable {
                 "сравни\\s+(.+?)(?:\\s+по|$)",  // "сравни фрукты" или "сравни фрукты по..." или "сравни красивые города"
                 "сравнить\\s+(.+?)(?:\\s+по|$)",  // "сравнить фрукты" или "сравнить фрукты по..." или "сравнить домашних животных"
                 "хочу\\s+сравнить\\s+(.+?)(?:\\s+по|$)",  // "хочу сравнить фрукты" или "хочу сравнить фрукты по..." или "хочу сравнить тропические фрукты"
-                // Spanish patterns
+                // Spanish patterns (compara = imperative, comparar = infinitive)
+                "compara\\s+(.+?)$",  // "Compara 5 bares en Londres", "compara ciudades"
                 "comparar\\s+(.+?)(?:\\s+(?:por|en\\s+términos\\s+de|según)|$)",  // "comparar frutas" or "comparar ciudades hermosas"
                 "quiero\\s+comparar\\s+(.+?)(?:\\s+(?:por|en\\s+términos\\s+de)|$)",  // "quiero comparar frutas" or "quiero comparar ciudades hermosas"
-                // French patterns
+                // French patterns (comparez = imperative)
+                "comparez\\s+(.+?)$",  // "Comparez 5 bars à Paris"
                 "comparer\\s+(.+?)(?:\\s+(?:par|en\\s+termes\\s+de|selon)|$)",  // "comparer fruits" or "comparer belles villes"
                 "je\\s+veux\\s+comparer\\s+(.+?)(?:\\s+(?:par|en\\s+termes\\s+de)|$)",  // "je veux comparer fruits" or "je veux comparer belles villes"
             ]
@@ -1169,7 +1207,7 @@ final class AIAssistantService: @unchecked Sendable {
                 .filter { !$0.isEmpty }
             
             // CRITICAL: Each part is a separate item - never combine them
-            items = parts.map { cleanItemName($0) }
+            items = parts.map { cleanItemName($0) }.filter { !$0.isEmpty }
             
             // Убеждаемся, что мы не потеряли элементы
             if items.count < parts.count {
@@ -1200,23 +1238,36 @@ final class AIAssistantService: @unchecked Sendable {
             // Если не удалось разделить по разделителям, пробуем разделить по пробелам
             // Это для случаев типа "сравни Лондон Дубай Москва Токио" (без запятых и разделителей)
             if parts.isEmpty {
-                let words = cleaned.components(separatedBy: .whitespaces)
-                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                    .filter { !$0.isEmpty }
+                // Check for prepositions that indicate a phrase/group description rather than a list of items
+                // e.g. "5 bares en Londres", "best cities in the world", "voitures de luxe"
+                let phraseIndicators = [" in ", " en ", " of ", " de ", " à ", " at ", " du ", " des ", " le ", " la ", " les ", " el ", " la ", " los ", " las "]
+                let isPhrase = phraseIndicators.contains { cleaned.lowercased().contains($0) }
                 
-                // CRITICAL: If we have multiple words and no separators were found,
-                // treat each word as a separate item
-                if words.count >= 2 {
-                    parts = words
-                } else if words.count == 1 {
-                    parts = words
-                } else {
+                // Check if starts with a number (e.g. "5 cities", "10 phones")
+                let startsWithNumber = cleaned.range(of: #"^\d+"#, options: .regularExpression) != nil
+                
+                if isPhrase || startsWithNumber {
+                    // Treat as a single item/group
                     parts = [cleaned]
+                } else {
+                    let words = cleaned.components(separatedBy: .whitespaces)
+                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                        .filter { !$0.isEmpty }
+                    
+                    // CRITICAL: If we have multiple words and no separators were found,
+                    // treat each word as a separate item
+                    if words.count >= 2 {
+                        parts = words
+                    } else if words.count == 1 {
+                        parts = words
+                    } else {
+                        parts = [cleaned]
+                    }
                 }
             }
             
-            // Очищаем каждый элемент
-            items = parts.map { cleanItemName($0) }
+            // Очищаем каждый элемент и фильтруем пустые
+            items = parts.map { cleanItemName($0) }.filter { !$0.isEmpty }
         }
         
         return items
@@ -1227,7 +1278,10 @@ final class AIAssistantService: @unchecked Sendable {
         var cleaned = name.trimmingCharacters(in: .whitespacesAndNewlines)
         
         // Remove words at the beginning that might be part of the pattern
-        let prefixesToRemove = ["хочу", "нужно", "надо", "сравнить", "compare", "i want to", "want to"]
+        let prefixesToRemove = [
+            "хочу", "нужно", "надо", "сравнить", "сравни", "compare", "i want to", "want to",
+            "compara", "comparar", "quiero comparar", "comparer", "comparez", "je veux comparer"
+        ]
         for prefix in prefixesToRemove {
             if cleaned.lowercased().hasPrefix(prefix) {
                 let prefixIndex = cleaned.index(cleaned.startIndex, offsetBy: prefix.count, limitedBy: cleaned.endIndex) ?? cleaned.endIndex
@@ -1571,13 +1625,28 @@ final class AIAssistantService: @unchecked Sendable {
             return "ru"
         }
         
-        // Проверяем испанские символы
+        // Проверяем испанские символы (диакритика)
         if text.range(of: "[áéíóúñü]", options: .regularExpression) != nil {
             return "es"
         }
         
-        // Проверяем французские символы
+        // Проверяем французские символы (диакритика)
         if text.range(of: "[àâäéèêëïîôùûüÿç]", options: .regularExpression) != nil {
+            return "fr"
+        }
+        
+        // Текст без диакритики: проверяем типичные слова испанского (например "Compara 5 bares en Londres")
+        let lower = text.lowercased()
+        let spanishWords = ["compara", "comparar", "bares", "ciudades", "restaurantes", "hoteles", "mejores", "entre", "según", "cuales", "cuáles", "londres", "madrid", "barcelona", "parís", "en ", " los ", " las ", " con ", " para ", " sin ", " unos ", " unas "]
+        let spanishCount = spanishWords.filter { lower.contains($0) }.count
+        if spanishCount >= 1 {
+            return "es"
+        }
+        
+        // Типичные слова французского (sans diacritiques: comparer, bars, villes, meilleurs, etc.)
+        let frenchWords = ["comparer", "comparez", "bars", "villes", "restaurants", "hotels", "meilleurs", "entre", "selon", "les ", " des ", " dans ", " pour ", " avec ", " sans "]
+        let frenchCount = frenchWords.filter { lower.contains($0) }.count
+        if frenchCount >= 1 {
             return "fr"
         }
         
@@ -1603,11 +1672,17 @@ final class AIAssistantService: @unchecked Sendable {
         Rules: Nominative case, no descriptions, ONLY names.
         """
         
-        let response = try await callLLMAPI(prompt: prompt)
-        let items = parseResultArray(from: response, maxCount: finalCount)
-        if !items.isEmpty {
-            return items
+        // Try to generate via LLM, but catch errors to use fallback
+        do {
+            let response = try await callLLMAPI(prompt: prompt)
+            let items = parseResultArray(from: response, maxCount: finalCount)
+            if !items.isEmpty {
+                return items
+            }
+        } catch {
+            print("LLM Error in generateItemsFromGroup: \(error)")
         }
+        
         return Array(getFallbackItemsForGroup(groupName, language: language).prefix(finalCount))
     }
     
@@ -1693,6 +1768,12 @@ final class AIAssistantService: @unchecked Sendable {
                 return ["Toyota", "BMW", "Mercedes-Benz", "Audi", "Volkswagen"]
             } else if lowercased.contains("laptop") || lowercased.contains("computer") || lowercased.contains("ноутбук") {
                 return ["MacBook", "ThinkPad", "Dell XPS", "HP", "ASUS"]
+            } else if lowercased.contains("restaurant") || lowercased.contains("ресторан") {
+                return ["White Rabbit", "Twins Garden", "Selfie", "Savva", "Artest"]
+            } else if lowercased.contains("bar") || lowercased.contains("бар") {
+                return ["Коробок", "The Bix", "Noor", "Delicatessen", "Chainaya"]
+            } else if lowercased.contains("hotel") || lowercased.contains("отель") || lowercased.contains("гостиница") {
+                return ["Метрополь", "Националь", "Ritz-Carlton", "Four Seasons", "St. Regis"]
             }
             return ["Элемент 1", "Элемент 2", "Элемент 3", "Элемент 4", "Элемент 5"]
             
@@ -1709,6 +1790,16 @@ final class AIAssistantService: @unchecked Sendable {
                 return ["Toyota", "BMW", "Mercedes-Benz", "Audi", "Volkswagen"]
             } else if lowercased.contains("laptop") || lowercased.contains("computer") || lowercased.contains("portátil") {
                 return ["MacBook", "ThinkPad", "Dell XPS", "HP", "ASUS"]
+            } else if lowercased.contains("restaurant") || lowercased.contains("restaurante") {
+                return ["El Celler de Can Roca", "Mugaritz", "Arzak", "Disfrutar", "Azurmendi"]
+            } else if lowercased.contains("bar") || lowercased.contains("bares") {
+                return ["Paradiso", "Sips", "Two Schmucks", "Salmon Guru", "Boadas"]
+            } else if lowercased.contains("hotel") || lowercased.contains("hoteles") {
+                return ["Hotel Arts", "W Barcelona", "Majestic", "Mandarin Oriental", "Hotel 1898"]
+            } else if lowercased.contains("museo") {
+                return ["Prado", "Reina Sofía", "Thyssen", "Guggenheim", "Picasso"]
+            } else if lowercased.contains("parque") {
+                return ["Retiro", "Güell", "Ciutadella", "Maria Luisa", "Casa de Campo"]
             }
             return ["Elemento 1", "Elemento 2", "Elemento 3", "Elemento 4", "Elemento 5"]
             
@@ -1725,6 +1816,12 @@ final class AIAssistantService: @unchecked Sendable {
                 return ["Toyota", "BMW", "Mercedes-Benz", "Audi", "Volkswagen"]
             } else if lowercased.contains("laptop") || lowercased.contains("computer") || lowercased.contains("ordinateur") {
                 return ["MacBook", "ThinkPad", "Dell XPS", "HP", "ASUS"]
+            } else if lowercased.contains("restaurant") {
+                return ["Guy Savoy", "Arpège", "Septime", "Alain Ducasse", "Pierre Gagnaire"]
+            } else if lowercased.contains("bar") {
+                return ["Little Red Door", "Candelaria", "Le Syndicat", "CopperBay", "Danico"]
+            } else if lowercased.contains("hotel") || lowercased.contains("hôtel") {
+                return ["Ritz Paris", "Le Meurice", "Plaza Athénée", "George V", "Le Bristol"]
             }
             return ["Élément 1", "Élément 2", "Élément 3", "Élément 4", "Élément 5"]
             
@@ -1741,6 +1838,12 @@ final class AIAssistantService: @unchecked Sendable {
                 return ["Toyota", "BMW", "Mercedes-Benz", "Audi", "Volkswagen"]
             } else if lowercased.contains("laptop") || lowercased.contains("computer") {
                 return ["MacBook", "ThinkPad", "Dell XPS", "HP", "ASUS"]
+            } else if lowercased.contains("restaurant") {
+                return ["Noma", "Geranium", "Central", "Disfrutar", "Diverxo"]
+            } else if lowercased.contains("bar") {
+                return ["Paradiso", "Tayēr + Elementary", "Sips", "Gargoyle", "Little Red Door"]
+            } else if lowercased.contains("hotel") {
+                return ["The Ritz", "The Plaza", "Burj Al Arab", "Savoy", "Four Seasons"]
             }
             return ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"]
         }
@@ -1749,7 +1852,7 @@ final class AIAssistantService: @unchecked Sendable {
     /// Генерирует релевантные критерии для сравнения объектов через AI
     /// - Parameter items: Объекты для сравнения
     /// - Parameter language: Язык для генерации ("en", "ru", "es", "fr")
-    /// - Returns: Массив критериев (3-5 штук)
+    /// - Returns: Массив критериев (5 штук)
     private func generateAttributesForItems(_ items: [String], language: String = "en") async throws -> [String] {
         let itemsList = items.enumerated().map { "\($0.offset + 1). \($0.element)" }.joined(separator: "\n")
         
@@ -1770,7 +1873,7 @@ final class AIAssistantService: @unchecked Sendable {
         You are an analytical assistant for the Choose Right application.
 
         TASK:
-        Create a list of 3-5 relevant criteria for comparing the following items.
+        Create a list of exactly 5 relevant criteria for comparing the following items.
         Return the result STRICTLY in JSON format.
 
         ITEMS TO COMPARE:
@@ -1782,16 +1885,17 @@ final class AIAssistantService: @unchecked Sendable {
         1. Return ONLY valid JSON, without any text before or after
         2. DO NOT use markdown code blocks (```json or ```)
         3. DO NOT add explanations or comments
-        4. PRIORITY: Generate NON-NUMERICAL criteria (qualitative attributes like "culture", "climate", "transportation", "safety", "entertainment", etc.)
-        5. AVOID numerical criteria (price, cost, calories, weight, etc.) unless they are essential for the comparison
-        6. Focus on meaningful qualitative comparisons that help users make decisions
-        7. Create 3 to 5 criteria that are truly important for comparing these items
+        4. You MUST return exactly 5 criteria (five attribute names). Never return fewer than 5.
+        5. PRIORITY: Generate NON-NUMERICAL criteria (qualitative attributes like "culture", "climate", "transportation", "safety", "entertainment", etc.)
+        6. AVOID numerical criteria (price, cost, calories, weight, etc.) unless they are essential for the comparison
+        7. Focus on meaningful qualitative comparisons that help users make decisions
         8. Criteria must be specific and clear
         9. Use short criterion names (1-3 words)
+        10. NEVER use placeholder names like "criterion 1", "criterio 1", "critère 1", "критерий 1" or similar. Always use meaningful, descriptive names (e.g. for bars: "Ambiente", "Ubicación", "Precio", "Calidad del servicio", "Variedad"; for cities: "Transporte", "Seguridad", "Cultura", "Precio", "Ocio").
 
-        REQUIRED JSON FORMAT:
+        REQUIRED JSON FORMAT (exactly 5 attributes; use the same style in the target language):
         {
-          "attributes": ["criterion 1", "criterion 2", "criterion 3", "criterion 4"]
+          "attributes": ["Quality", "Location", "Price", "Service", "Atmosphere"]
         }
 
         IMPORTANT: Return ONLY the JSON object starting with { and ending with }. No other text!
@@ -1832,11 +1936,17 @@ final class AIAssistantService: @unchecked Sendable {
         do {
             let response = try decoder.decode(AttributesResponse.self, from: data)
             // Фильтруем и валидируем критерии
-            let validAttributes = response.attributes
+            var validAttributes = response.attributes
                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                 .filter { !$0.isEmpty && $0.count > 1 }
             
-            // Если получили валидные критерии, возвращаем их
+            // Отбрасываем плейсхолдеры вида "criterio 1", "criterion 2", "critère 3", "критерий 1"
+            let placeholderPattern = #"(?i)^(criterio|critère|criterion|критерий)\s*\d+$"#
+            validAttributes = validAttributes.filter { attr in
+                attr.range(of: placeholderPattern, options: .regularExpression) == nil
+            }
+            
+            // Если получили валидные критерии, возвращаем их; иначе fallback
             if !validAttributes.isEmpty {
                 return Array(validAttributes.prefix(5)) // Максимум 5 критериев
             }
@@ -1851,17 +1961,17 @@ final class AIAssistantService: @unchecked Sendable {
         return getFallbackAttributes(language: language)
     }
     
-    /// Возвращает дефолтные критерии на указанном языке
+    /// Возвращает дефолтные критерии на указанном языке (5 осмысленных названий, не плейсхолдеры)
     private func getFallbackAttributes(language: String) -> [String] {
         switch language {
         case "ru":
-            return ["Критерий 1", "Критерий 2", "Критерий 3"]
+            return ["Качество", "Цена", "Удобство", "Расположение", "Сервис"]
         case "es":
-            return ["Criterio 1", "Criterio 2", "Criterio 3"]
+            return ["Calidad", "Precio", "Servicio", "Ubicación", "Ambiente"]
         case "fr":
-            return ["Critère 1", "Critère 2", "Critère 3"]
+            return ["Qualité", "Prix", "Service", "Emplacement", "Ambiance"]
         default:
-            return ["Criterion 1", "Criterion 2", "Criterion 3"]
+            return ["Quality", "Price", "Service", "Location", "Atmosphere"]
         }
     }
     
@@ -1997,6 +2107,7 @@ enum AIAssistantError: LocalizedError {
     case invalidURL
     case noData
     case parsingFailed
+    case creationFailed
     case networkError
     case invalidResponse
     case apiError(String)
@@ -2011,6 +2122,8 @@ enum AIAssistantError: LocalizedError {
             return "No content in AI response"
         case .parsingFailed:
             return "Failed to recognize items and criteria in your request"
+        case .creationFailed:
+            return "Could not save the comparison. Please try again."
         case .networkError:
             return "Network error when accessing the AI service"
         case .invalidResponse:

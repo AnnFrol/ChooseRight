@@ -65,35 +65,29 @@ extension CoreDataManager {
     
     //MARK: CreateComparison
     public func createComparison(name: String, color: String? = specialColors.first) -> String? {
-        
-        //Check if name is used
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entity.comparison)
-        fetchRequest.predicate = NSPredicate(format: "name == %@", name)
-        
-        var comparisons: [ComparisonEntity]?
-        do {
-            comparisons = try? viewContext.fetch(fetchRequest) as? [ComparisonEntity] ?? []
-        }
-        
-        let count = comparisons?.count ?? 0
-        if count > 0 {
+        let finalName = uniqueComparisonName(for: name)
+        guard let comparisonEntityDescription = NSEntityDescription.entity(
+            forEntityName: entity.comparison,
+            in: viewContext) else {
             return nil
-        } else {
-            //Creating comparison
-            guard let comparisonEntityDescription = NSEntityDescription.entity(
-                forEntityName: entity.comparison,
-                in: viewContext) else {
-                return nil
-            }
-            let date = Date().getLocalDate()
-            let comparison = ComparisonEntity(entity: comparisonEntityDescription, insertInto: viewContext)
-            comparison.id = UUID()
-            comparison.name = name
-            comparison.date = date
-            comparison.color = color
-            appDelegate.saveContext()
-            return comparison.id?.uuidString
         }
+        let date = Date().getLocalDate()
+        let comparison = ComparisonEntity(entity: comparisonEntityDescription, insertInto: viewContext)
+        comparison.id = UUID()
+        comparison.name = finalName
+        comparison.date = date
+        comparison.color = color
+        appDelegate.saveContext()
+        return comparison.id?.uuidString
+    }
+    
+    /// Returns a name that is not yet used; if `name` is taken, tries "name (2)", "name (3)", etc.
+    private func uniqueComparisonName(for name: String) -> String {
+        let allNames = fetchAllComparisons().compactMap { $0.name }
+        if !allNames.contains(name) { return name }
+        var n = 2
+        while allNames.contains("\(name) (\(n))") { n += 1 }
+        return "\(name) (\(n))"
     }
     
     
@@ -480,6 +474,38 @@ extension CoreDataManager {
         attribute.name = newName
         appDelegate.saveContext()
         return true
+    }
+    
+    //MARK: Update comparisonAttribute Order
+    public func updateComparisonAttributeOrder(attribute: ComparisonAttributeEntity, sourceIndex: Int, destinationIndex: Int) {
+        guard let comparison = attribute.comparison else { return }
+        
+        // Получаем все атрибуты, отсортированные текущим образом
+        var attributes = comparison.attributesArray.sorted { $0.unwrappedDate > $1.unwrappedDate }
+        
+        // Удаляем перемещаемый атрибут из массива
+        if let index = attributes.firstIndex(of: attribute) {
+            attributes.remove(at: index)
+        }
+        
+        // Вставляем на новую позицию
+        let safeDestinationIndex = min(max(0, destinationIndex), attributes.count)
+        attributes.insert(attribute, at: safeDestinationIndex)
+        
+        // Пересчитываем даты для сохранения порядка
+        // Используем текущее время как базу и вычитаем секунды для каждого следующего элемента
+        // Чтобы при сортировке по убыванию даты (ascending: false) они выстроились в нужном порядке
+        let baseDate = Date()
+        
+        for (index, attr) in attributes.enumerated() {
+            // Чем меньше индекс (выше в списке), тем более поздняя дата должна быть
+            // attributes[0] -> baseDate
+            // attributes[1] -> baseDate - 1 sec
+            // ...
+            attr.date = baseDate.addingTimeInterval(-TimeInterval(index))
+        }
+        
+        appDelegate.saveContext()
     }
     
     //MARK: Delete comparisonAttribute

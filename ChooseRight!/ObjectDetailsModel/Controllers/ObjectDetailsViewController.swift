@@ -4,6 +4,7 @@
 //
 //  Created by Александр Фрольцов on 04.04.2023.
 //
+
 import Foundation
 import UIKit
 
@@ -26,13 +27,13 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
     
     var attributeChangeNameAlert:
     UIAlertController? = UIAlertController(
-        title: "Edit attribute",
+        title: NSLocalizedString("Edit attribute", comment: ""),
         message: "",
         preferredStyle: .alert)
     
     var deleteItemAlert:
     UIAlertController? = UIAlertController(
-        title: "Delete",
+        title: NSLocalizedString("Delete", comment: ""),
         message: "",
         preferredStyle: .alert)
     
@@ -67,8 +68,8 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
 //        preferredStyle: .alert)
     
     private var addNewAttributeAlert = UIAlertController(
-        title: "New attribute",
-        message: "Enter attribute for comparison",
+        title: NSLocalizedString("New attribute", comment: ""),
+        message: NSLocalizedString("Enter attribute for comparison", comment: ""),
         preferredStyle: .alert)
     
 //    private var deleteItemAlert = UIAlertController(
@@ -98,8 +99,8 @@ class ObjectDetailsViewController:  DraggableViewController, UIViewControllerTra
     private let closeButton = CloseButton()
     private let detailsView = DetailsView()
     private let attributesTableView = AttributesTableView()
-    private let addNewAttributeButton = AddAttributeButton(title: "+ Add attribute")
-    private let deleteItemButton = DeleteItemButton(title: "Delete item")
+    private let addNewAttributeButton = AddAttributeButton(title: NSLocalizedString("+ Add attribute", comment: ""))
+    private let deleteItemButton = DeleteItemButton(title: NSLocalizedString("Delete item", comment: ""))
     
     var cellsCount = 5
     
@@ -438,27 +439,27 @@ extension ObjectDetailsViewController {
     private func addAttributeAlertConfiguration() {
         
         self.addNewAttributeAlert = UIAlertController(
-            title: "New attribute",
+            title: NSLocalizedString("New attribute", comment: ""),
             message: "",
             preferredStyle: .alert)
         
         addNewAttributeAlert.addTextField { alertTextfield in
             alertTextfield.delegate = self
-            alertTextfield.placeholder = "New attribute"
+            alertTextfield.placeholder = NSLocalizedString("New attribute", comment: "")
             alertTextfield.autocapitalizationType = .sentences
             alertTextfield.becomeFirstResponder()
             alertTextfield.addTarget(self, action: #selector(self.textFieldChanged), for: .editingChanged)
         }
         
         
-        let cancelNewAttributeButton = UIAlertAction(title: "Cancel", style: .cancel) {[weak self] _ in
+        let cancelNewAttributeButton = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) {[weak self] _ in
             self?.addNewAttributeAlert.dismiss(animated: true)
             self?.addNewAttributeAlert = UIAlertController()
         }
         
         addNewAttributeAlert.addAction(cancelNewAttributeButton)
         
-        let saveNewAttributeButton = UIAlertAction(title: "Save", style: .default) { [weak  self] _ in
+        let saveNewAttributeButton = UIAlertAction(title: NSLocalizedString("Save", comment: ""), style: .default) { [weak  self] _ in
             guard let self = self else { return }
             let textfieldText = self.addNewAttributeAlert.textFields?[0].text ?? "No text"
             
@@ -634,6 +635,10 @@ extension ObjectDetailsViewController {
         attributesTableView.dataSource = self
         attributesTableView.register(AttributesTableViewCell.self, forCellReuseIdentifier: AttributesTableViewCell.idAttributeTableViewCell)
         
+        attributesTableView.dragInteractionEnabled = true
+        attributesTableView.dragDelegate = self
+        attributesTableView.dropDelegate = self
+        
         draggableViewControllerDelegate = self
 
         detailsView.detailsViewDelegate = self
@@ -788,7 +793,7 @@ extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
             
             let changinngAttribute = self.attributesArray[indexPath.row]
             
-            let changeNameAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil")) { [weak self] action in
+            let changeNameAction = UIAction(title: NSLocalizedString("Edit", comment: ""), image: UIImage(systemName: "pencil")) { [weak self] action in
                 
                 guard let self = self else { return }
                 
@@ -804,7 +809,7 @@ extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
                 }
             }
             
-            let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), identifier: nil, attributes: .destructive) { action in
+            let deleteAction = UIAction(title: NSLocalizedString("Delete", comment: ""), image: UIImage(systemName: "trash"), identifier: nil, attributes: .destructive) { action in
                 let delay = 0.4
                 DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                     self.sharedData.deleteComparisonAttribute(attribute: changinngAttribute)
@@ -856,7 +861,7 @@ extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
             }
         }
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
             self.attributeChangeNameAlert?.view.window?.removeGestureRecognizer(self.dismissAttributeChangeNameAlertGesture)
             self.attributeChangeNameAlert?.dismiss(animated: true) {
                 self.attributeChangeNameAlert?.view.window?.removeGestureRecognizer(self.dismissAttributeChangeNameAlertGesture)
@@ -883,3 +888,52 @@ extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
     
 }
 
+// MARK: - Drag & Drop Attributes
+extension ObjectDetailsViewController: UITableViewDragDelegate {
+    
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        guard tableView == attributesTableView else { return [] }
+        
+        let attribute = attributesArray[indexPath.row]
+        let itemProvider = NSItemProvider(object: attribute.objectID.uriRepresentation().absoluteString as NSString)
+        let dragItem = UIDragItem(itemProvider: itemProvider)
+        dragItem.localObject = attribute
+        return [dragItem]
+    }
+}
+
+extension ObjectDetailsViewController: UITableViewDropDelegate {
+    
+    func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
+        
+        if tableView == attributesTableView && tableView.hasActiveDrag {
+            return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
+        }
+        return UITableViewDropProposal(operation: .forbidden)
+    }
+    
+    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+        
+        guard let destinationIndexPath = coordinator.destinationIndexPath else { return }
+        
+        guard let item = coordinator.items.first,
+              let sourceIndexPath = item.sourceIndexPath,
+              let attribute = item.dragItem.localObject as? ComparisonAttributeEntity else { return }
+        
+        tableView.performBatchUpdates {
+            // Update local array
+            attributesArray.remove(at: sourceIndexPath.row)
+            attributesArray.insert(attribute, at: destinationIndexPath.row)
+            
+            // Update table view
+            tableView.deleteRows(at: [sourceIndexPath], with: .fade)
+            tableView.insertRows(at: [destinationIndexPath], with: .fade)
+            
+            // Update Core Data
+            sharedData.updateComparisonAttributeOrder(attribute: attribute, sourceIndex: sourceIndexPath.row, destinationIndex: destinationIndexPath.row)
+            
+        } completion: { _ in
+            // No need to reload data if batch updates are correct
+        }
+    }
+}

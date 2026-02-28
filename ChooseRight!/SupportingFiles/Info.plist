@@ -5,31 +5,37 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>ChooseRight Comparison</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>chooseright</string>
-			</array>
-			<key>LSHandlerRank</key>
-			<string>Owner</string>
-			<key>LSTypeIsPackage</key>
-			<false/>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>com.chooseright.comparison</string>
 			</array>
 			<key>CFBundleTypeIconFiles</key>
 			<array>
 				<string>DocumentIcon</string>
 			</array>
+			<key>CFBundleTypeName</key>
+			<string>ChooseRight Comparison</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.chooseright.comparison</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<false/>
 		</dict>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLIconFile</key>
+			<string>DocumentIcon</string>
+			<key>CFBundleURLName</key>
+			<string>com.annfro.ChooseRight.import</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>chooseright</string>
@@ -38,8 +44,6 @@
 	</array>
 	<key>GroqAPIKey</key>
 	<string>$(GROQ_API_KEY)</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>mailto</string>
@@ -63,26 +67,24 @@
 			</array>
 		</dict>
 	</dict>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
 	<key>UISupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>com.chooseright.comparison</string>
-			<key>UTTypeDescription</key>
-			<string>ChooseRight Comparison</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
 				<string>public.content</string>
 			</array>
+			<key>UTTypeDescription</key>
+			<string>ChooseRight Comparison</string>
 			<key>UTTypeIconFiles</key>
 			<array>
 				<string>DocumentIcon</string>
 			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.chooseright.comparison</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>

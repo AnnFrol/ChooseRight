@@ -7,7 +7,6 @@
 ```
 SwiftUIComponents/
 ├── Buttons/              # SwiftUI версии кастомных кнопок
-│   ├── AddButtonView.swift
 │   ├── CloseButtonView.swift
 │   ├── DeleteItemButtonView.swift
 │   ├── PlusMinusButtonView.swift
@@ -45,10 +44,8 @@ window?.rootViewController = UINavigationController(rootViewController: hostingC
 Для использования SwiftUI кнопок в существующих UIKit view controllers, используйте `UIHostingController`:
 
 ```swift
-let addButtonView = AddButtonView {
-    // Ваш код
-}
-let hostingView = UIHostingController(rootView: addButtonView)
+let closeButtonView = CloseButtonView(action: { /* Ваш код */ })
+let hostingView = UIHostingController(rootView: closeButtonView)
 // Добавьте hostingView.view как subview
 ```
 
@@ -88,7 +85,6 @@ SwiftUI Alert уже интегрирован в `MainView.swift`. Пример 
 
 - **MainView** - главный экран (3 варианта: пустой, с данными, темная тема)
 - **MainComparisonRowView** - ячейка сравнения (светлая/темная тема)
-- **AddButtonView** - кнопка добавления с анимацией
 - **CloseButtonView** - кнопка закрытия
 - **DeleteItemButtonView** - кнопка удаления
 - **PlusMinusButtonView** - кнопки +/- 

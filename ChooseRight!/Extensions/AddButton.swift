@@ -8,7 +8,8 @@ import UIKit
 class AddButton: UIButton {
 
     private let originalIcon: UIImage = {
-        UIImage(named: "AddButton") ?? UIImage(systemName: "plus") ?? UIImage()
+        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .regular)
+        return UIImage(systemName: "plus", withConfiguration: config) ?? UIImage()
     }()
 
     override init(frame: CGRect) {
@@ -22,14 +23,22 @@ class AddButton: UIButton {
 
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
-        clipsToBounds = true
         
         accessibilityLabel = NSLocalizedString("Create new comparison", comment: "Accessibility: add button")
         accessibilityHint = NSLocalizedString("Double tap to create a new comparison.", comment: "Accessibility: add button hint")
 
         let backgroundColor = UIColor.specialColors.threeBlueLavender ?? .systemBlue
 
-        if #available(iOS 15.0, *) {
+        if #available(iOS 26.0, *) {
+            // iOS 26: UIButton.Configuration corner radius bug, use legacy style so button stays round
+            setImage(originalIcon, for: .normal)
+            self.backgroundColor = backgroundColor
+            tintColor = .black
+            imageView?.contentMode = .center
+            clipsToBounds = true
+        } else {
+            // iOS 18–25: modern configuration (app supports iOS 18+ only)
+            clipsToBounds = false
             var config = UIButton.Configuration.filled()
             config.baseBackgroundColor = backgroundColor
             config.baseForegroundColor = .black
@@ -38,11 +47,6 @@ class AddButton: UIButton {
             config.imagePadding = 0
             config.cornerStyle = .capsule
             self.configuration = config
-        } else {
-            setImage(originalIcon, for: .normal)
-            self.backgroundColor = backgroundColor
-            tintColor = .black
-            imageView?.contentMode = .center
         }
 
         addTarget(self, action: #selector(buttonPressed), for: .touchDown)
@@ -55,6 +59,7 @@ class AddButton: UIButton {
         let radius = min(bounds.width, bounds.height) / 2
         guard radius > 0 else { return }
         layer.cornerRadius = radius
+        layer.cornerCurve = .continuous
     }
 
     @objc private func buttonPressed() {

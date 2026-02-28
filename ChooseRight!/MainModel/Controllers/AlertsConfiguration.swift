@@ -29,13 +29,9 @@ extension MainViewController: UITextFieldDelegate {
     func alertConfigurationForCreate() {
 
         //New comparison configuration
-        let examplesMessage = """
-        For example:
-        • Compare New York and London by cost of living, technology, price.
-        • Compare Apples, Pears, and Peaches.
-        """
+        let examplesMessage = NSLocalizedString("For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches.", comment: "Create comparison alert examples")
         self.createNewComparisonListAlert? = UIAlertController(
-            title: "Create new comparison",
+            title: NSLocalizedString("Create new comparison", comment: ""),
             message: examplesMessage,
             preferredStyle: .alert)
         
@@ -43,11 +39,11 @@ extension MainViewController: UITextFieldDelegate {
             alertTextfield.autocapitalizationType = .sentences
             alertTextfield.clearButtonMode = .always
             alertTextfield.delegate = self
-            alertTextfield.placeholder = "e.g. Compare 5 cities"
+            alertTextfield.placeholder = NSLocalizedString("e.g. Compare 5 cities", comment: "")
             alertTextfield.addTarget(self, action: #selector(self.textFieldChanged), for: .editingChanged)
         }
         
-        let saveNewComparisonButton = UIAlertAction(title: "Start", style: .default) { [self, weak createNewComparisonListAlert] (_) in
+        let saveNewComparisonButton = UIAlertAction(title: NSLocalizedString("Start", comment: ""), style: .default) { [self, weak createNewComparisonListAlert] (_) in
                         
             // Check purchase status
             Task {
@@ -61,11 +57,9 @@ extension MainViewController: UITextFieldDelegate {
                         createNewComparisonListAlert?.dismiss(animated: true) {
                             let subscriptionVC = SubscriptionViewController()
                             subscriptionVC.modalPresentationStyle = .pageSheet
-                            if #available(iOS 15.0, *) {
-                                if let sheet = subscriptionVC.sheetPresentationController {
-                                    sheet.detents = [.large()]
-                                    sheet.prefersGrabberVisible = true
-                                }
+                            if let sheet = subscriptionVC.sheetPresentationController {
+                                sheet.detents = [.large()]
+                                sheet.prefersGrabberVisible = true
                             }
                             self.present(subscriptionVC, animated: true)
                         }
@@ -102,11 +96,13 @@ extension MainViewController: UITextFieldDelegate {
 
                 // Если введён запрос на сравнение — отправляем в AI (в т.ч. "Compare 5 cities", "Compare X and Y by ...")
                 let lower = trimmed.lowercased()
-                let hasCompareKeyword = lower.contains("compare") || lower.contains("comparar") || lower.contains("comparer") || lower.contains("сравн")
-                let hasExplicitList = lower.contains(" by ") || lower.contains(" по ") || lower.contains(" and ") || lower.contains(" и ") || lower.contains(" vs ")
+                let hasCompareKeyword = lower.contains("compare") || lower.contains("comparar") || lower.contains("compara") || lower.contains("comparer") || lower.contains("comparez") || lower.contains("сравн")
+                let hasExplicitList = lower.contains(" by ") || lower.contains(" по ") || lower.contains(" por ") || lower.contains(" and ") || lower.contains(" и ") || lower.contains(" y ") || lower.contains(" vs ")
                 let hasGroupPrefix = lower.hasPrefix("compare ") && trimmed.count > 8
                     || lower.hasPrefix("comparar ") && trimmed.count > 9
+                    || lower.hasPrefix("compara ") && trimmed.count > 9
                     || lower.hasPrefix("comparer ") && trimmed.count > 9
+                    || lower.hasPrefix("comparez ") && trimmed.count > 9
                     || lower.hasPrefix("сравни ") && trimmed.count > 7
                     || lower.hasPrefix("сравнить ") && trimmed.count > 9
                 let looksLikeCompareRequest = hasCompareKeyword && (hasExplicitList || hasGroupPrefix)
@@ -141,7 +137,7 @@ extension MainViewController: UITextFieldDelegate {
                     }
                 }
         }
-        let cancelNewComparisonButton = UIAlertAction(title: "Cancel", style: .cancel)
+        let cancelNewComparisonButton = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel)
         { _ in
             self.createNewComparisonListAlert?.dismiss(animated: true)
 
@@ -159,7 +155,7 @@ extension MainViewController: UITextFieldDelegate {
         
         //New comparison configuration
         self.createNameChangingAlert? = UIAlertController(
-            title: "The old name is no good?",
+            title: NSLocalizedString("The old name is no good?", comment: ""),
             message: "",
             preferredStyle: .alert)
         
@@ -172,7 +168,7 @@ extension MainViewController: UITextFieldDelegate {
             alertTextfield.addTarget(self, action: #selector(self.textFieldChanged), for: .editingChanged)
         }
         
-        let saveNewComparisonButton = UIAlertAction(title: "Save", style: .default) { [self, weak createNameChangingAlert] (_) in
+        let saveNewComparisonButton = UIAlertAction(title: NSLocalizedString("Save", comment: ""), style: .default) { [self, weak createNameChangingAlert] (_) in
             
             let textfieldText = createNameChangingAlert?.textFields?[0].text ?? "NoText"
             let savingResult = self.sharedDataBase.updateComparisonName(for: comparison, newName: textfieldText)
@@ -181,7 +177,7 @@ extension MainViewController: UITextFieldDelegate {
                 self.tableView.reloadData()
             }
         }
-        let cancelNewComparisonButton = UIAlertAction(title: "Cancel", style: .cancel)
+        let cancelNewComparisonButton = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel)
         { _ in
             
             self.createNameChangingAlert?.view.window?.removeGestureRecognizer(self.dismissGesture)
@@ -199,18 +195,18 @@ extension MainViewController: UITextFieldDelegate {
     
     func alertConfigurationForDeleteConfirmation(comparison: ComparisonEntity, index: Int ) {
         self.deleteComparisonConfirmationAlert? = UIAlertController(
-            title: "Delete comparison?",
+            title: NSLocalizedString("Delete comparison?", comment: ""),
             message: "",
             preferredStyle: .actionSheet)
         
         let deleteButton = UIAlertAction(
-            title: "Delete",
+            title: NSLocalizedString("Delete", comment: ""),
             style: .destructive) { [self] _ in
                 self.deleteComparisonFromTable(comparison: comparison, index: index)
             }
         
         let cancelButton = UIAlertAction(
-            title: "Cancel",
+            title: NSLocalizedString("Cancel", comment: ""),
             style: .default)
         
         deleteComparisonConfirmationAlert?.addAction(deleteButton)
@@ -227,8 +223,8 @@ extension MainViewController: UITextFieldDelegate {
     //MARK: AI Assistant Alert Configuration
     func alertConfigurationForAIAssistant() {
         let aiAlert = UIAlertController(
-            title: "Generate",
-            message: "Describe what you want to compare. For example: \"Compare New York and London by cost of living, technology, price, education opportunities\"",
+            title: NSLocalizedString("Generate", comment: ""),
+            message: NSLocalizedString("Describe what you want to compare. For example: \"Compare New York and London by cost of living, technology, price, education opportunities\"", comment: ""),
             preferredStyle: .alert
         )
         
@@ -236,11 +232,11 @@ extension MainViewController: UITextFieldDelegate {
             textField.autocapitalizationType = .sentences
             textField.clearButtonMode = .always
             textField.delegate = self
-            textField.placeholder = "e.g. Compare 5 cities"
+            textField.placeholder = NSLocalizedString("e.g. Compare 5 cities", comment: "")
             textField.addTarget(self, action: #selector(self.aiTextFieldChanged), for: .editingChanged)
         }
         
-        let createButton = UIAlertAction(title: "Create", style: .default) { [weak self, weak aiAlert] _ in
+        let createButton = UIAlertAction(title: NSLocalizedString("Create", comment: ""), style: .default) { [weak self, weak aiAlert] _ in
             guard let self = self,
                   let textField = aiAlert?.textFields?.first,
                   let userRequest = textField.text?.trimmingCharacters(in: .whitespaces),
@@ -251,7 +247,7 @@ extension MainViewController: UITextFieldDelegate {
             self.processAIRequest(userRequest)
         }
         
-        let cancelButton = UIAlertAction(title: "Cancel", style: .cancel)
+        let cancelButton = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel)
         
         aiAlert.addAction(createButton)
         aiAlert.addAction(cancelButton)
@@ -271,8 +267,8 @@ extension MainViewController: UITextFieldDelegate {
         
         // Show loading indicator
         let loadingAlert = UIAlertController(
-            title: "Processing Request",
-            message: "Generating comparison...",
+            title: NSLocalizedString("Processing Request", comment: ""),
+            message: NSLocalizedString("Generating comparison...", comment: ""),
             preferredStyle: .alert
         )
         
@@ -420,11 +416,9 @@ extension MainViewController: UITextFieldDelegate {
                 if !canCreate {
                     let subscriptionVC = SubscriptionViewController()
                     subscriptionVC.modalPresentationStyle = .pageSheet
-                    if #available(iOS 15.0, *) {
-                        if let sheet = subscriptionVC.sheetPresentationController {
-                            sheet.detents = [.large()]
-                            sheet.prefersGrabberVisible = true
-                        }
+                    if let sheet = subscriptionVC.sheetPresentationController {
+                        sheet.detents = [.large()]
+                        sheet.prefersGrabberVisible = true
                     }
                     self.present(subscriptionVC, animated: true)
                     return
@@ -433,11 +427,11 @@ extension MainViewController: UITextFieldDelegate {
                 // Парсим таблицу
                 guard let tableData = TableImportService.parseTableFromClipboard(text) else {
                     let alert = UIAlertController(
-                        title: "Error",
-                        message: "Could not parse the table. Please make sure the format is correct.",
+                        title: NSLocalizedString("Error", comment: ""),
+                        message: NSLocalizedString("Could not parse the table. Please make sure the format is correct.", comment: ""),
                         preferredStyle: .alert
                     )
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
                     self.present(alert, animated: true)
                     return
                 }
@@ -461,22 +455,22 @@ extension MainViewController: UITextFieldDelegate {
                 // Создаем сравнение
                 guard let comparisonId = self.sharedDataBase.createComparison(name: comparisonName, color: currentColor) else {
                     let alert = UIAlertController(
-                        title: "Error",
-                        message: "Could not create comparison. A comparison with this name may already exist.",
+                        title: NSLocalizedString("Error", comment: ""),
+                        message: NSLocalizedString("Could not create comparison. A comparison with this name may already exist.", comment: ""),
                         preferredStyle: .alert
                     )
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
                     self.present(alert, animated: true)
                     return
                 }
                 
                 guard let comparison = self.sharedDataBase.fetchComparisonWithID(id: comparisonId) else {
                     let alert = UIAlertController(
-                        title: "Error",
-                        message: "Could not find the created comparison.",
+                        title: NSLocalizedString("Error", comment: ""),
+                        message: NSLocalizedString("Could not find the created comparison.", comment: ""),
                         preferredStyle: .alert
                     )
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
                     self.present(alert, animated: true)
                     return
                 }
@@ -521,6 +515,11 @@ extension MainViewController: UITextFieldDelegate {
     }
     
     private func createComparisonFromAIResult(_ result: AIComparisonResult, userRequest: String) {
+        // Не создаём сравнение с пустыми объектами/критериями
+        if result.items.isEmpty || result.attributes.isEmpty {
+            showAIError(AIAssistantError.parsingFailed)
+            return
+        }
         // Проверяем подписку
         Task {
             await SubscriptionManager.shared.updatePurchasedStatus()
@@ -531,11 +530,9 @@ extension MainViewController: UITextFieldDelegate {
                 if !canCreate {
                     let subscriptionVC = SubscriptionViewController()
                     subscriptionVC.modalPresentationStyle = .pageSheet
-                    if #available(iOS 15.0, *) {
-                        if let sheet = subscriptionVC.sheetPresentationController {
-                            sheet.detents = [.large()]
-                            sheet.prefersGrabberVisible = true
-                        }
+                    if let sheet = subscriptionVC.sheetPresentationController {
+                        sheet.detents = [.large()]
+                        sheet.prefersGrabberVisible = true
                     }
                     self.present(subscriptionVC, animated: true)
                     return
@@ -559,22 +556,25 @@ extension MainViewController: UITextFieldDelegate {
                 
                 // Создаем сравнение
                 guard let comparisonId = self.sharedDataBase.createComparison(name: comparisonName, color: currentColor) else {
-                    self.showAIError(AIAssistantError.parsingFailed)
+                    self.showAIError(AIAssistantError.creationFailed)
                     return
                 }
                 
                 guard let comparison = self.sharedDataBase.fetchComparisonWithID(id: comparisonId) else {
-                    self.showAIError(AIAssistantError.parsingFailed)
+                    self.showAIError(AIAssistantError.creationFailed)
                     return
                 }
                 
                 // Импортируем данные из AI результата
                 // ВАЖНО: Теперь ассистент только определяет items и attributes, БЕЗ значений
                 // Таблица создается пустой - пользователь заполняет значения вручную
+                // Создаем пустую матрицу значений, чтобы таблица корректно отобразила строки и столбцы
+                let emptyValues = Array(repeating: Array(repeating: "", count: result.attributes.count), count: result.items.count)
+                
                 let importData = ImportedTableData(
                     items: result.items,
                     attributes: result.attributes,
-                    values: [], // Пустая матрица значений - таблица создается без заполнения
+                    values: emptyValues,
                     firstHeader: nil // Для AI результата первый заголовок не используется
                 )
                 
@@ -864,11 +864,9 @@ extension MainViewController: UITextFieldDelegate {
                 if !canCreate {
                     let subscriptionVC = SubscriptionViewController()
                     subscriptionVC.modalPresentationStyle = .pageSheet
-                    if #available(iOS 15.0, *) {
-                        if let sheet = subscriptionVC.sheetPresentationController {
-                            sheet.detents = [.large()]
-                            sheet.prefersGrabberVisible = true
-                        }
+                    if let sheet = subscriptionVC.sheetPresentationController {
+                        sheet.detents = [.large()]
+                        sheet.prefersGrabberVisible = true
                     }
                     self.present(subscriptionVC, animated: true)
                     return
@@ -911,11 +909,11 @@ extension MainViewController: UITextFieldDelegate {
                 
                 // Show warning and navigate to comparison
                 let warningAlert = UIAlertController(
-                    title: "Warning",
-                    message: "Failed to get data from AI. Created comparison with default values. You can fill it manually.",
+                    title: NSLocalizedString("Warning", comment: ""),
+                    message: NSLocalizedString("Failed to get data from AI. Created comparison with default values. You can fill it manually.", comment: ""),
                     preferredStyle: .alert
                 )
-                warningAlert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                warningAlert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default) { _ in
                     let destination = ComparisonListViewController()
                     destination.setComparisonEntity(comparison: comparison)
                     self.navigationController?.pushViewController(destination, animation: true, completion: {})
@@ -933,6 +931,8 @@ extension MainViewController: UITextFieldDelegate {
             switch aiError {
             case .parsingFailed:
                 errorMessage = "Failed to recognize items and criteria in your request. Try rephrasing your request, for example: \"Compare New York and London by cost of living, technology, price\""
+            case .creationFailed:
+                errorMessage = "Could not save the comparison. Please try again."
             case .networkError:
                 errorMessage = "Network error when accessing the AI service. Check your internet connection and API settings."
             case .invalidResponse:
@@ -951,11 +951,11 @@ extension MainViewController: UITextFieldDelegate {
         }
         
         let errorAlert = UIAlertController(
-            title: "Error",
+            title: NSLocalizedString("Error", comment: ""),
             message: errorMessage,
             preferredStyle: .alert
         )
-        errorAlert.addAction(UIAlertAction(title: "OK", style: .default))
+        errorAlert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
         present(errorAlert, animated: true)
     }
     

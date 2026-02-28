@@ -25,7 +25,6 @@
 ChooseRight!
   └── SwiftUIComponents/
       ├── Buttons/
-      │   ├── AddButtonView.swift
       │   ├── CloseButtonView.swift
       │   ├── DeleteItemButtonView.swift
       │   ├── PlusMinusButtonView.swift

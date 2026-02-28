@@ -32,7 +32,7 @@ struct MainView: View {
                 VStack(spacing: 0) {
                     // Header
                     HStack {
-                        Text("Choose Right")
+                        Text(NSLocalizedString("Choose Right", comment: ""))
                             .font(.sfProTextBold33())
                             .foregroundColor(Color.specialColors.text)
                             .kerning(-1.37)
@@ -55,7 +55,7 @@ struct MainView: View {
                     if viewModel.comparisons.isEmpty {
                         // Placeholder
                         VStack(spacing: 40) {
-                            Text("Tap the button to create your first comparison")
+                            Text(NSLocalizedString("Tap the button to create your first comparison", comment: ""))
                                 .font(.sfProTextMedium24())
                                 .foregroundColor(Color.specialColors.detailsOptionTableText)
                                 .multilineTextAlignment(.leading)
@@ -81,20 +81,20 @@ struct MainView: View {
                                                 renameText = comparison.unwrappedName
                                                 showRenameAlert = true
                                             }) {
-                                                Label("Change name", systemImage: "pencil")
+                                                Label(NSLocalizedString("Change name", comment: ""), systemImage: "pencil")
                                             }
                                             
                                             Button(action: {
                                                 viewModel.changeColor(for: comparison)
                                             }) {
-                                                Label("Change color", systemImage: "paintpalette")
+                                                Label(NSLocalizedString("Change color", comment: ""), systemImage: "paintpalette")
                                             }
                                             
                                             Button(role: .destructive, action: {
                                                 selectedComparison = comparison
                                                 showDeleteAlert = true
                                             }) {
-                                                Label("Delete", systemImage: "trash")
+                                                Label(NSLocalizedString("Delete", comment: ""), systemImage: "trash")
                                             }
                                         }
                                 }
@@ -111,10 +111,14 @@ struct MainView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        AddButtonView(action: {
-                            showCreateAlert = true
-                        })
-                        .frame(width: 64, height: 64)
+                        Button(action: { showCreateAlert = true }) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 22, weight: .regular))
+                                .foregroundColor(.black)
+                                .frame(width: 64, height: 64)
+                                .background(Color.specialColors.threeBlueLavender)
+                                .clipShape(Circle())
+                        }
                         .padding(.trailing, 24)
                         .padding(.bottom, 24)
                     }
@@ -124,12 +128,12 @@ struct MainView: View {
             .onAppear {
                 viewModel.loadData()
             }
-            .alert("Create new comparison", isPresented: $showCreateAlert) {
-                TextField("Comparison name", text: $newComparisonName)
-                Button("Cancel", role: .cancel) {
+            .alert(NSLocalizedString("Create new comparison", comment: ""), isPresented: $showCreateAlert) {
+                TextField(NSLocalizedString("Comparison name", comment: ""), text: $newComparisonName)
+                Button(NSLocalizedString("Cancel", comment: ""), role: .cancel) {
                     newComparisonName = ""
                 }
-                Button("Start") {
+                Button(NSLocalizedString("Start", comment: "")) {
                     viewModel.createComparison(name: newComparisonName) { result in
                         switch result {
                         case .success(let comparison):
@@ -143,27 +147,27 @@ struct MainView: View {
                 }
                 .disabled(newComparisonName.trimmingCharacters(in: .whitespaces).isEmpty)
             } message: {
-                Text("Enter a name for your comparison")
+                Text(NSLocalizedString("Enter a name for your comparison", comment: ""))
             }
-            .alert("Error", isPresented: $showErrorAlert) {
-                Button("OK", role: .cancel) {}
+            .alert(NSLocalizedString("Error", comment: ""), isPresented: $showErrorAlert) {
+                Button(NSLocalizedString("OK", comment: ""), role: .cancel) {}
             } message: {
                 Text(errorMessage)
             }
-            .alert("Delete comparison?", isPresented: $showDeleteAlert) {
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
+            .alert(NSLocalizedString("Delete comparison?", comment: ""), isPresented: $showDeleteAlert) {
+                Button(NSLocalizedString("Cancel", comment: ""), role: .cancel) {}
+                Button(NSLocalizedString("Delete", comment: ""), role: .destructive) {
                     if let comparison = selectedComparison {
                         viewModel.deleteComparison(comparison)
                     }
                 }
             }
-            .alert("Rename your comparison", isPresented: $showRenameAlert) {
-                TextField("New name", text: $renameText)
-                Button("Cancel", role: .cancel) {
+            .alert(NSLocalizedString("Rename your comparison", comment: ""), isPresented: $showRenameAlert) {
+                TextField(NSLocalizedString("New name", comment: ""), text: $renameText)
+                Button(NSLocalizedString("Cancel", comment: ""), role: .cancel) {
                     renameText = ""
                 }
-                Button("Save") {
+                Button(NSLocalizedString("Save", comment: "")) {
                     if let comparison = selectedComparison {
                         viewModel.renameComparison(comparison, newName: renameText)
                     }

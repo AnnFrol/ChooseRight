@@ -100,20 +100,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 )
                 
                 if showSubscription {
-                    alert.addAction(UIAlertAction(title: "Upgrade", style: .default) { _ in
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("Upgrade", comment: ""), style: .default) { _ in
                         let subscriptionVC = SubscriptionViewController()
                         subscriptionVC.modalPresentationStyle = .pageSheet
-                        if #available(iOS 15.0, *) {
-                            if let sheet = subscriptionVC.sheetPresentationController {
-                                sheet.detents = [.large()]
-                                sheet.prefersGrabberVisible = true
-                            }
+                        if let sheet = subscriptionVC.sheetPresentationController {
+                            sheet.detents = [.large()]
+                            sheet.prefersGrabberVisible = true
                         }
                         topVC.present(subscriptionVC, animated: true)
                     })
-                    alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
                 } else {
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
                 }
                 
                 topVC.present(alert, animated: true)

@@ -121,7 +121,7 @@ extension ComparisonListViewController: NSFetchedResultsControllerDelegate {
         }
     }
     
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+    func controller(_ controller: NSFetchedResultsController<any NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch controller {
             
         case self.comparisonItemsFetchResultsController :
@@ -180,6 +180,9 @@ extension ComparisonListViewController: NSFetchedResultsControllerDelegate {
             
             
         case self.comparisonAttributesFetchResultsController :
+            // Skip updates if user is reordering manually
+            if isUserDrivenReordering { break }
+            
             // Store changes to apply in batch in controllerDidChangeContent
             pendingAttributeChanges.append((type: type, indexPath: indexPath, newIndexPath: newIndexPath))
             break
@@ -375,6 +378,8 @@ extension ComparisonListViewController: NSFetchedResultsControllerDelegate {
             }
             
         case comparisonAttributesFetchResultsController:
+            if isUserDrivenReordering { break }
+            
             // Check if we should use batch updates or reload
             let currentItemCount = self.attributesCollectionView.numberOfItems(inSection: 0)
             let expectedItemCount = self.comparisonAttributesFetchResultsController.fetchedObjects?.count ?? 0

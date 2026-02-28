@@ -9,19 +9,15 @@ import Foundation
 import UIKit
 
 class ThemeManager {
-    static func isLightTheme(for view: UIView) -> Bool  {
-        if #available(iOS 12.0, *) {
-            switch view.traitCollection.userInterfaceStyle {
-            case .light:
-                return true
-            case .dark:
-                return false
-            case .unspecified:
-                return false
-            @unknown default:
-                return true
-            }
-        } else {
+    static func isLightTheme(for view: UIView) -> Bool {
+        switch view.traitCollection.userInterfaceStyle {
+        case .light:
+            return true
+        case .dark:
+            return false
+        case .unspecified:
+            return false
+        @unknown default:
             return true
         }
     }
@@ -38,12 +34,8 @@ class ThemeManager {
     
     static func setTheme(isLight: Bool) {
         let style: UIUserInterfaceStyle = isLight ? .light : .dark
-        if #available(iOS 15.0, *) {
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                windowScene.windows.first?.overrideUserInterfaceStyle = style
-            }
-        } else {
-        UIApplication.shared.windows.first?.overrideUserInterfaceStyle = style
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            windowScene.windows.first?.overrideUserInterfaceStyle = style
         }
     }
 }

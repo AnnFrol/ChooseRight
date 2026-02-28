@@ -20,7 +20,10 @@ class CloseButton: UIButton {
     }
     
     private func configure() {
-        setBackgroundImage(UIImage(named: "closeButton"), for: .normal)
+        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
+        setImage(UIImage(systemName: "xmark.circle.fill", withConfiguration: config), for: .normal)
+        // Всегда тёмная иконка и на светлой, и на тёмной теме
+        tintColor = .black
         translatesAutoresizingMaskIntoConstraints = false
         accessibilityLabel = NSLocalizedString("Close", comment: "Accessibility: close button")
         accessibilityHint = NSLocalizedString("Double tap to close.", comment: "Accessibility: close button hint")

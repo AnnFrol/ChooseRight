@@ -23,19 +23,19 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     
     public var createNewComparisonListAlert:
     UIAlertController? = UIAlertController(
-        title: "Create new comparison",
+        title: NSLocalizedString("Create new comparison", comment: ""),
         message: "",
         preferredStyle: .alert)
     
     public var deleteComparisonConfirmationAlert:
     UIAlertController? = UIAlertController(
-        title: "Delete comparison?",
+        title: NSLocalizedString("Delete comparison?", comment: ""),
         message: "",
         preferredStyle: .actionSheet)
     
     public var createNameChangingAlert:
     UIAlertController? = UIAlertController(
-        title: "Rename your comparison",
+        title: NSLocalizedString("Rename your comparison", comment: ""),
         message: "",
         preferredStyle: .alert)
     
@@ -130,6 +130,7 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
         
         self.navigationController?.navigationBar.isHidden = true
         getData()
+        updateMenu()
         
 //        ScreenOrientationUtility.lockOrientation(.portrait)
     }
@@ -162,6 +163,7 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
         setupAccessibility()
         
         NotificationCenter.default.addObserver(self, selector: #selector(updateMenu), name: .didChangeTheme, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateMenu), name: .premiumStatusChanged, object: nil)
         
         
     }
@@ -469,7 +471,7 @@ extension MainViewController {
         let menuTitle = changingComparison.unwrappedName
 
         
-        let changeName = UIAction(title: "Change name", image: UIImage(systemName: "pencil")) {[self] _ in
+        let changeName = UIAction(title: NSLocalizedString("Change name", comment: ""), image: UIImage(systemName: "pencil")) {[self] _ in
 //            let changingComparison = self.comparisonsArray[indexPath.section]
             self.alertConfigurationForChangeName(comparison: changingComparison)
             present(self.createNameChangingAlert ?? UIAlertController(), animated: true) { [weak self] in
@@ -483,12 +485,12 @@ extension MainViewController {
             }
         }
         
-        let changeColor = UIAction(title: "Change color", image: UIImage(systemName: "paintpalette")) { [weak self] _ in
+        let changeColor = UIAction(title: NSLocalizedString("Change color", comment: ""), image: UIImage(systemName: "paintpalette")) { [weak self] _ in
             guard let self = self else { return }
             self.showColorPicker(for: changingComparison, at: indexPath)
         }
 
-        let delete = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [self] _ in
+        let delete = UIAction(title: NSLocalizedString("Delete", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { [self] _ in
             let deleteModel = self.comparisonsArray[indexPath.section]
             let index = indexPath.section
             
@@ -520,13 +522,11 @@ extension MainViewController {
             }
         )
         
-        if #available(iOS 15.0, *) {
-            if let sheet = colorPicker.sheetPresentationController {
-                sheet.detents = [.custom { _ in
-                    return UIScreen.main.bounds.height / 3
-                }]
-                sheet.prefersGrabberVisible = true
-            }
+        if let sheet = colorPicker.sheetPresentationController {
+            sheet.detents = [.custom { _ in
+                return UIScreen.main.bounds.height / 3
+            }]
+            sheet.prefersGrabberVisible = true
         }
         
         colorPicker.modalPresentationStyle = .pageSheet
@@ -643,11 +643,11 @@ extension MainViewController: ObjectDetailsVCProtocol {
         // Start accessing security-scoped resource
         guard url.startAccessingSecurityScopedResource() else {
             let alert = UIAlertController(
-                title: "Error",
-                message: "Cannot access file",
+                title: NSLocalizedString("Error", comment: ""),
+                message: NSLocalizedString("Cannot access file", comment: ""),
                 preferredStyle: .alert
             )
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
             present(alert, animated: true)
             return
         }
@@ -690,21 +690,19 @@ extension MainViewController: ObjectDetailsVCProtocol {
             )
             
             if showSubscription {
-                alert.addAction(UIAlertAction(title: "Upgrade", style: .default) { [weak self] _ in
+                alert.addAction(UIAlertAction(title: NSLocalizedString("Upgrade", comment: ""), style: .default) { [weak self] _ in
                     guard let self = self else { return }
                     let subscriptionVC = SubscriptionViewController()
                     subscriptionVC.modalPresentationStyle = .pageSheet
-                    if #available(iOS 15.0, *) {
-                        if let sheet = subscriptionVC.sheetPresentationController {
-                            sheet.detents = [.large()]
-                            sheet.prefersGrabberVisible = true
-                        }
+                    if let sheet = subscriptionVC.sheetPresentationController {
+                        sheet.detents = [.large()]
+                        sheet.prefersGrabberVisible = true
                     }
                     self.present(subscriptionVC, animated: true)
                 })
-                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+                alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
             } else {
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
             }
             
             present(alert, animated: true)
