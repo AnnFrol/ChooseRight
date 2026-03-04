@@ -4,36 +4,30 @@ AI Ассистент **уже настроен** на использовани�
 
 ## ✅ Что уже сделано:
 
-- ✅ Groq API активирован по умолчанию
-- ✅ Метод `callGroqAPI()` готов к использованию
-- ✅ Поле `GroqAPIKey` добавлено в `Info.plist`
-- ✅ Код автоматически получает ключ из `Info.plist`
+- ✅ Groq API — по умолчанию для всех регионов, кроме RU/BY
+- ✅ OpenRouter API — для России и Беларуси (Groq там недоступен)
+- ✅ Поля `GroqAPIKey` и `OpenRouterAPIKey` в `Info.plist` (значения из `Secrets.xcconfig`)
+- ✅ Выбор провайдера по региону устройства автоматический
 
 ## 🚀 Осталось только одно:
 
-### Добавьте ваш API ключ
+### Добавьте API ключи в Secrets.xcconfig
 
-**Вариант 1 (рекомендуется):** Через Info.plist
-1. Откройте `Info.plist` в Xcode
-2. Найдите ключ `GroqAPIKey`
-3. Замените `YOUR_GROQ_API_KEY` на ваш реальный ключ из Groq
+Файл `ChooseRight!/SupportingFiles/Secrets.xcconfig` (не коммитится в Git). Создайте его по образцу:
 
-**Вариант 2:** Прямо в коде
-1. Откройте `AIAssistantService.swift`
-2. Найдите метод `callGroqAPI()` (строка ~472)
-3. Замените `"YOUR_GROQ_API_KEY"` на ваш реальный ключ
+```
+GROQ_API_KEY = ваш_ключ_groq
+OPENROUTER_API_KEY = ваш_ключ_openrouter
+```
 
-### Как получить API ключ:
-
-1. Зарегистрируйтесь на https://console.groq.com/
-2. Перейдите в раздел **API Keys**
-3. Нажмите **"Create API Key"**
-4. Скопируйте созданный ключ
-5. Вставьте его в `Info.plist` или код
+- **GROQ_API_KEY** — для всех регионов кроме России и Беларуси. Получить: https://console.groq.com/ → API Keys.
+- **OPENROUTER_API_KEY** — для пользователей в России и Беларуси. Получить: https://openrouter.ai/keys → Create Key. Без этого ключа в RU/BY будет показано сообщение «заполните значения вручную».
 
 ## 🎉 Готово!
 
-После добавления ключа AI ассистент будет работать с реальным LLM и генерировать значения сравнения автоматически.
+После добавления ключей в `Secrets.xcconfig`:
+- В большинстве стран используется Groq.
+- В России и Беларуси — OpenRouter (бесплатная модель через OpenRouter).
 
 ---
 
@@ -71,15 +65,7 @@ AI Ассистент **уже настроен** на использовани�
 
 ---
 
-## Альтернативные провайдеры
+## Регионы: Groq и OpenRouter
 
-Если хотите использовать другой API, найдите метод `callLLMAPI()` и замените:
-```swift
-return try await callGroqAPI(prompt: prompt)
-```
-
-На один из вариантов:
-- `return try await callHuggingFaceAPI(prompt: prompt)`
-- `return try await callOpenRouterAPI(prompt: prompt)`
-
-Затем раскомментируйте соответствующий метод и добавьте API ключ.
+- **Россия (RU), Беларусь (BY):** используется OpenRouter (модель `meta-llama/llama-3.3-70b-instruct:free`). Если `OPENROUTER_API_KEY` не задан, показывается сообщение «AI generation is not available in your region. Please fill in the values manually.»
+- **Остальные регионы:** используется Groq. Китай (Greater China) исключён из распространения в App Store Connect; Сирия, Иран, КНДР, Куба там не представлены.

@@ -49,7 +49,7 @@ extension AIAssistantService {
         """
 
         let maxTokens = 500 + (items.count * attributes.count * 2)
-        let jsonResponse = try await callGroqAPI(prompt: prompt, maxTokens: max(min(maxTokens, 4096), 500))
+        let jsonResponse = try await callPreferredLLM(prompt: prompt, maxTokens: max(min(maxTokens, 4096), 500))
 
         guard let data = jsonResponse.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],

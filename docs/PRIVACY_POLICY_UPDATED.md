@@ -1,12 +1,12 @@
 # ChooseRight! Privacy Policy
 
-**Last Updated: February 21, 2026**
+**Last Updated: March 4, 2026**
 
 ## 1. Introduction
 
 Welcome to ChooseRight!. ChooseRight! is a mobile application for iOS designed to help you make decisions without stress. The app allows you to create comparisons between options, add evaluation criteria (attributes), and rate each option. The application calculates relevance and helps you choose the optimal option. An optional AI assistant can help you create comparison structure from a short description.
 
-We are committed to protecting your privacy. This Privacy Policy explains how we handle your information when you use ChooseRight!. Your comparison data is stored locally on your device. When you use the AI assistant feature, only the text you enter for that feature is sent to our AI provider to provide the service.
+We are committed to protecting your privacy. This Privacy Policy explains how we handle your information when you use ChooseRight!. Your comparison data is stored locally on your device. When you use the AI assistant features, only the text or data you provide for those features is sent to an AI provider (see Section 2 and 7) to provide the service. The app chooses the provider automatically based on your device’s region setting (country/region only; we do not use precise location).
 
 ## 2. Information We Collect
 
@@ -22,7 +22,7 @@ All comparison-related data is stored locally on your device using the iOS Core 
 
 **Data processed when you use the AI assistant:**
 
-If you use the optional AI assistant (e.g. to create a comparison from a phrase like “compare iPhone and Samsung”), the **text you type** for that request is sent to our AI provider **Groq** (https://groq.com) so we can return suggested items and attributes. We do not store this text on our servers. Groq processes it according to their privacy practices. We use this only to power the AI feature.
+If you use the optional AI assistant (e.g. to create a comparison from a phrase like “compare iPhone and Samsung”), the **text you type** for that request is sent to the AI provider so we can return suggested items and attributes. **Generate values:** If you use “Generate values” to fill the table with +/-, the **names of the items and criteria (attributes)** in that comparison are sent to the AI provider. We do not store this data on our servers. The provider processes it according to their privacy practices; we use it only to power these features. The provider may be **Groq** (https://groq.com) for most regions, or **OpenRouter** (https://openrouter.ai) for users in Russia and Belarus.
 
 ## 3. How We Use Your Information
 
@@ -30,7 +30,7 @@ If you use the optional AI assistant (e.g. to create a comparison from a phrase 
 All comparison data is processed only on your device. Relevance scores are calculated locally. No comparison content is sent to our or third-party servers.
 
 **AI assistant:**  
-When you use the AI assistant, we send only the request text you enter to Groq’s API to generate comparison structure. We do not use this data for advertising, analytics, or tracking. We do not retain it on our systems.
+When you use the AI assistant (creating a comparison from text or “Generate values”), we send only the relevant text or item/attribute names to the AI provider’s API (Groq or OpenRouter, depending on your device region). We do not use this data for advertising, analytics, or tracking. We do not retain it on our systems.
 
 - No analytics, tracking, or advertising services are used for your comparison data.  
 - The app works **offline** for creating, editing, and viewing comparisons. **Online use** is limited to the optional AI assistant feature when you choose to use it.
@@ -38,7 +38,7 @@ When you use the AI assistant, we send only the request text you enter to Groq�
 ## 4. Data Storage and Security
 
 - Your comparison data is stored only on your device (iOS Core Data, in the app’s sandbox).  
-- It is not transmitted over the internet except when you use the AI assistant (only the text of that request).  
+- It is not transmitted over the internet except when you use the AI assistant (only the text or item/attribute names you provide for that feature).  
 - You can export data as **PDF** or **.chooseright** files and manage or delete data at any time.  
 - We recommend using iOS security (passcode, Face ID, Touch ID) to protect your device.
 
@@ -64,8 +64,13 @@ ChooseRight! does not request access to:
 
 ## 7. Third-Party Services
 
-**Groq (AI assistant):**  
-When you use the AI assistant, your request text is sent to Groq’s API. Their privacy policy applies to that processing: https://groq.com/privacy-policy (or their current policy at groq.com).
+**AI providers (Groq and OpenRouter):**  
+When you use the AI assistant (creating a comparison from text or “Generate values”), the relevant text or item/attribute names are sent to an AI provider’s API. The app chooses the provider automatically by your device’s region (country/region code only):
+
+- **Groq** (https://groq.com) is used in most regions. Their privacy policy: https://groq.com/privacy-policy (or the current policy at groq.com).
+- **OpenRouter** (https://openrouter.ai) is used for users in Russia and Belarus. Their privacy policy applies to that processing: https://openrouter.ai/privacy (or the current policy at openrouter.ai).
+
+We do not control these providers’ processing; their respective privacy policies apply.
 
 **Apple:**  
 Downloads and in-app purchases are subject to Apple’s privacy policy. We do not receive your personal information from Apple for those transactions.
@@ -77,7 +82,7 @@ Downloads and in-app purchases are subject to Apple’s privacy policy. We do no
 - **Access, edit, delete:** All comparison data is in the app on your device; you can view, edit, or delete it at any time.  
 - **Export:** You can export data as PDF or .chooseright at any time.  
 - **Uninstall:** Removing the app deletes all local data.  
-- We do not hold your comparison data on our servers, so there is nothing to request from us regarding that data. AI request text is not stored by us.
+- We do not hold your comparison data on our servers, so there is nothing to request from us regarding that data. Data sent to the AI provider (request text or item/attribute names) is not stored by us.
 
 ## 9. Children's Privacy
 
@@ -96,7 +101,8 @@ If you have questions about this Privacy Policy or our practices:
 ## 12. Summary
 
 - Comparison data is stored **only on your device** (Core Data); we do not collect or access it.  
-- The app works **offline** for comparisons; **online** use is only for the optional **AI assistant**, when the text you enter is sent to **Groq** to generate suggestions.  
+- The app works **offline** for comparisons; **online** use is only for the optional **AI assistant** (create from text or “Generate values”), when the relevant text or item/attribute names are sent to an **AI provider** (Groq in most regions, OpenRouter in Russia and Belarus) to generate suggestions.  
+- The app uses your device’s **region setting** (country/region only) to choose which AI provider to use; we do not use or send precise location.  
 - We do not use analytics, tracking, or advertising on your comparison data.  
 - File access happens only through iOS dialogs with your consent.  
 - We do not request camera, microphone, location, contacts, or similar permissions.  

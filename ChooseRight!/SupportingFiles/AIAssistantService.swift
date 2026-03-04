@@ -2020,15 +2020,78 @@ final class AIAssistantService: @unchecked Sendable {
     
     // MARK: - LLM API вызовы
     
-    /// Вызывает LLM API (настроен Groq по умолчанию)
+    /// Вызывает LLM API: для RU/BY — OpenRouter, для остальных регионов — Groq.
     private func callLLMAPI(prompt: String) async throws -> String {
-        // Groq API настроен по умолчанию (быстрый и бесплатный)
-        // Получите API ключ на https://console.groq.com/ и добавьте его в Info.plist как "GroqAPIKey"
-        // или замените "YOUR_GROQ_API_KEY" в методе callGroqAPI() на ваш реальный ключ
-        
-        return try await callGroqAPI(prompt: prompt)
+        return try await callPreferredLLM(prompt: prompt)
     }
-    
+
+    /// Выбор провайдера по региону: Россия и Беларусь → OpenRouter, остальные → Groq.
+    func callPreferredLLM(prompt: String, maxTokens: Int = 500) async throws -> String {
+        if AIAssistantError.isOpenRouterRegion() {
+            let key = (Bundle.main.object(forInfoDictionaryKey: "OpenRouterAPIKey") as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !key.isEmpty, !key.hasPrefix("$(") else {
+                throw AIAssistantError.regionRestricted
+            }
+            return try await callOpenRouterAPI(prompt: prompt, maxTokens: maxTokens)
+        }
+        return try await callGroqAPI(prompt: prompt, maxTokens: maxTokens)
+    }
+
+    /// OpenRouter API (для RU/BY). Формат совместим с OpenAI/Groq.
+    func callOpenRouterAPI(prompt: String, maxTokens: Int = 500) async throws -> String {
+        let rawKey = Bundle.main.object(forInfoDictionaryKey: "OpenRouterAPIKey") as? String ?? ""
+        let apiKey = rawKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !apiKey.isEmpty, !apiKey.hasPrefix("$(") else {
+            throw AIAssistantError.networkError
+        }
+        guard let url = URL(string: "https://openrouter.ai/api/v1/chat/completions") else {
+            throw AIAssistantError.invalidURL
+        }
+        let systemContent = """
+        You are a helpful assistant that always responds in JSON format and respects the nominative case for all languages.
+        """
+        let requestBody = GroqRequest(
+            model: "meta-llama/llama-3.3-70b-instruct:free",
+            messages: [
+                GroqMessage(role: "system", content: systemContent),
+                GroqMessage(role: "user", content: prompt)
+            ],
+            temperature: 0.0,
+            maxTokens: maxTokens,
+            responseFormat: ["type": "json_object"]
+        )
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(requestBody)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw AIAssistantError.invalidResponse
+        }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            if httpResponse.statusCode == 429 {
+                throw AIAssistantError.rateLimitExceeded
+            }
+            let errorMsg = String(data: data, encoding: .utf8) ?? "HTTP \(httpResponse.statusCode)"
+            throw AIAssistantError.apiError(errorMsg)
+        }
+        let result: GroqResponse
+        do {
+            result = try JSONDecoder().decode(GroqResponse.self, from: data)
+        } catch {
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any], json["error"] != nil {
+                let errorMsg = String(data: data, encoding: .utf8) ?? "API error"
+                throw AIAssistantError.apiError(errorMsg)
+            }
+            throw AIAssistantError.invalidResponse
+        }
+        guard let content = result.choices.first?.message.content, !content.isEmpty else {
+            throw AIAssistantError.noData
+        }
+        return content
+    }
+
     /// Вызов Groq API (типизированный сетевой слой). Доступен для расширений (например, генерация значений таблицы).
     /// Ключ: Secrets.xcconfig → INFOPLIST_KEY_GroqAPIKey. Модель и system-промпт настраиваются ниже.
     func callGroqAPI(prompt: String, maxTokens: Int = 500) async throws -> String {
@@ -2113,7 +2176,17 @@ enum AIAssistantError: LocalizedError {
     case apiError(String)
     /// 429 Too Many Requests — превышен лимит запросов в минуту (Groq RPM)
     case rateLimitExceeded
-    
+    /// Регион RU/BY, но ключ OpenRouter не задан
+    case regionRestricted
+
+    /// Регионы, в которых используем OpenRouter (Россия, Беларусь). Groq там недоступен.
+    private static let openRouterRegionCodes: Set<String> = ["RU", "BY"]
+
+    static func isOpenRouterRegion() -> Bool {
+        let code = Locale.current.region?.identifier ?? ""
+        return openRouterRegionCodes.contains(code.uppercased())
+    }
+
     var errorDescription: String? {
         switch self {
         case .invalidURL:
@@ -2132,6 +2205,8 @@ enum AIAssistantError: LocalizedError {
             return Self.userFriendlyMessage(from: message)
         case .rateLimitExceeded:
             return "Too many requests. Please try again in a minute."
+        case .regionRestricted:
+            return NSLocalizedString("AI generation is not available in your region. Please fill in the values manually.", comment: "RU/BY without OpenRouter key")
         }
     }
 
