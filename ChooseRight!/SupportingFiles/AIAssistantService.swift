@@ -82,10 +82,15 @@ struct GroqResponse: Decodable {
 
 /// Сервис для работы с AI ассистентом
 final class AIAssistantService: @unchecked Sendable {
-    
+
     static let shared = AIAssistantService()
-    
+
     private init() {}
+
+    /// Регион RU/BY — AI отключён, только ручной ввод. Для UI (скрыть/отключить кнопку Generate values).
+    static func isOpenRouterRegion() -> Bool {
+        AIAssistantError.isOpenRouterRegion()
+    }
     
     /// Обрабатывает запрос пользователя и возвращает структурированные данные сравнения.
     /// Гибрид: быстрый парсинг регулярками + при необходимости дополнение через LLM (inferredCategory, недостающие items/attributes).
@@ -2038,6 +2043,7 @@ final class AIAssistantService: @unchecked Sendable {
         let openRouterKey = (Bundle.main.object(forInfoDictionaryKey: "OpenRouterAPIKey") as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         let hasOpenRouter = !openRouterKey.isEmpty && !openRouterKey.hasPrefix("$(")
 
+        // Если регион RU/BY и есть ключ OpenRouter — используем его напрямую (платные модели стабильнее)
         if AIAssistantError.isOpenRouterRegion() {
             guard hasOpenRouter else {
                 throw AIAssistantError.regionRestricted
@@ -2048,15 +2054,19 @@ final class AIAssistantService: @unchecked Sendable {
         do {
             return try await callGroqAPI(prompt: prompt, maxTokens: maxTokens)
         } catch {
-            // Fallback: если Groq вернул access denied (например, VPN/регион), пробуем OpenRouter
-            let isAccessDenied = (error as? AIAssistantError).map { err in
-                if case .apiError(let msg) = err {
+            // Fallback: если Groq вернул access denied или 429 — пробуем OpenRouter
+            let shouldTryOpenRouter = hasOpenRouter && (error as? AIAssistantError).map { err in
+                switch err {
+                case .apiError(let msg):
                     let lower = msg.lowercased()
                     return lower.contains("access denied") || lower.contains("network settings")
+                case .rateLimitExceeded:
+                    return true
+                default:
+                    return false
                 }
-                return false
             } ?? false
-            if isAccessDenied, hasOpenRouter {
+            if shouldTryOpenRouter {
                 return try await callOpenRouterAPI(prompt: prompt, maxTokens: maxTokens)
             }
             throw error
@@ -2074,9 +2084,13 @@ final class AIAssistantService: @unchecked Sendable {
             throw AIAssistantError.networkError
         }
         let modelsToTry = [
-            "meta-llama/llama-3.3-70b-instruct:free",
-            "google/gemma-2-9b-it:free",
-            "deepseek/deepseek-chat:free"
+            "deepseek/deepseek-chat", // DeepSeek V3 — первая
+            "openai/gpt-5-nano", // GPT-5 Nano — вторая
+            "mistralai/mistral-7b-instruct",
+            "google/gemini-2.0-flash-lite-preview-02-05:free",
+            "meta-llama/llama-3.3-70b-instruct",
+            "qwen/qwen-2.5-72b-instruct",
+            "meta-llama/llama-3.2-3b-instruct"
         ]
         var lastError: Error?
         for model in modelsToTry {
@@ -2084,13 +2098,39 @@ final class AIAssistantService: @unchecked Sendable {
                 return try await callOpenRouterAPI(prompt: prompt, maxTokens: maxTokens, model: model, apiKey: apiKey)
             } catch {
                 lastError = error
-                if let aiErr = error as? AIAssistantError, case .apiError(let msg) = aiErr, msg.lowercased().contains("forbidden") {
+                let retryWithNextModel: Bool
+                if let aiErr = error as? AIAssistantError {
+                    switch aiErr {
+                    case .apiError(let msg):
+                        let lower = msg.lowercased()
+                        retryWithNextModel = lower.contains("forbidden") || lower.contains("no endpoints")
+                    case .rateLimitExceeded:
+                        retryWithNextModel = true
+                    default:
+                        retryWithNextModel = false
+                    }
+                } else if (error as? URLError)?.code == .timedOut {
+                    retryWithNextModel = true
+                } else {
+                    retryWithNextModel = false
+                }
+                
+                // Если это rateLimitExceeded, делаем небольшую паузу перед следующей моделью
+                if retryWithNextModel {
+                    if case .rateLimitExceeded? = error as? AIAssistantError {
+                        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 секунда паузы
+                    }
                     continue
                 }
                 throw error
             }
         }
-        throw lastError ?? AIAssistantError.apiError("Forbidden")
+        // Если перебрали все модели и не вышло — сообщаем, что сервис перегружен
+        // Если была ошибка (не rateLimitExceeded), то можно вернуть её, иначе rateLimitExceeded
+        if let lastError = lastError {
+            throw lastError
+        }
+        throw AIAssistantError.rateLimitExceeded
     }
 
     private func callOpenRouterAPI(prompt: String, maxTokens: Int, model: String, apiKey: String) async throws -> String {
@@ -2111,6 +2151,7 @@ final class AIAssistantService: @unchecked Sendable {
         )
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        request.timeoutInterval = 25
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("https://annfro.com/chooseright", forHTTPHeaderField: "HTTP-Referer")
         request.setValue("ChooseRight!", forHTTPHeaderField: "X-Title")
