@@ -66,6 +66,7 @@
 "AI service unavailable. If you use VPN or a restricted network, try turning VPN off or use another network." = "El servicio de IA no está disponible. Si usas VPN o una red restringida, prueba a desactivar la VPN o usa otra red.";
 "AI service is temporarily unavailable. Please check your connection and try again." = "El servicio de IA no está disponible temporalmente. Comprueba tu conexión e inténtalo de nuevo.";
 "AI generation is not available in your region. Please fill in the values manually." = "La generación con IA no está disponible en tu región. Rellena los valores manualmente.";
+"The AI service temporarily rejected the request. Please try again in a moment." = "El servicio de IA ha rechazado la solicitud temporalmente. Inténtalo de nuevo en un momento.";
 "Edit" = "Editar";
 "+ Add attribute" = "+ Añadir atributo";
 "Delete item" = "Eliminar elemento";

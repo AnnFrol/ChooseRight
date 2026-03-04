@@ -62,6 +62,14 @@ struct GroqMessage: Encodable {
     let content: String
 }
 
+/// Запрос к OpenRouter без response_format (промпт уже требует JSON).
+struct OpenRouterRequest: Encodable {
+    let model: String
+    let messages: [GroqMessage]
+    let temperature: Double
+    let max_tokens: Int?
+}
+
 struct GroqResponse: Decodable {
     struct Choice: Decodable {
         struct Message: Decodable {
@@ -2025,44 +2033,87 @@ final class AIAssistantService: @unchecked Sendable {
         return try await callPreferredLLM(prompt: prompt)
     }
 
-    /// Выбор провайдера по региону: Россия и Беларусь → OpenRouter, остальные → Groq.
+    /// Выбор провайдера по региону: Россия и Беларусь → OpenRouter, остальные → Groq. При Access denied от Groq пробуем OpenRouter.
     func callPreferredLLM(prompt: String, maxTokens: Int = 500) async throws -> String {
+        let openRouterKey = (Bundle.main.object(forInfoDictionaryKey: "OpenRouterAPIKey") as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasOpenRouter = !openRouterKey.isEmpty && !openRouterKey.hasPrefix("$(")
+
         if AIAssistantError.isOpenRouterRegion() {
-            let key = (Bundle.main.object(forInfoDictionaryKey: "OpenRouterAPIKey") as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !key.isEmpty, !key.hasPrefix("$(") else {
+            guard hasOpenRouter else {
                 throw AIAssistantError.regionRestricted
             }
             return try await callOpenRouterAPI(prompt: prompt, maxTokens: maxTokens)
         }
-        return try await callGroqAPI(prompt: prompt, maxTokens: maxTokens)
+
+        do {
+            return try await callGroqAPI(prompt: prompt, maxTokens: maxTokens)
+        } catch {
+            // Fallback: если Groq вернул access denied (например, VPN/регион), пробуем OpenRouter
+            let isAccessDenied = (error as? AIAssistantError).map { err in
+                if case .apiError(let msg) = err {
+                    let lower = msg.lowercased()
+                    return lower.contains("access denied") || lower.contains("network settings")
+                }
+                return false
+            } ?? false
+            if isAccessDenied, hasOpenRouter {
+                return try await callOpenRouterAPI(prompt: prompt, maxTokens: maxTokens)
+            }
+            throw error
+        }
     }
 
     /// OpenRouter API (для RU/BY). Формат совместим с OpenAI/Groq.
     func callOpenRouterAPI(prompt: String, maxTokens: Int = 500) async throws -> String {
         let rawKey = Bundle.main.object(forInfoDictionaryKey: "OpenRouterAPIKey") as? String ?? ""
-        let apiKey = rawKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let apiKey = rawKey
+            .replacingOccurrences(of: "\n", with: "")
+            .replacingOccurrences(of: "\r", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !apiKey.isEmpty, !apiKey.hasPrefix("$(") else {
             throw AIAssistantError.networkError
         }
+        let modelsToTry = [
+            "meta-llama/llama-3.3-70b-instruct:free",
+            "google/gemma-2-9b-it:free",
+            "deepseek/deepseek-chat:free"
+        ]
+        var lastError: Error?
+        for model in modelsToTry {
+            do {
+                return try await callOpenRouterAPI(prompt: prompt, maxTokens: maxTokens, model: model, apiKey: apiKey)
+            } catch {
+                lastError = error
+                if let aiErr = error as? AIAssistantError, case .apiError(let msg) = aiErr, msg.lowercased().contains("forbidden") {
+                    continue
+                }
+                throw error
+            }
+        }
+        throw lastError ?? AIAssistantError.apiError("Forbidden")
+    }
+
+    private func callOpenRouterAPI(prompt: String, maxTokens: Int, model: String, apiKey: String) async throws -> String {
         guard let url = URL(string: "https://openrouter.ai/api/v1/chat/completions") else {
             throw AIAssistantError.invalidURL
         }
         let systemContent = """
         You are a helpful assistant that always responds in JSON format and respects the nominative case for all languages.
         """
-        let requestBody = GroqRequest(
-            model: "meta-llama/llama-3.3-70b-instruct:free",
+        let requestBody = OpenRouterRequest(
+            model: model,
             messages: [
                 GroqMessage(role: "system", content: systemContent),
                 GroqMessage(role: "user", content: prompt)
             ],
             temperature: 0.0,
-            maxTokens: maxTokens,
-            responseFormat: ["type": "json_object"]
+            max_tokens: maxTokens
         )
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("https://annfro.com/chooseright", forHTTPHeaderField: "HTTP-Referer")
+        request.setValue("ChooseRight!", forHTTPHeaderField: "X-Title")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(requestBody)
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -2215,6 +2266,11 @@ enum AIAssistantError: LocalizedError {
     static func userFriendlyMessage(from rawMessage: String) -> String {
         guard !rawMessage.isEmpty else { return "API error" }
         let trimmed = rawMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lowerTrimmed = trimmed.lowercased()
+        // 403 Forbidden — показываем понятное сообщение вместо сырого "Forbidden"
+        if lowerTrimmed.contains("forbidden") {
+            return NSLocalizedString("The AI service temporarily rejected the request. Please try again in a moment.", comment: "403 Forbidden")
+        }
         // Try to extract error.message from JSON
         if let data = trimmed.data(using: .utf8),
            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -2223,6 +2279,9 @@ enum AIAssistantError: LocalizedError {
             let lower = message.lowercased()
             if lower.contains("access denied") || lower.contains("network settings") {
                 return NSLocalizedString("AI service unavailable. If you use VPN or a restricted network, try turning VPN off or use another network.", comment: "Shown when API returns access denied")
+            }
+            if lower.contains("forbidden") {
+                return NSLocalizedString("The AI service temporarily rejected the request. Please try again in a moment.", comment: "403 Forbidden")
             }
             return message
         }
