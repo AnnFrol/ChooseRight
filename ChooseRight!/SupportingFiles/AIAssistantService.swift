@@ -2129,9 +2129,32 @@ enum AIAssistantError: LocalizedError {
         case .invalidResponse:
             return "Invalid response format from the AI service"
         case .apiError(let message):
-            return message.isEmpty ? "API error" : message
+            return Self.userFriendlyMessage(from: message)
         case .rateLimitExceeded:
             return "Too many requests. Please try again in a minute."
         }
+    }
+
+    /// Parses API error JSON (e.g. {"error":{"message":"..."}}) and returns a user-friendly string.
+    /// Maps "Access denied" and similar to a localized suggestion (VPN/network).
+    static func userFriendlyMessage(from rawMessage: String) -> String {
+        guard !rawMessage.isEmpty else { return "API error" }
+        let trimmed = rawMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Try to extract error.message from JSON
+        if let data = trimmed.data(using: .utf8),
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let errorObj = json["error"] as? [String: Any],
+           let message = errorObj["message"] as? String, !message.isEmpty {
+            let lower = message.lowercased()
+            if lower.contains("access denied") || lower.contains("network settings") {
+                return NSLocalizedString("AI service unavailable. If you use VPN or a restricted network, try turning VPN off or use another network.", comment: "Shown when API returns access denied")
+            }
+            return message
+        }
+        // Not JSON or no error.message — avoid showing raw JSON to the user
+        if trimmed.hasPrefix("{") && trimmed.contains("error") {
+            return NSLocalizedString("AI service is temporarily unavailable. Please check your connection and try again.", comment: "Generic API error fallback")
+        }
+        return trimmed
     }
 }

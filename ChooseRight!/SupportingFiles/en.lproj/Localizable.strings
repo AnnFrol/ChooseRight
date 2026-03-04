@@ -63,6 +63,8 @@
 "AI will fill the table with +/‑ for each item and criterion. Existing values will be overwritten.\n\nAI can make mistakes — please verify the values." = "AI will fill the table with +/‑ for each item and criterion. Existing values will be overwritten.\n\nAI can make mistakes — please verify the values.";
 "Generating values" = "Generating values";
 "Please wait..." = "Please wait...";
+"AI service unavailable. If you use VPN or a restricted network, try turning VPN off or use another network." = "AI service unavailable. If you use VPN or a restricted network, try turning VPN off or use another network.";
+"AI service is temporarily unavailable. Please check your connection and try again." = "AI service is temporarily unavailable. Please check your connection and try again.";
 "Edit" = "Edit";
 "+ Add attribute" = "+ Add attribute";
 "Delete item" = "Delete item";
