@@ -111,6 +111,7 @@ extension MainViewController: UITextFieldDelegate {
                 let lower = trimmed.lowercased()
                 let hasCompareKeyword = lower.contains("compare") || lower.contains("comparar") || lower.contains("compara") || lower.contains("comparer") || lower.contains("comparez") || lower.contains("сравн")
                 let hasExplicitList = lower.contains(" by ") || lower.contains(" по ") || lower.contains(" por ") || lower.contains(" and ") || lower.contains(" и ") || lower.contains(" y ") || lower.contains(" vs ") || lower.contains(",")
+                let hasCategoryPhrase = lower.contains(" для ") || lower.contains(" for ")
                 let hasGroupPrefix = lower.hasPrefix("compare ") && trimmed.count > 8
                     || lower.hasPrefix("comparar ") && trimmed.count > 9
                     || lower.hasPrefix("compara ") && trimmed.count > 9
@@ -123,7 +124,7 @@ extension MainViewController: UITextFieldDelegate {
                 let isSingleWord = !trimmed.contains(" ") && !trimmed.isEmpty
                 
                 // If the user enters a list or comparison phrase, even without "compare", treat as AI request
-                let looksLikeCompareRequest = hasCompareKeyword || hasExplicitList || hasGroupPrefix || startsWithNumber || isSingleWord
+                let looksLikeCompareRequest = hasCompareKeyword || hasExplicitList || hasGroupPrefix || startsWithNumber || isSingleWord || hasCategoryPhrase
                 
                 if looksLikeCompareRequest {
                     self.processAIRequest(trimmed)

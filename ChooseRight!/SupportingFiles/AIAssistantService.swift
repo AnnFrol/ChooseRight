@@ -298,6 +298,14 @@ final class AIAssistantService: @unchecked Sendable {
         }
         // --- КОНЕЦ БЛОКА ДЛЯ ГРУПП ---
         
+        // Фразы-категории без «сравни»: «Страны для отпуска», «Countries for vacation»
+        if (lowercased.contains(" для ") || lowercased.contains(" for ")) && !lowercased.contains(",") {
+            let hasList = [" и ", " and ", " vs ", " y "].contains { lowercased.contains($0) }
+            if !hasList {
+                return (items: nil, attributes: nil, groupName: trimmedRequest, attributeGroupName: nil)
+            }
+        }
+        
         // Запасной разбор «число + группа»: "I want to compare 5 cities"
         let lowerTrimmed = lowercased
         // Сначала префиксы с пробелом, затем без (на случай неразрывного пробела или "Compare5 cities")
