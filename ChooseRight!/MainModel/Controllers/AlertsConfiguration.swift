@@ -35,7 +35,8 @@ extension MainViewController: UITextFieldDelegate {
             preferredStyle: .alert
         )
         createNewComparisonListAlert?.view.tintColor = UIColor.specialColors.threeBlueLavender ?? .systemBlue
-        createNewComparisonListAlert?.overrideUserInterfaceStyle = .light
+        // Следуем системной/текущей теме — тёмный алерт в тёмной теме (iOS 13+)
+        createNewComparisonListAlert?.overrideUserInterfaceStyle = .unspecified
 
         createNewComparisonListAlert?.addTextField { [weak self] textField in
             guard let self = self else { return }
@@ -57,8 +58,8 @@ extension MainViewController: UITextFieldDelegate {
             self.handleCreateByDescription(trimmed: trimmed)
         }
 
-        createByDescriptionAction.setValue(UIColor.black, forKey: "titleTextColor")
-        cancelAction.setValue(UIColor.black, forKey: "titleTextColor")
+        createByDescriptionAction.setValue(UIColor.black, forKey: "titleTextColor") // главная сиреневая кнопка — всегда тёмный текст
+        cancelAction.setValue(UIColor { trait in trait.userInterfaceStyle == .dark ? .white : .black }, forKey: "titleTextColor")
 
         createNewComparisonListAlert?.addAction(cancelAction)
         createNewComparisonListAlert?.addAction(createByDescriptionAction)

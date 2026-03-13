@@ -200,18 +200,15 @@ extension ComparisonListViewController {
             message: NSLocalizedString("AI will fill the table with +/‑ for each item and criterion. Existing values will be overwritten.\n\nAI can make mistakes — please verify the values.", comment: ""),
             preferredStyle: .alert
         )
-        // Сиреневый цвет для кнопок (iOS 15–18)
         alert.view.tintColor = UIColor.specialColors.threeBlueLavender ?? .systemBlue
-        // Светлая тема алерта — лучше сочетается с сиреневыми кнопками и чёрным текстом
-        alert.overrideUserInterfaceStyle = .light
+        alert.overrideUserInterfaceStyle = .unspecified
 
         let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel)
         let fillAction = UIAlertAction(title: NSLocalizedString("Fill", comment: ""), style: .default) { [weak self] _ in
             self?.startGenerateValuesInTable()
         }
-        // Принудительный чёрный текст кнопок через KVC (работает в iOS 15+)
-        cancelAction.setValue(UIColor.black, forKey: "titleTextColor")
-        fillAction.setValue(UIColor.black, forKey: "titleTextColor")
+        fillAction.setValue(UIColor.black, forKey: "titleTextColor") // главная сиреневая кнопка — всегда тёмный текст
+        cancelAction.setValue(UIColor { trait in trait.userInterfaceStyle == .dark ? .white : .black }, forKey: "titleTextColor")
 
         alert.addAction(cancelAction)
         alert.addAction(fillAction)
