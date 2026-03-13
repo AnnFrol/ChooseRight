@@ -15,6 +15,11 @@ extension ComparisonListViewController {
         guard let changingComparisonItem = self.comparisonItemsFetchResultsController.fetchedObjects?[indexPath.section] else { return }
         let menuTitle = changingComparisonItem.unwrappedName
         
+        let renameItem = UIAction(title: NSLocalizedString("Change name", comment: ""), image: UIImage(systemName: "pencil")) { [weak self] _ in
+            guard let self = self else { return }
+            self.showRenameItemAlert(for: changingComparisonItem)
+        }
+        
         let changeColor = UIAction(title: NSLocalizedString("Change color", comment: ""), image: UIImage(systemName: "paintpalette")) { [weak self] _ in
             guard let self = self else { return }
             self.showColorPicker(for: changingComparisonItem, at: indexPath)
@@ -33,7 +38,7 @@ extension ComparisonListViewController {
         objectCellMenu = UIMenu(
             title: menuTitle,
             image: UIImage(systemName: "peacesign"),
-            children: [changeColor, deleteItem]
+            children: [renameItem, changeColor, deleteItem]
         )
         
         
@@ -112,6 +117,36 @@ extension ComparisonListViewController {
         
         return UITargetedPreview(view: cell, parameters: parameters)
         
+    }
+    
+    func showRenameItemAlert(for item: ComparisonItemEntity) {
+        let alert = UIAlertController(
+            title: NSLocalizedString("Change name", comment: ""),
+            message: nil,
+            preferredStyle: .alert
+        )
+        alert.addTextField { textField in
+            textField.text = item.unwrappedName
+            textField.placeholder = NSLocalizedString("New name", comment: "")
+            textField.autocapitalizationType = .sentences
+            textField.clearButtonMode = .whileEditing
+        }
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Save", comment: ""), style: .default) { [weak self] _ in
+            guard let self = self,
+                  let newName = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !newName.isEmpty else { return }
+            if self.sharedData.updateComparisonItemName(for: item, newName: newName) {
+                self.objectTableView.reloadData()
+                self.valuesCollectionView.reloadData()
+            }
+        })
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        present(alert, animated: true)
     }
     
     func showColorPicker(for item: ComparisonItemEntity, at indexPath: IndexPath) {

@@ -57,7 +57,7 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     
     let placeholderLabel: UILabel = {
         let label = UILabel()
-        label.attributedText = NSMutableAttributedString(string: "Tap the button to create your first comparison",
+        label.attributedText = NSMutableAttributedString(string: NSLocalizedString("Tap the button to create your first comparison", comment: ""),
                                                          attributes:
                                                             [NSAttributedString.Key.kern: -0.15])
         label.font = .sfProTextMedium24()
@@ -297,25 +297,7 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     
     private func showNormalCreateAlert() {
         alertConfigurationForCreate()
-        
-        present(createNewComparisonListAlert ?? UIAlertController(), animated: true) { [weak self] in
-            guard let self = self else { return }
-            
-            dismissGesture = UITapGestureRecognizer(
-                target: self,
-                action: #selector(dismissCreateAlertGesture))
-            
-            self.createNewComparisonListAlert?.view.window?.isUserInteractionEnabled = true
-            
-            self.createNewComparisonListAlert?.view.superview?.subviews[0].addGestureRecognizer(dismissGesture)
-        }
     }
-        
-            @objc func dismissCreateAlertGesture() {
-                createNewComparisonListAlert?.dismiss(animated: true)
-                createNewComparisonListAlert = UIAlertController()
-        
-            }
     
 }
 

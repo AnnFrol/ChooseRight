@@ -32,7 +32,7 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
                 
                 
                 let menuTitle = changingAttribute.unwrappedName
-                let changeNameAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil")) { [self] action in
+                let changeNameAction = UIAction(title: NSLocalizedString("Edit", comment: ""), image: UIImage(systemName: "pencil")) { [self] action in
                     
                     self.alertConfigurationForAttributeChangeName(attribute: changingAttribute)
                     
@@ -48,7 +48,7 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
                     
                 }
                 
-                let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), identifier: nil, attributes: .destructive) { action in
+                let deleteAction = UIAction(title: NSLocalizedString("Delete", comment: ""), image: UIImage(systemName: "trash"), identifier: nil, attributes: .destructive) { action in
                     
                     let delay = 0.4
                     
@@ -144,7 +144,7 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
     
     func alertConfigurationForAttributeChangeName(attribute: ComparisonAttributeEntity) {
         
-        self.attributeChangeNameAlert = UIAlertController(title: "Edit attribute", message: "", preferredStyle: .alert)
+        self.attributeChangeNameAlert = UIAlertController(title: NSLocalizedString("Edit attribute", comment: ""), message: "", preferredStyle: .alert)
         
         attributeChangeNameAlert?.addTextField { textfield in
             textfield.delegate = self
@@ -155,7 +155,7 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
             textfield.addTarget(self, action: #selector(self.textfieldChanged), for: .editingChanged)
         }
         
-        let saveAttirbuteNameAction = UIAlertAction(title: "Save", style: .default) { [self, weak attributeChangeNameAlert] (_) in
+        let saveAttirbuteNameAction = UIAlertAction(title: NSLocalizedString("Save", comment: ""), style: .default) { [self, weak attributeChangeNameAlert] (_) in
             let textfieldText = attributeChangeNameAlert?.textFields?[0].text ?? "NoText"
             let savingResult = self.sharedData.updateComparisonAttributeName(for: attribute, newName: textfieldText)
             
@@ -165,7 +165,7 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
             }
         }
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
             self.attributeChangeNameAlert?.view.window?.removeGestureRecognizer(self.dismissAttributeChangeNameAlertGesture)
             self.attributeChangeNameAlert?.dismiss(animated: true) {
                 self.attributeChangeNameAlert?.view.window?.removeGestureRecognizer(self.dismissAttributeChangeNameAlertGesture)

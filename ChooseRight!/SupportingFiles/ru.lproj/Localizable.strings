@@ -1,0 +1,140 @@
+/* Main & onboarding */
+"Choose Right" = "Choose Right";
+"Choose Right!" = "Choose Right!";
+"Tap the button to create your first comparison" = "Нажмите кнопку +, чтобы создать первое сравнение";
+"Create new comparison" = "Создать новое сравнение";
+"Enter a name for your comparison" = "Введите название для сравнения";
+"Comparison name" = "Название сравнения";
+"Delete comparison?" = "Удалить сравнение?";
+"Rename your comparison" = "Переименовать сравнение";
+"The old name is no good?" = "Старое название не подходит?";
+"Change name" = "Переименовать";
+"Change color" = "Изменить цвет";
+"Delete" = "Удалить";
+"Cancel" = "Отмена";
+"Start" = "Создать";
+"Save" = "Сохранить";
+"OK" = "ОК";
+"Error" = "Ошибка";
+"New name" = "Новое название";
+"Create by description" = "Создать по описанию";
+"Fill manually" = "Заполнить вручную";
+"New comparison" = "Новое сравнение";
+"Relevance" = "Соответствие";
+"Score" = "Оценка";
+
+/* Menu & settings */
+"Version %@" = "Версия %@";
+"Dark" = "Тёмная";
+"Light" = "Светлая";
+"Email" = "Email";
+"Telegram" = "Telegram";
+"Instagram" = "Instagram";
+"Contact us " = "Связаться с нами ";
+"Premium unlocked" = "Premium разблокирован";
+"Unlock Premium" = "Разблокировать Premium";
+"Settings" = "Настройки";
+
+/* Alerts - AI & generate */
+"Generate" = "Сгенерировать";
+"Fill" = "Заполнить";
+"Create" = "Создать";
+"Processing Request" = "Обработка запроса";
+"Generating comparison..." = "Генерация сравнения...";
+"Describe what you want to compare. For example: \"Compare New York and London by cost of living, technology, price, education opportunities\"" = "Опишите, что вы хотите сравнить. Например: \"Сравни Нью-Йорк и Лондон по стоимости жизни, технологиям, ценам, возможностям образования\"";
+"Warning" = "Внимание";
+"Failed to get data from AI. Created comparison with default values. You can fill it manually." = "Не удалось получить данные от AI. Создано сравнение со значениями по умолчанию. Вы можете заполнить его вручную.";
+"Could not parse the table. Please make sure the format is correct." = "Не удалось разобрать таблицу. Пожалуйста, убедитесь, что формат правильный.";
+"Could not create comparison. A comparison with this name may already exist." = "Не удалось создать сравнение. Сравнение с таким названием, возможно, уже существует.";
+"Could not find the created comparison." = "Не удалось найти созданное сравнение.";
+"Cannot access file" = "Не удается получить доступ к файлу";
+
+"Delete attributes" = "Удалить параметры";
+"Delete all attributes?" = "Удалить все параметры?";
+
+"Download PDF" = "Скачать PDF";
+"Share" = "Поделиться";
+"Delete list" = "Удалить";
+"Delete comparison" = "Удалить сравнение";
+"Generate values" = "Заполнить с помощью AI";
+"Failed to create share file" = "Не удалось создать файл для отправки";
+"Sort" = "Сортировка:";
+"Percent" = "По процентам";
+"Created" = "По дате создания";
+"Name" = "По названию";
+"Edit attribute" = "Редактировать параметр";
+"Delete attribute" = "Удалить параметр";
+"New attribute" = "Новый параметр";
+"Enter attribute for comparison" = "Введите параметр для сравнения";
+"This action cannot be undone." = "Это действие нельзя отменить.";
+"Cannot generate values" = "Невозможно сгенерировать значения";
+"You need at least 2 items and 1 attribute to generate values." = "Вам нужно как минимум 2 объекта и 1 параметр для генерации значений.";
+"AI will fill the table with +/‑ for each item and criterion. Existing values will be overwritten.\n\nAI can make mistakes — please verify the values." = "AI заполнит таблицу значениями +/- для каждого объекта и критерия. Существующие значения будут перезаписаны.\n\nAI может ошибаться — пожалуйста, проверяйте значения.";
+"Generating values" = "Заполнение с помощью AI";
+"Please wait..." = "Пожалуйста, подождите...";
+"AI service unavailable. If you use VPN or a restricted network, try turning VPN off or use another network." = "Сервис AI недоступен. Если вы используете VPN или ограниченную сеть, попробуйте отключить VPN или использовать другую сеть.";
+"AI service is temporarily unavailable. Please check your connection and try again." = "Сервис AI временно недоступен. Пожалуйста, проверьте соединение и попробуйте снова.";
+"AI generation is not available in your region. Please fill in the values manually." = "Генерация AI недоступна в вашем регионе. Пожалуйста, заполните значения вручную.";
+"The AI service temporarily rejected the request. Please try again in a moment." = "Сервис AI временно отклонил запрос. Пожалуйста, попробуйте снова через мгновение.";
+"Edit" = "Изменить";
+"+ Add attribute" = "+ добавить параметр";
+"Delete item" = "Удалить объект";
+"New item" = "Новый объект";
+"Shake to reorder" = "Встряхните для сортировки";
+"e.g. Compare 5 cities" = "напр. Сравни 5 городов";
+
+/* Create comparison alert – example requests */
+"For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches." = "Например:\n• Нью-Йорк и Лондон по стоимости жизни, технологиям, ценам.\n• Яблоки, Груши и Персики.\n• 5 стран.";
+"Or enter the name of your comparison if you want to fill in the objects and parameters yourself." = "или введите название вашего сравнения, если хотите заполнить объекты и параметры самостоятельно";
+
+/* Subscription */
+"Unlock Unlimited Comparisons" = "Сравнивайте без ограничений";
+"Unlimited comparisons" = "Безлимитные сравнения";
+"Regular updates" = "Регулярные обновления";
+"All future updates" = "Все будущие обновления";
+"Priority support" = "Приоритетная поддержка";
+"Unlock forever" = "Разблокировать навсегда";
+"Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions." = "Первое сравнение — бесплатно.\nРазблокируйте неограниченные сравнения.";
+"Restore Purchases" = "Восстановить покупки";
+"Terms of Use" = "Условия использования";
+"Privacy Policy" = "Политика конфиденциальности";
+"Success" = "Успешно";
+"Upgrade" = "Обновить";
+
+/* Import success */
+"Comparison imported" = "Сравнение импортировано";
+"The comparison has been successfully added to your list." = "Сравнение успешно добавлено в ваш список.";
+
+/* Onboarding */
+"Skip" = "Пропустить";
+"Let's go!" = "Поехали!";
+"Hi! This is\nChoose Right!" = "Привет! Это\nChoose Right!";
+"Not sure what the right choice is?" = "Трудно определиться с выбором?";
+"We help you choose — without the stress.\nStart with 1 free comparison." = "Мы поможем выбрать уверенно.\nНачните с 1 бесплатного сравнения.";
+
+/* Delete item */
+"Delete %@?" = "Удалить %@?";
+
+/* Accessibility */
+"Main screen" = "Главный экран";
+"Choose Right" = "Choose Right";
+"Tap the button below to create your first comparison" = "Нажмите кнопку ниже, чтобы создать первое сравнение";
+"Double tap the add button to get started." = "Дважды коснитесь кнопки добавления, чтобы начать.";
+"Double tap to open menu with settings and options." = "Дважды коснитесь, чтобы открыть меню настроек и опций.";
+"Double tap to create a new comparison." = "Дважды коснитесь, чтобы создать новое сравнение.";
+"Close" = "Закрыть";
+"Double tap to close." = "Дважды коснитесь, чтобы закрыть.";
+"Close details" = "Закрыть детали";
+"Double tap to close and save." = "Дважды коснитесь, чтобы закрыть и сохранить.";
+"Double tap to open in browser." = "Дважды коснитесь, чтобы открыть в браузере.";
+"Double tap to purchase unlimited comparisons." = "Дважды коснитесь, чтобы купить безлимитные сравнения.";
+"Double tap to restore previous purchases." = "Дважды коснитесь, чтобы восстановить предыдущие покупки.";
+"Double tap to close this screen." = "Дважды коснитесь, чтобы закрыть этот экран.";
+"Unlock Unlimited Comparisons" = "Разблокировать безлимитные сравнения";
+"Skip" = "Пропустить";
+"Double tap to skip onboarding." = "Дважды коснитесь, чтобы пропустить обучение.";
+"Let's go!" = "Поехали!";
+"Double tap to start using the app." = "Дважды коснитесь, чтобы начать использовать приложение.";
+"Onboarding pages" = "Страницы обучения";
+"Swipe to see more pages." = "Смахните, чтобы увидеть больше страниц.";
+"Failed to recognize items and criteria in your request. Try rephrasing your request, for example: \"New York and London by cost of living, technology, price\"" = "Не удалось распознать объекты и критерии в вашем запросе. Попробуйте перефразировать запрос, например: \"Нью-Йорк и Лондон по стоимости жизни, технологиям, ценам\"";

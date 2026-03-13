@@ -14,9 +14,15 @@
 "Cancel" = "Cancelar";
 "Start" = "Comenzar";
 "Save" = "Guardar";
+"Create" = "Crear";
+"Relevance" = "Relevancia";
+"Score" = "Puntuación";
 "OK" = "Aceptar";
 "Error" = "Error";
 "New name" = "Nuevo nombre";
+"Create by description" = "Crear por descripción";
+"Fill manually" = "Rellenar manualmente";
+"New comparison" = "Nueva comparación";
 
 /* Menu & settings */
 "Version %@" = "Versión %@";
@@ -32,6 +38,7 @@
 
 /* Alerts - AI & generate */
 "Generate" = "Generar";
+"Fill" = "Llenar";
 "Create" = "Crear";
 "Processing Request" = "Procesando solicitud";
 "Generating comparison..." = "Generando comparación...";
@@ -43,10 +50,13 @@
 "Could not find the created comparison." = "No se encontró la comparación creada.";
 "Cannot access file" = "No se puede acceder al archivo";
 
-/* Comparison list & table */
+"Delete attributes" = "Eliminar atributos";
+"Delete all attributes?" = "¿Eliminar todos los atributos?";
+
 "Download PDF" = "Descargar PDF";
 "Share" = "Compartir";
 "Delete list" = "Eliminar lista";
+"Delete comparison" = "Eliminar comparación";
 "Generate values" = "Generar valores";
 "Failed to create share file" = "Error al crear el archivo para compartir";
 "Sort" = "Ordenar";
@@ -70,15 +80,22 @@
 "Edit" = "Editar";
 "+ Add attribute" = "+ Añadir atributo";
 "Delete item" = "Eliminar elemento";
+"New item" = "Nuevo elemento";
 "Shake to reorder" = "Agita para reordenar";
 "e.g. Compare 5 cities" = "ej. Compara 5 ciudades";
 
 /* Create comparison alert – example requests */
-"For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches." = "Por ejemplo:\n• Compara Nueva York y Londres por coste de vida, tecnología y precio.\n• Compara manzanas, peras y melocotones.";
+"For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches." = "Por ejemplo:\n• Nueva York y Londres por coste de vida, tecnología y precio.\n• Manzanas, peras y melocotones.\n• 5 países.";
+"Or enter the name of your comparison if you want to fill in the objects and parameters yourself." = "O introduce el nombre de tu comparación si quieres rellenar tú mismo los objetos y parámetros.";
 
 /* Subscription */
-"Unlock Unlimited Comparisons" = "Desbloquea comparaciones ilimitadas";
-"Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions." = "Gratis: 1 comparación. Compra única para comparaciones ilimitadas y mejores decisiones.";
+"Unlock Unlimited Comparisons" = "Compara sin límites";
+"Unlimited comparisons" = "Comparaciones ilimitadas";
+"Regular updates" = "Actualizaciones regulares";
+"All future updates" = "Todas las actualizaciones futuras";
+"Priority support" = "Soporte prioritario";
+"Unlock forever" = "Desbloquear para siempre";
+"Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions." = "La primera comparación — gratis.\nDesbloquea comparaciones ilimitadas.";
 "Restore Purchases" = "Restaurar compras";
 "Terms of Use" = "Términos de uso";
 "Privacy Policy" = "Política de privacidad";
@@ -117,3 +134,4 @@
 "Double tap to skip onboarding." = "Toca dos veces para omitir la presentación.";
 "Double tap to start using the app." = "Toca dos veces para empezar a usar la app.";
 "Onboarding pages" = "Páginas de presentación";
+"Failed to recognize items and criteria in your request. Try rephrasing your request, for example: \"New York and London by cost of living, technology, price\"" = "No se pudieron reconocer los elementos y criterios en su solicitud. Intente reformular su solicitud, por ejemplo: \"Nueva York y Londres por costo de vida, tecnología, precio\"";

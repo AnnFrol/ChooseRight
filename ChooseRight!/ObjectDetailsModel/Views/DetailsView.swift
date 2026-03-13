@@ -63,11 +63,11 @@ class DetailsView: UIView {
     private var attentionStackView = UIStackView()
     
     
-    private let relevanceLabel = UILabel(detailsSecondaryLabelText: "Relevance")
+    private let relevanceLabel = UILabel(detailsSecondaryLabelText: NSLocalizedString("Relevance", comment: ""))
     private let relevanceValueLabel = UILabel(detailsRelevanseValueLabelText: "0%")
     private var relevanceStackview = UIStackView()
     
-    private let scoreLabel = UILabel(detailsSecondaryLabelText: "Score")
+    private let scoreLabel = UILabel(detailsSecondaryLabelText: NSLocalizedString("Score", comment: ""))
     private let scoreValueLabel = UILabel(detailsScoreValueLabelText: "0/0")
     private var scoreStackView = UIStackView()
     

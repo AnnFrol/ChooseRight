@@ -64,12 +64,17 @@ extension ComparisonListViewController {
             self.present(activityViewController, animated: true)
         })
         
-        let deleteListAction = UIAction(title: NSLocalizedString("Delete list", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive, handler: { [weak self] _ in
+        let deleteAttributesAction = UIAction(title: NSLocalizedString("Delete attributes", comment: ""), image: UIImage(systemName: "trash"), handler: { [weak self] _ in
+            guard let self = self else { return }
+            self.showDeleteAttributesAlert()
+        })
+        
+        let deleteListAction = UIAction(title: NSLocalizedString("Delete comparison", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive, handler: { [weak self] _ in
             guard let self = self else { return }
             self.showDeleteComparisonAlert()
         })
         
-        let generateValuesAction = UIAction(title: "Generate values", image: UIImage(systemName: "sparkles"), handler: { [weak self] _ in
+        let generateValuesAction = UIAction(title: NSLocalizedString("Generate values", comment: ""), image: UIImage(systemName: "sparkles"), handler: { [weak self] _ in
             guard let self = self else { return }
             self.showGenerateValuesInTableAlert()
         })
@@ -116,6 +121,7 @@ extension ComparisonListViewController {
             generateValuesAction,
             shareLinkAction,
             sharePDFAction,
+            deleteAttributesAction,
             deleteListAction,
         ])
         
@@ -194,10 +200,23 @@ extension ComparisonListViewController {
             message: NSLocalizedString("AI will fill the table with +/‑ for each item and criterion. Existing values will be overwritten.\n\nAI can make mistakes — please verify the values.", comment: ""),
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
-        alert.addAction(UIAlertAction(title: NSLocalizedString("Generate", comment: ""), style: .default) { [weak self] _ in
+        // Сиреневый цвет для кнопок (iOS 15–18)
+        alert.view.tintColor = UIColor.specialColors.threeBlueLavender ?? .systemBlue
+        // Светлая тема алерта — лучше сочетается с сиреневыми кнопками и чёрным текстом
+        alert.overrideUserInterfaceStyle = .light
+
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel)
+        let fillAction = UIAlertAction(title: NSLocalizedString("Fill", comment: ""), style: .default) { [weak self] _ in
             self?.startGenerateValuesInTable()
-        })
+        }
+        // Принудительный чёрный текст кнопок через KVC (работает в iOS 15+)
+        cancelAction.setValue(UIColor.black, forKey: "titleTextColor")
+        fillAction.setValue(UIColor.black, forKey: "titleTextColor")
+
+        alert.addAction(cancelAction)
+        alert.addAction(fillAction)
+        alert.preferredAction = fillAction
+
         if let popover = alert.popoverPresentationController {
             popover.sourceView = view
             popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
@@ -264,5 +283,41 @@ extension ComparisonListViewController {
             popover.permittedArrowDirections = []
         }
         present(alert, animated: true)
+    }
+    
+    // MARK: - Delete Attributes
+    func showDeleteAttributesAlert() {
+        let alert = UIAlertController(
+            title: NSLocalizedString("Delete all attributes?", comment: ""),
+            message: NSLocalizedString("This action cannot be undone.", comment: ""),
+            preferredStyle: .actionSheet
+        )
+        
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Delete", comment: ""), style: .destructive) { [weak self] _ in
+            guard let self = self else { return }
+            self.deleteAttributes()
+        })
+        
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
+        
+        // Configure popover for iPad
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = self.view
+            popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    private func deleteAttributes() {
+        let attributes = comparisonEntity.attributesArray
+        for attribute in attributes {
+            sharedData.deleteComparisonAttribute(attribute: attribute)
+        }
+        
+        // Обновляем таблицу и коллекцию
+        objectTableView.reloadData()
+        valuesCollectionView.reloadData()
     }
 }

@@ -43,10 +43,13 @@
 "Could not find the created comparison." = "Could not find the created comparison.";
 "Cannot access file" = "Cannot access file";
 
-/* Comparison list & table */
+"Delete attributes" = "Delete attributes";
+"Delete all attributes?" = "Delete all attributes?";
+
 "Download PDF" = "Download PDF";
 "Share" = "Share";
 "Delete list" = "Delete list";
+"Delete comparison" = "Delete comparison";
 "Generate values" = "Generate values";
 "Failed to create share file" = "Failed to create share file";
 "Sort" = "Sort";
@@ -74,7 +77,7 @@
 "e.g. Compare 5 cities" = "e.g. Compare 5 cities";
 
 /* Create comparison alert – example requests */
-"For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches." = "For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches.";
+"For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches." = "For example:\n• New York and London by cost of living, technology, price.\n• Apples, Pears, and Peaches.\n• 5 countries.";
 
 /* Subscription */
 "Unlock Unlimited Comparisons" = "Unlock Unlimited Comparisons";
@@ -121,3 +124,4 @@
 "Double tap to start using the app." = "Double tap to start using the app.";
 "Onboarding pages" = "Onboarding pages";
 "Swipe to see more pages." = "Swipe to see more pages.";
+"Failed to recognize items and criteria in your request. Try rephrasing your request, for example: \"New York and London by cost of living, technology, price\"" = "Failed to recognize items and criteria in your request. Try rephrasing your request, for example: \"New York and London by cost of living, technology, price\"";

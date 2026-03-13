@@ -26,7 +26,7 @@ class NewItemTextField: UITextField {
         
         font = .sfProTextSemibold33()
         attributedPlaceholder = NSAttributedString(
-            string: "New item",
+            string: NSLocalizedString("New item", comment: ""),
             attributes: [NSAttributedString.Key.foregroundColor : UIColor.specialColors.plaseholder ?? .placeholderText])
         translatesAutoresizingMaskIntoConstraints = false
         attributedText = NSMutableAttributedString(string: "",

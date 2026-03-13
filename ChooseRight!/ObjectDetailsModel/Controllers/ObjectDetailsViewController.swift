@@ -404,7 +404,7 @@ extension ObjectDetailsViewController {
             addNewAttributeButton.topAnchor.constraint(equalTo: detailsView.bottomAnchor, constant: 10),
             addNewAttributeButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0),
             addNewAttributeButton.heightAnchor.constraint(equalToConstant: 45),
-            addNewAttributeButton.widthAnchor.constraint(equalToConstant: 130),
+            addNewAttributeButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 180),
             
             attributesTableView.topAnchor.constraint(equalTo: addNewAttributeButton.bottomAnchor, constant: 10),
             attributesTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -459,7 +459,7 @@ extension ObjectDetailsViewController {
         
         addNewAttributeAlert.addAction(cancelNewAttributeButton)
         
-        let saveNewAttributeButton = UIAlertAction(title: NSLocalizedString("Save", comment: ""), style: .default) { [weak  self] _ in
+        let saveNewAttributeButton = UIAlertAction(title: NSLocalizedString("Create", comment: ""), style: .default) { [weak  self] _ in
             guard let self = self else { return }
             let textfieldText = self.addNewAttributeAlert.textFields?[0].text ?? "No text"
             
@@ -838,7 +838,7 @@ extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
     
     func alertConfigurationForAttributeChangeName(attribute: ComparisonAttributeEntity) {
         
-        self.attributeChangeNameAlert = UIAlertController(title: "Edit attribute", message: "", preferredStyle: .alert)
+        self.attributeChangeNameAlert = UIAlertController(title: NSLocalizedString("Edit attribute", comment: ""), message: "", preferredStyle: .alert)
         
         attributeChangeNameAlert?.addTextField { textfield in
             textfield.delegate = self
@@ -849,7 +849,7 @@ extension ObjectDetailsViewController: UIContextMenuInteractionDelegate {
             textfield.addTarget(self, action: #selector(self.textfieldChanged), for: .editingChanged)
         }
         
-        let saveAttirbuteNameAction = UIAlertAction(title: "Save", style: .default) { [weak self, weak attributeChangeNameAlert] (_) in
+        let saveAttirbuteNameAction = UIAlertAction(title: NSLocalizedString("Save", comment: ""), style: .default) { [weak self, weak attributeChangeNameAlert] (_) in
             guard let self = self else { return }
             let textfieldText = attributeChangeNameAlert?.textFields?[0].text ?? "NoText"
             let savingResult = self.sharedData.updateComparisonAttributeName(for: attribute, newName: textfieldText)

@@ -118,8 +118,30 @@ class OnboardingViewController: UIViewController {
         
         // Text
         let textLabel = UILabel()
-        textLabel.text = text
-        textLabel.font = .sfProTextBold33()
+        let smallFont = UIFont.systemFont(ofSize: 20, weight: .medium)
+        if pageIndex == 2, let newlineIndex = text.firstIndex(of: "\n") {
+            let firstPart = String(text[..<newlineIndex])
+            let secondPart = String(text[text.index(after: newlineIndex)...])
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.paragraphSpacing = 14
+            paragraphStyle.alignment = .center
+            let attributed = NSMutableAttributedString(
+                string: firstPart + "\n" + secondPart,
+                attributes: [
+                    .font: UIFont.sfProTextBold33(),
+                    .foregroundColor: UIColor.black,
+                    .paragraphStyle: paragraphStyle
+                ]
+            )
+            let secondRange = (attributed.string as NSString).range(of: secondPart)
+            if secondRange.location != NSNotFound {
+                attributed.addAttributes([.font: smallFont], range: secondRange)
+            }
+            textLabel.attributedText = attributed
+        } else {
+            textLabel.text = text
+            textLabel.font = .sfProTextBold33()
+        }
         textLabel.textColor = .black
         textLabel.textAlignment = .center
         textLabel.numberOfLines = 0

@@ -75,6 +75,7 @@
 		85A21C9029D8A00100A066E9 /* DocumentIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 85A21C9129D8A00100A066E9 /* DocumentIcon.png */; };
 		85AIASSIST1A2B3C4D5E6F7G8H9I0 /* AIAssistantService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85AIASSIST1A2B3C4D5E6F7G8H9I1 /* AIAssistantService.swift */; };
 		85AITABLE1A2B3C4D5E6F7G8H9I0 /* AIAssistantService+TableValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85AITABLE1A2B3C4D5E6F7G8H9I1 /* AIAssistantService+TableValues.swift */; };
+		85CREATEM2B4D9BD400379880 /* CreateComparisonModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85CREATEM2B4D9BD40037987F /* CreateComparisonModalViewController.swift */; };
 		85E6E15429EAA7810008794E /* ObjectTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E15329EAA7810008794E /* ObjectTableViewCell.swift */; };
 		85E6E15E29F2F74A0008794E /* CompairsonListSettingsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E15D29F2F74A0008794E /* CompairsonListSettingsMenu.swift */; };
 		85E6E16629F52C480008794E /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E6E16529F52C480008794E /* MainViewController.swift */; };
@@ -172,6 +173,7 @@
 		85A21C9229D8988300A066E9 /* ChooseRight.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ChooseRight.xcconfig; sourceTree = "<group>"; };
 		85AIASSIST1A2B3C4D5E6F7G8H9I1 /* AIAssistantService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistantService.swift; sourceTree = "<group>"; };
 		85AITABLE1A2B3C4D5E6F7G8H9I1 /* AIAssistantService+TableValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantService+TableValues.swift"; sourceTree = "<group>"; };
+		85CREATEM2B4D9BD40037987F /* CreateComparisonModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateComparisonModalViewController.swift; sourceTree = "<group>"; };
 		85E6E15329EAA7810008794E /* ObjectTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectTableViewCell.swift; sourceTree = "<group>"; };
 		85E6E15D29F2F74A0008794E /* CompairsonListSettingsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompairsonListSettingsMenu.swift; sourceTree = "<group>"; };
 		85E6E16529F52C480008794E /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
@@ -186,6 +188,8 @@
 		DF5656002F4B4E6600909DF3 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		DF5656012F4B4E6600909DF3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		DF5656022F4B4E6600909DF3 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		DF5656072F4B4E6600909DF3 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		DF5656082F4B4E6600909DF3 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		DF5B57612EFBFE6F0051D7C6 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		DFE47F8B2EE6F5DB0071D342 /* AddAttributeButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAttributeButtonView.swift; sourceTree = "<group>"; };
 		DFE47F8D2EE6F5DB0071D342 /* CloseButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseButtonView.swift; sourceTree = "<group>"; };
@@ -532,6 +536,7 @@
 				85E6E16529F52C480008794E /* MainViewController.swift */,
 				0E1E6BD79421449FB764B1904D3B9719 /* OnboardingViewController.swift */,
 				855046C52A6C1A7A00AC59F8 /* AlertsConfiguration.swift */,
+				85CREATEM2B4D9BD40037987F /* CreateComparisonModalViewController.swift */,
 				85SUBSCRIP2A2B3C4D5E6F7G8H9I1 /* SubscriptionViewController.swift */,
 			);
 			path = Controllers;
@@ -646,6 +651,7 @@
 			knownRegions = (
 				en,
 				es,
+				ru,
 				Base,
 			);
 			mainGroup = 85A21C4F29D8988100A066E9;
@@ -726,6 +732,7 @@
 				852B890C2C026D1500FC2CD3 /* MainViewControllerMenu.swift in Sources */,
 				8532F38E29DB331400E1830C /* DetailsView.swift in Sources */,
 				855046C62A6C1A7B00AC59F8 /* AlertsConfiguration.swift in Sources */,
+				85CREATEM2B4D9BD400379880 /* CreateComparisonModalViewController.swift in Sources */,
 				85AIASSIST1A2B3C4D5E6F7G8H9I0 /* AIAssistantService.swift in Sources */,
 				85AITABLE1A2B3C4D5E6F7G8H9I0 /* AIAssistantService+TableValues.swift in Sources */,
 				85SUBSCRIP1A2B3C4D5E6F7G8H9I0 /* SubscriptionManager.swift in Sources */,
@@ -779,6 +786,7 @@
 				85A21C6729D8988300A066E9 /* Base */,
 				DF5655FF2F4B4E6600909DF3 /* en */,
 				DF5656002F4B4E6600909DF3 /* es */,
+				DF5656072F4B4E6600909DF3 /* ru */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -788,6 +796,7 @@
 			children = (
 				DF5656012F4B4E6600909DF3 /* en */,
 				DF5656022F4B4E6600909DF3 /* es */,
+				DF5656082F4B4E6600909DF3 /* ru */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -946,7 +955,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.annfro.ChooseRight;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -986,7 +995,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.annfro.ChooseRight;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

@@ -27,77 +27,90 @@ extension MainViewController: UITextFieldDelegate {
     
 //MARK: alertsConfigurationForCreate
     func alertConfigurationForCreate() {
-
-        //New comparison configuration
         let examplesMessage = NSLocalizedString("For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches.", comment: "Create comparison alert examples")
-        self.createNewComparisonListAlert? = UIAlertController(
+
+        createNewComparisonListAlert = UIAlertController(
             title: NSLocalizedString("Create new comparison", comment: ""),
             message: examplesMessage,
-            preferredStyle: .alert)
-        
-        createNewComparisonListAlert?.addTextField { alertTextfield in
-            alertTextfield.autocapitalizationType = .sentences
-            alertTextfield.clearButtonMode = .always
-            alertTextfield.delegate = self
-            alertTextfield.placeholder = NSLocalizedString("e.g. Compare 5 cities", comment: "")
-            alertTextfield.addTarget(self, action: #selector(self.textFieldChanged), for: .editingChanged)
-        }
-        
-        let saveNewComparisonButton = UIAlertAction(title: NSLocalizedString("Start", comment: ""), style: .default) { [self, weak createNewComparisonListAlert] (_) in
-                        
-            // Check purchase status
-            Task {
-                await SubscriptionManager.shared.updatePurchasedStatus()
-                
-                let canCreate = SubscriptionManager.shared.canCreateComparison(freeComparisonsCount: self.comparisonsArray.count)
-                
-                await MainActor.run {
-                    if !canCreate {
-                        // Show subscription screen
-                        createNewComparisonListAlert?.dismiss(animated: true) {
-                            let subscriptionVC = SubscriptionViewController()
-                            subscriptionVC.modalPresentationStyle = .pageSheet
-                            if let sheet = subscriptionVC.sheetPresentationController {
-                                sheet.detents = [.large()]
-                                sheet.prefersGrabberVisible = true
-                            }
-                            self.present(subscriptionVC, animated: true)
-                        }
-                        return
-                    }
-                    
-                    // Proceed with creation
-                    var currentColor = specialColors[0]
-            
-                    switch self.comparisonsArray.count {
-                
-            case 0: currentColor = specialColors[0]
-                
-            case 1...:
-                
-                        let lastColor = self.comparisonsArray.first?.color ?? specialColors[0]
-                let currentcolorindexis = specialColors.firstIndex(of: lastColor)
-                currentColor = specialColors[(currentcolorindexis! + 1) % specialColors.count]
-                
-            default:
-                currentColor = specialColors[0]
-            }
-            
-            let textfieldText = createNewComparisonListAlert?.textFields?[0].text ?? "NoText"
-                let trimmed = textfieldText.trimmingCharacters(in: .whitespacesAndNewlines)
+            preferredStyle: .alert
+        )
+        createNewComparisonListAlert?.view.tintColor = UIColor.specialColors.threeBlueLavender ?? .systemBlue
+        createNewComparisonListAlert?.overrideUserInterfaceStyle = .light
 
-                // Smart Import: Check if the text (or clipboard) contains a table
-                if let _ = TableImportService.parseTableFromClipboard(textfieldText) {
-                    createNewComparisonListAlert?.dismiss(animated: true) {
-                        self.processTableImport(textfieldText)
+        createNewComparisonListAlert?.addTextField { [weak self] textField in
+            guard let self = self else { return }
+            textField.autocapitalizationType = .sentences
+            textField.clearButtonMode = .always
+            textField.delegate = self
+            textField.placeholder = ""
+            textField.addTarget(self, action: #selector(self.createAlertTextFieldChanged), for: .editingChanged)
+        }
+
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { [weak self] _ in
+            self?.createNewComparisonListAlert = nil
+        }
+
+        let createByDescriptionAction = UIAlertAction(title: NSLocalizedString("Create", comment: ""), style: .default) { [weak self, weak createNewComparisonListAlert] _ in
+            guard let self = self else { return }
+            let trimmed = (createNewComparisonListAlert?.textFields?.first?.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return }
+            self.handleCreateByDescription(trimmed: trimmed)
+        }
+
+        createByDescriptionAction.setValue(UIColor.black, forKey: "titleTextColor")
+        cancelAction.setValue(UIColor.black, forKey: "titleTextColor")
+
+        createNewComparisonListAlert?.addAction(cancelAction)
+        createNewComparisonListAlert?.addAction(createByDescriptionAction)
+        createNewComparisonListAlert?.preferredAction = createByDescriptionAction
+
+        saveButtonInAlertChanged = createByDescriptionAction
+        createByDescriptionAction.isEnabled = false
+
+        present(createNewComparisonListAlert ?? UIAlertController(), animated: true)
+    }
+
+    @objc private func createAlertTextFieldChanged(_ sender: Any) {
+        let textField = sender as? UITextField
+        let trimmed = (textField?.text ?? "").trimmingCharacters(in: .whitespaces)
+        saveButtonInAlertChanged?.isEnabled = !trimmed.isEmpty
+    }
+
+    private func handleCreateByDescription(trimmed: String) {
+        Task {
+            await SubscriptionManager.shared.updatePurchasedStatus()
+            let canCreate = SubscriptionManager.shared.canCreateComparison(freeComparisonsCount: self.comparisonsArray.count)
+
+            await MainActor.run {
+                if !canCreate {
+                    let subscriptionVC = SubscriptionViewController()
+                    subscriptionVC.modalPresentationStyle = .pageSheet
+                    if let sheet = subscriptionVC.sheetPresentationController {
+                        sheet.detents = [.large()]
+                        sheet.prefersGrabberVisible = true
                     }
+                    self.present(subscriptionVC, animated: true)
                     return
                 }
 
-                // Если введён запрос на сравнение — отправляем в AI (в т.ч. "Compare 5 cities", "Compare X and Y by ...")
+                var currentColor = specialColors[0]
+                switch self.comparisonsArray.count {
+                case 0: currentColor = specialColors[0]
+                case 1...:
+                    let lastColor = self.comparisonsArray.first?.color ?? specialColors[0]
+                    let idx = specialColors.firstIndex(of: lastColor)
+                    currentColor = specialColors[(idx! + 1) % specialColors.count]
+                default: currentColor = specialColors[0]
+                }
+
+                if let _ = TableImportService.parseTableFromClipboard(trimmed) {
+                    self.processTableImport(trimmed)
+                    return
+                }
+
                 let lower = trimmed.lowercased()
                 let hasCompareKeyword = lower.contains("compare") || lower.contains("comparar") || lower.contains("compara") || lower.contains("comparer") || lower.contains("comparez") || lower.contains("сравн")
-                let hasExplicitList = lower.contains(" by ") || lower.contains(" по ") || lower.contains(" por ") || lower.contains(" and ") || lower.contains(" и ") || lower.contains(" y ") || lower.contains(" vs ")
+                let hasExplicitList = lower.contains(" by ") || lower.contains(" по ") || lower.contains(" por ") || lower.contains(" and ") || lower.contains(" и ") || lower.contains(" y ") || lower.contains(" vs ") || lower.contains(",")
                 let hasGroupPrefix = lower.hasPrefix("compare ") && trimmed.count > 8
                     || lower.hasPrefix("comparar ") && trimmed.count > 9
                     || lower.hasPrefix("compara ") && trimmed.count > 9
@@ -105,49 +118,99 @@ extension MainViewController: UITextFieldDelegate {
                     || lower.hasPrefix("comparez ") && trimmed.count > 9
                     || lower.hasPrefix("сравни ") && trimmed.count > 7
                     || lower.hasPrefix("сравнить ") && trimmed.count > 9
-                let looksLikeCompareRequest = hasCompareKeyword && (hasExplicitList || hasGroupPrefix)
+                
+                let startsWithNumber = trimmed.range(of: #"^\d+"#, options: .regularExpression) != nil
+                let isSingleWord = !trimmed.contains(" ") && !trimmed.isEmpty
+                
+                // If the user enters a list or comparison phrase, even without "compare", treat as AI request
+                let looksLikeCompareRequest = hasCompareKeyword || hasExplicitList || hasGroupPrefix || startsWithNumber || isSingleWord
+                
                 if looksLikeCompareRequest {
-                    createNewComparisonListAlert?.dismiss(animated: true) {
-                        self.processAIRequest(trimmed)
-                    }
+                    self.processAIRequest(trimmed)
                     return
                 }
 
                 let savingResult = self.sharedDataBase.createComparison(name: trimmed, color: currentColor)
-                
                 if savingResult == nil {
-                            let emoji = self.warningMessageEmoji.randomElement() ?? ""
-                    createNewComparisonListAlert?.message =
-                    "\(emoji) \"\(textfieldText)\" already in use"
-                    
+                    let emoji = self.warningMessageEmoji.randomElement() ?? ""
+                    let alert = UIAlertController(
+                        title: NSLocalizedString("Create new comparison", comment: ""),
+                        message: "\(emoji) \"\(trimmed)\" already in use",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+                    if let popover = alert.popoverPresentationController {
+                        popover.sourceView = self.view
+                        popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                        popover.permittedArrowDirections = []
+                    }
                     let generator = UINotificationFeedbackGenerator()
                     generator.notificationOccurred(.error)
-                    
-                            self.present(createNewComparisonListAlert ?? UIAlertController(), animated: true)
+                    self.present(alert, animated: true)
                 } else {
-                    
-                    
                     let destination = ComparisonListViewController()
-                            let comparison = self.sharedDataBase.fetchComparisonWithID(id: savingResult ?? "") ?? ComparisonEntity()
+                    let comparison = self.sharedDataBase.fetchComparisonWithID(id: savingResult ?? "") ?? ComparisonEntity()
                     destination.setComparisonEntity(comparison: comparison)
-                            self.navigationController?.pushViewController(destination, animation: true) {
+                    self.navigationController?.pushViewController(destination, animation: true) {
                         destination.openDetailsForNewComparison()
-                            }
-                        }
                     }
                 }
+            }
         }
-        let cancelNewComparisonButton = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel)
-        { _ in
-            self.createNewComparisonListAlert?.dismiss(animated: true)
+    }
 
-            self.createNewComparisonListAlert? = UIAlertController()
+    private func handleFillManually(name: String) {
+        Task {
+            await SubscriptionManager.shared.updatePurchasedStatus()
+            let canCreate = SubscriptionManager.shared.canCreateComparison(freeComparisonsCount: self.comparisonsArray.count)
+
+            await MainActor.run {
+                if !canCreate {
+                    let subscriptionVC = SubscriptionViewController()
+                    subscriptionVC.modalPresentationStyle = .pageSheet
+                    if let sheet = subscriptionVC.sheetPresentationController {
+                        sheet.detents = [.large()]
+                        sheet.prefersGrabberVisible = true
+                    }
+                    self.present(subscriptionVC, animated: true)
+                    return
+                }
+
+                var currentColor = specialColors[0]
+                switch self.comparisonsArray.count {
+                case 0: currentColor = specialColors[0]
+                case 1...:
+                    let lastColor = self.comparisonsArray.first?.color ?? specialColors[0]
+                    let idx = specialColors.firstIndex(of: lastColor)
+                    currentColor = specialColors[(idx! + 1) % specialColors.count]
+                default: currentColor = specialColors[0]
+                }
+
+                guard let comparisonId = self.sharedDataBase.createComparison(name: name, color: currentColor) else {
+                    let emoji = self.warningMessageEmoji.randomElement() ?? ""
+                    let alert = UIAlertController(
+                        title: NSLocalizedString("Create new comparison", comment: ""),
+                        message: "\(emoji) \"\(name)\" already in use",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+                    if let popover = alert.popoverPresentationController {
+                        popover.sourceView = self.view
+                        popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                        popover.permittedArrowDirections = []
+                    }
+                    self.present(alert, animated: true)
+                    return
+                }
+
+                guard let comparison = self.sharedDataBase.fetchComparisonWithID(id: comparisonId) else { return }
+                let destination = ComparisonListViewController()
+                destination.setComparisonEntity(comparison: comparison)
+                self.navigationController?.pushViewController(destination, animation: true) {
+                    destination.openDetailsForNewComparison()
+                }
+            }
         }
-        
-        createNewComparisonListAlert?.addAction(saveNewComparisonButton)
-        createNewComparisonListAlert?.addAction(cancelNewComparisonButton)
-        saveButtonInAlertChanged = saveNewComparisonButton
-        saveNewComparisonButton.isEnabled = false
     }
     
 //MARK: alertsConfigurationForChangeName
@@ -286,11 +349,13 @@ extension MainViewController: UITextFieldDelegate {
             } catch {
                 await MainActor.run {
                     loadingAlert.dismiss(animated: true) {
-                        // Если ошибка парсинга JSON, все равно создаем сравнение с базовыми значениями
-                        if error.localizedDescription.contains("couldn't be read") || 
+                        // Если ошибка парсинга JSON, создаём сравнение с базовыми значениями
+                        if error.localizedDescription.contains("couldn't be read") ||
                            error.localizedDescription.contains("correct format") {
-                            // Пытаемся создать сравнение с базовыми значениями
                             self.createComparisonWithFallback(userRequest: userRequest, error: error)
+                        } else if let aiError = error as? AIAssistantError, case .parsingFailed = aiError {
+                            // Не удалось распознать запрос — создаём сравнение с введённым названием
+                            self.handleFillManually(name: userRequest.trimmingCharacters(in: .whitespacesAndNewlines))
                         } else {
                             self.showAIError(error)
                         }
@@ -515,9 +580,10 @@ extension MainViewController: UITextFieldDelegate {
     }
     
     private func createComparisonFromAIResult(_ result: AIComparisonResult, userRequest: String) {
-        // Не создаём сравнение с пустыми объектами/критериями
+        // Если AI не распознал объекты/критерии — создаём сравнение с введённым названием (например «кетчунез»)
         if result.items.isEmpty || result.attributes.isEmpty {
-            showAIError(AIAssistantError.parsingFailed)
+            let name = userRequest.trimmingCharacters(in: .whitespacesAndNewlines)
+            handleFillManually(name: name.isEmpty ? NSLocalizedString("New comparison", comment: "") : name)
             return
         }
         // Проверяем подписку
@@ -930,7 +996,7 @@ extension MainViewController: UITextFieldDelegate {
         if let aiError = error as? AIAssistantError {
             switch aiError {
             case .parsingFailed:
-                errorMessage = "Failed to recognize items and criteria in your request. Try rephrasing your request, for example: \"Compare New York and London by cost of living, technology, price\""
+                errorMessage = NSLocalizedString("Failed to recognize items and criteria in your request. Try rephrasing your request, for example: \"New York and London by cost of living, technology, price\"", comment: "")
             case .creationFailed:
                 errorMessage = "Could not save the comparison. Please try again."
             case .networkError:

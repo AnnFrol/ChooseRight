@@ -807,7 +807,7 @@ extension ComparisonListViewController: UITextFieldDelegate {
             
         }
         
-        let saveButton = UIAlertAction(title: NSLocalizedString("Save", comment: ""), style: .default) { [weak self, weak addAttributeAlert] (_) in
+        let saveButton = UIAlertAction(title: NSLocalizedString("Create", comment: ""), style: .default) { [weak self, weak addAttributeAlert] (_) in
             
             guard let self = self else { return }
             

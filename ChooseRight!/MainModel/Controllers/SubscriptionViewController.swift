@@ -67,7 +67,7 @@ class SubscriptionViewController: UIViewController {
         button.layer.cornerRadius = 32
         button.translatesAutoresizingMaskIntoConstraints = false
         // Без конкретной цены — после загрузки продукта подставится displayPrice для региона пользователя
-        button.setTitle(NSLocalizedString("Unlock Premium", comment: "Purchase button before price loads"), for: .normal)
+        button.setTitle(NSLocalizedString("Unlock forever", comment: "Purchase button before price loads"), for: .normal)
         return button
     }()
     
@@ -120,12 +120,12 @@ class SubscriptionViewController: UIViewController {
     }
     
     private func setupAccessibility() {
-        view.accessibilityLabel = NSLocalizedString("Unlock Premium", comment: "Accessibility: subscription screen")
+        view.accessibilityLabel = NSLocalizedString("Unlock forever", comment: "Accessibility: subscription screen")
         
         titleLabel.accessibilityLabel = NSLocalizedString("Unlock Unlimited Comparisons", comment: "Accessibility: subscription title")
         titleLabel.accessibilityTraits = .header
         
-        purchaseButton.accessibilityLabel = NSLocalizedString("Unlock Premium", comment: "Accessibility: purchase button")
+        purchaseButton.accessibilityLabel = NSLocalizedString("Unlock forever", comment: "Accessibility: purchase button")
         purchaseButton.accessibilityHint = NSLocalizedString("Double tap to purchase unlimited comparisons.", comment: "Accessibility: purchase button hint")
         
         restoreButton.accessibilityLabel = NSLocalizedString("Restore Purchases", comment: "Accessibility: restore button")
@@ -204,10 +204,9 @@ class SubscriptionViewController: UIViewController {
     
     private func setupFeatures() {
         let features = [
-            ("✓", "Unlimited comparisons"),
-            ("✓", "All premium features"),
-            ("✓", "Regular updates"),
-            ("✓", "Priority support")
+            ("✓", NSLocalizedString("Unlimited comparisons", comment: "")),
+            ("✓", NSLocalizedString("All future updates", comment: "")),
+            ("✓", NSLocalizedString("Priority support", comment: ""))
         ]
         
         for (icon, text) in features {
@@ -314,7 +313,7 @@ class SubscriptionViewController: UIViewController {
     
     private func updateButtons() {
         let products = subscriptionManager.products
-        let unlockTitle = NSLocalizedString("Unlock Premium", comment: "Purchase button base title")
+        let unlockTitle = NSLocalizedString("Unlock forever", comment: "Purchase button base title")
         
         if let premium = products.first {
             premiumProduct = premium
