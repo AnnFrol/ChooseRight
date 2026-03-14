@@ -144,11 +144,14 @@ class SubscriptionManager: ObservableObject {
     
     // MARK: - Free Tier Check
     
+    /// Количество бесплатных сравнений без покупки Premium.
+    static let freeComparisonsLimit = 2
+    
     func canCreateComparison(freeComparisonsCount: Int) -> Bool {
         if hasPurchasedPremium {
             return true
         }
-        return freeComparisonsCount < 1
+        return freeComparisonsCount < Self.freeComparisonsLimit
     }
 }
 

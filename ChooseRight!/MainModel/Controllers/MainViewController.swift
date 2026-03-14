@@ -656,8 +656,8 @@ extension MainViewController: ObjectDetailsVCProtocol {
             
             switch error {
             case .limitExceeded:
-                alertTitle = "Limit Exceeded"
-                alertMessage = "You have reached the free limit of 1 comparison. Please upgrade to Premium to import more comparisons."
+                alertTitle = NSLocalizedString("Limit Exceeded", comment: "")
+                alertMessage = NSLocalizedString("You have reached the free limit of 2 comparisons. Please upgrade to Premium to import more.", comment: "")
                 showSubscription = true
             case .invalidFile:
                 alertMessage = "Could not import the comparison file. Please make sure the file is valid."

@@ -96,6 +96,9 @@
 "Priority support" = "Soporte prioritario";
 "Unlock forever" = "Desbloquear para siempre";
 "Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions." = "La primera comparación — gratis.\nDesbloquea comparaciones ilimitadas.";
+"Free: 2 comparisons. One-time purchase for unlimited comparisons and better decisions." = "Dos comparaciones — gratis.\nDesbloquea comparaciones ilimitadas.";
+"Limit Exceeded" = "Límite alcanzado";
+"You have reached the free limit of 2 comparisons. Please upgrade to Premium to import more." = "Has alcanzado el límite gratuito (2 comparaciones). Pasa a Premium para importar más.";
 "Restore Purchases" = "Restaurar compras";
 "Terms of Use" = "Términos de uso";
 "Privacy Policy" = "Política de privacidad";
@@ -112,6 +115,7 @@
 "Hi! This is\nChoose Right!" = "¡Hola! Esto es\nChoose Right!";
 "Not sure what the right choice is?" = "¿No sabes cuál es la mejor opción?";
 "We help you choose — without the stress.\nStart with 1 free comparison." = "Te ayudamos a elegir — sin estrés.\nEmpieza con 1 comparación gratis.";
+"We help you choose — without the stress.\nStart with 2 free comparisons." = "Te ayudamos a elegir — sin estrés.\nEmpieza con 2 comparaciones gratis.";
 
 /* Delete item */
 "Delete %@?" = "¿Eliminar %@?";

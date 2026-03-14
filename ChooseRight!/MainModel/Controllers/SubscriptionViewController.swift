@@ -43,7 +43,7 @@ class SubscriptionViewController: UIViewController {
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.text = NSLocalizedString("Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions.", comment: "")
+        label.text = NSLocalizedString("Free: 2 comparisons. One-time purchase for unlimited comparisons and better decisions.", comment: "")
         label.font = .sfProTextRegular16()
         label.textColor = .secondaryLabel
         label.textAlignment = .center

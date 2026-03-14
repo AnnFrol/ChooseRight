@@ -82,6 +82,9 @@
 /* Subscription */
 "Unlock Unlimited Comparisons" = "Unlock Unlimited Comparisons";
 "Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions." = "Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions.";
+"Free: 2 comparisons. One-time purchase for unlimited comparisons and better decisions." = "Free: 2 comparisons. One-time purchase for unlimited comparisons and better decisions.";
+"Limit Exceeded" = "Limit Exceeded";
+"You have reached the free limit of 2 comparisons. Please upgrade to Premium to import more." = "You have reached the free limit of 2 comparisons. Please upgrade to Premium to import more.";
 "Restore Purchases" = "Restore Purchases";
 "Terms of Use" = "Terms of Use";
 "Privacy Policy" = "Privacy Policy";
@@ -98,6 +101,7 @@
 "Hi! This is\nChoose Right!" = "Hi! This is\nChoose Right!";
 "Not sure what the right choice is?" = "Not sure what the right choice is?";
 "We help you choose — without the stress.\nStart with 1 free comparison." = "We help you choose — without the stress.\nStart with 1 free comparison.";
+"We help you choose — without the stress.\nStart with 2 free comparisons." = "We help you choose — without the stress.\nStart with 2 free comparisons.";
 
 /* Delete item */
 "Delete %@?" = "Delete %@?";

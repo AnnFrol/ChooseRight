@@ -93,8 +93,11 @@
 "Regular updates" = "Регулярные обновления";
 "All future updates" = "Все будущие обновления";
 "Priority support" = "Приоритетная поддержка";
-"Unlock forever" = "Разблокировать навсегда";
+"Unlock forever" = "Купить навсегда";
 "Free: 1 comparison. One-time purchase for unlimited comparisons and better decisions." = "Первое сравнение — бесплатно.\nРазблокируйте неограниченные сравнения.";
+"Free: 2 comparisons. One-time purchase for unlimited comparisons and better decisions." = "Два сравнения — бесплатно.\nРазблокируйте неограниченные сравнения.";
+"Limit Exceeded" = "Лимит достигнут";
+"You have reached the free limit of 2 comparisons. Please upgrade to Premium to import more." = "Достигнут лимит бесплатных сравнений (2). Перейдите на Premium, чтобы добавлять больше.";
 "Restore Purchases" = "Восстановить покупки";
 "Terms of Use" = "Условия использования";
 "Privacy Policy" = "Политика конфиденциальности";
@@ -111,6 +114,7 @@
 "Hi! This is\nChoose Right!" = "Привет! Это\nChoose Right!";
 "Not sure what the right choice is?" = "Трудно определиться с выбором?";
 "We help you choose — without the stress.\nStart with 1 free comparison." = "Мы поможем выбрать уверенно.\nНачните с 1 бесплатного сравнения.";
+"We help you choose — without the stress.\nStart with 2 free comparisons." = "Мы поможем выбрать уверенно.\nНачните с 2 бесплатных сравнений.";
 
 /* Delete item */
 "Delete %@?" = "Удалить %@?";
