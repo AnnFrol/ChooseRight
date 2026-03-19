@@ -69,8 +69,6 @@
 			</array>
 		</dict>
 	</dict>
-	<key>UISupportsOpeningDocumentsInPlace</key>
-	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
