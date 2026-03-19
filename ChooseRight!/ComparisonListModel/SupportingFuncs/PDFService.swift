@@ -205,7 +205,7 @@ class PDFService {
                 rowContent.append(itemName)
                 for attribute in comparisonAttibutes {
                     let cellValue = sharedData.fetchValue(item: item, attribute: attribute ?? ComparisonAttributeEntity())
-                    let cellText = cellValue.booleanValue ? "+" : "-"
+                    let cellText = cellValue.displaySymbol
                     let cellContent = NSMutableAttributedString(
                         string: cellText,
                         attributes: [

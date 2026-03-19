@@ -40,6 +40,8 @@ class ObjectTableViewCell: UITableViewCell {
     
     var circleHeightConstraint: NSLayoutConstraint?
     var circleWidthConstraint: NSLayoutConstraint?
+    var ghostCircleHeightConstraint: NSLayoutConstraint?
+    var ghostCircleWidthConstraint: NSLayoutConstraint?
     
     
     var circleTrailingConstraint: NSLayoutConstraint?
@@ -79,6 +81,7 @@ class ObjectTableViewCell: UITableViewCell {
     
     private var relevanceLabelText = String()
     private var relevanceValue = 0
+    private var potentialRelevanceValue = 0
     
     private let progressLabel = UILabel(percentContainerLabelText: "40%")
     private let objectLabel = UILabel(containerLabelText: "Celebrate at home")
@@ -99,6 +102,16 @@ class ObjectTableViewCell: UITableViewCell {
         
         return view
     }()
+    
+    public let ghostCircleView: RoundedView = {
+        let view = RoundedView()
+        view.backgroundColor = UIColor(named: "sixGreenMagicMint")
+        view.clipsToBounds = true
+        view.alpha = 0.6
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        return view
+    }()
 
     public func valueChangedRefresh(comparisonItemEntity: ComparisonItemEntity) {
         comparisonItem = comparisonItemEntity
@@ -106,13 +119,14 @@ class ObjectTableViewCell: UITableViewCell {
         labelTextShorted = comparisonItem?.unwrappedName.getFirstSymbols() ?? "nil"
         
         relevanceValue = comparisonItem?.getRelevance ?? 0
+        potentialRelevanceValue = comparisonItem?.getPotentialRelevance ?? 0
         
         relevanceLabelText = "\(String(relevanceValue))%"
         progressLabel.text = relevanceLabelText
         progressLabelInCircle.text = relevanceLabelText
         
         UIView.animate(withDuration: 0.3) { [self] in
-            self.circleDiameter = self.calculateCircleDiameter(relevanceValue: self.relevanceValue)
+            self.updateCircleMetrics()
             self.layoutIfNeeded()
         }
         
@@ -125,6 +139,7 @@ class ObjectTableViewCell: UITableViewCell {
         labelTextShorted = comparisonItem?.unwrappedName.getFirstSymbols() ?? "nil"
         
         relevanceValue = comparisonItem?.getRelevance ?? 0
+        potentialRelevanceValue = comparisonItem?.getPotentialRelevance ?? 0
         relevanceLabelText = "\(String(relevanceValue))%"
       
         actualLabelText = isViewCollapsed ? labelTextShorted : labelText
@@ -139,6 +154,8 @@ class ObjectTableViewCell: UITableViewCell {
         
         circleBackgroundColor = UIColor(named: comparisonItem?.color ?? "sixGreenMagicMint") ?? UIColor.white
         circleView.backgroundColor = circleBackgroundColor
+        ghostCircleView.backgroundColor = circleBackgroundColor
+        updateCircleMetrics()
 
     }
     
@@ -148,6 +165,7 @@ class ObjectTableViewCell: UITableViewCell {
         labelTextShorted = comparisonItem?.unwrappedName.getFirstSymbols() ?? "nil"
         
         relevanceValue = comparisonItem?.getRelevance ?? 0
+        potentialRelevanceValue = comparisonItem?.getPotentialRelevance ?? 0
         relevanceLabelText = "\(String(relevanceValue))%"
       
         actualLabelText = isViewCollapsed ? labelTextShorted : labelText
@@ -162,9 +180,11 @@ class ObjectTableViewCell: UITableViewCell {
         
         circleBackgroundColor = UIColor(named: comparisonItem?.color ?? "sixGreenMagicMint") ?? UIColor.white
         circleView.backgroundColor = circleBackgroundColor
+        ghostCircleView.backgroundColor = circleBackgroundColor
+        updateCircleMetrics()
     }
     
-    private func calculateCircleDiameter(relevanceValue: Int) -> Double {
+    private func calculateCircleDiameter(relevanceValue: Int) -> CGFloat {
         
         var multiplier = 0.0
         switch isViewCollapsed {
@@ -179,14 +199,25 @@ class ObjectTableViewCell: UITableViewCell {
         }
         
         
-        let relevance = Double(relevanceValue)
+        let relevance = CGFloat(relevanceValue)
         
-                    let minUIRelevance: CGFloat = 28
+        let minUIRelevance: CGFloat = 28
         let maxUIRelevance = max(self.frame.width, self.frame.height)
-                    let calculatedSize = minUIRelevance + (relevance / 100) * (maxUIRelevance * multiplier + minUIRelevance)
+        let calculatedSize = minUIRelevance + (relevance / 100) * (maxUIRelevance * CGFloat(multiplier) + minUIRelevance)
         
         
         return calculatedSize
+    }
+    
+    private func updateCircleMetrics() {
+        circleDiameter = calculateCircleDiameter(relevanceValue: relevanceValue)
+        let potentialDiameter = calculateCircleDiameter(relevanceValue: potentialRelevanceValue)
+        
+        circleWidthConstraint?.constant = circleDiameter
+        circleHeightConstraint?.constant = circleDiameter
+        ghostCircleWidthConstraint?.constant = potentialDiameter
+        ghostCircleHeightConstraint?.constant = potentialDiameter
+        ghostCircleView.isHidden = potentialRelevanceValue <= relevanceValue
     }
     
     
@@ -228,17 +259,12 @@ class ObjectTableViewCell: UITableViewCell {
             
             self.isViewCollapsed = isCellCollapsed()
 
-            self.circleDiameter = self.calculateCircleDiameter(relevanceValue: self.relevanceValue)
             self.actualLabelText = isViewCollapsed ? labelTextShorted : labelText
             self.objectLabel.text = actualLabelText
             self.objectLabelInCircle.text = actualLabelText
+            self.updateCircleMetrics()
             self.layoutIfNeeded()
         }
-        
-        
-        circleWidthConstraint?.constant =  circleDiameter//(circleRadius - 24) * 2
-        circleHeightConstraint?.constant = circleDiameter//(circleRadius - 24) * 2
-        
 //        objectTableViewCellDelegate?.refreshCellWhenValueChanges()
 
         
@@ -279,6 +305,7 @@ class ObjectTableViewCell: UITableViewCell {
         labelsInCircleStackView.distribution = .equalSpacing
         
         circleView.addSubview(labelsInCircleStackView)
+        backgroundCell.insertSubview(ghostCircleView, belowSubview: labelsStackView)
         backgroundCell.addSubview(circleView)
         
     }
@@ -293,6 +320,8 @@ extension ObjectTableViewCell {
         
         circleWidthConstraint =  circleView.widthAnchor.constraint(equalToConstant: (frame.width * 0.4 - 24) * 2)
         circleHeightConstraint = circleView.heightAnchor.constraint(equalToConstant: (frame.width * 0.4 - 24) * 2)
+        ghostCircleWidthConstraint = ghostCircleView.widthAnchor.constraint(equalToConstant: (frame.width * 0.4 - 24) * 2)
+        ghostCircleHeightConstraint = ghostCircleView.heightAnchor.constraint(equalToConstant: (frame.width * 0.4 - 24) * 2)
         
         circleViewCenterX = circleView.centerXAnchor.constraint(equalTo: labelsInCircleStackView.arrangedSubviews[0].leadingAnchor, constant: circleViewCenterXConstant)
         circleViewCenterY = circleView.centerYAnchor.constraint(equalTo: labelsInCircleStackView.arrangedSubviews[0].centerYAnchor, constant: circleViewCenterYConstant)
@@ -314,6 +343,11 @@ extension ObjectTableViewCell {
             labelsInCircleStackView.leadingAnchor.constraint(equalTo: labelsStackView.leadingAnchor),
             labelsInCircleStackView.bottomAnchor.constraint(equalTo: labelsStackView.bottomAnchor),
             labelsInCircleStackView.trailingAnchor.constraint(equalTo: labelsStackView.trailingAnchor),
+            
+            ghostCircleView.centerXAnchor.constraint(equalTo: labelsInCircleStackView.arrangedSubviews[0].leadingAnchor, constant: circleViewCenterXConstant),
+            ghostCircleView.centerYAnchor.constraint(equalTo: labelsInCircleStackView.arrangedSubviews[0].centerYAnchor, constant: circleViewCenterYConstant),
+            ghostCircleWidthConstraint ?? ghostCircleView.widthAnchor.constraint(equalToConstant: (frame.width * 0.4 - 24) * 2),
+            ghostCircleHeightConstraint ?? ghostCircleView.heightAnchor.constraint(equalToConstant: (frame.width * 0.4 - 24) * 2),
             
             circleViewCenterX ?? circleView.centerXAnchor.constraint(equalTo: labelsInCircleStackView.arrangedSubviews[0].leadingAnchor, constant: 10),
             circleViewCenterY ?? circleView.centerYAnchor.constraint(equalTo: labelsInCircleStackView.arrangedSubviews[0].centerYAnchor, constant: 0),

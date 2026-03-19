@@ -67,8 +67,8 @@ class AttributesTableViewCell: UITableViewCell {
     }
     
     
-    func updateButtonTitle(isValueTrue: Bool) {
-        self.attributeValueButton.updateTitle(isValueTrue: isValueTrue)
+    func updateButtonTitle(state: ComparisonValueState) {
+        self.attributeValueButton.updateTitle(state: state)
     }
     
     func updateAttributeName(name: String) {

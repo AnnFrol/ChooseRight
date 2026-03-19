@@ -112,7 +112,7 @@ extension ComparisonListViewController: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
         switch controller {
         case comparisonItemsFetchResultsController:
-        objectTableView.beginUpdates()
+            objectTableView.beginUpdates()
         case comparisonAttributesFetchResultsController:
             // Clear pending changes and prepare for batch updates
             pendingAttributeChanges.removeAll()
@@ -371,9 +371,12 @@ extension ComparisonListViewController: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
         switch controller {
         case comparisonItemsFetchResultsController:
-        objectTableView.endUpdates()
-            // Reload values collection view after items change
+            objectTableView.endUpdates()
+            
+            // Force both views to the final fetched state so percentage UI
+            // stays in sync even when item order changes after a tap.
             DispatchQueue.main.async {
+                self.objectTableView.reloadData()
                 self.valuesCollectionView.reloadData()
             }
             

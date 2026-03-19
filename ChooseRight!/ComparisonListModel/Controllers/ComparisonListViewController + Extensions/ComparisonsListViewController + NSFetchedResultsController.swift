@@ -11,13 +11,23 @@ import CoreData
 extension ComparisonListViewController {
     
     public func loadSavedData(itemsSortKey: String) {
+        if itemsSortKey == itemSortKeys().value {
+            comparisonEntity.itemsArray.forEach { $0.updateTrueValuesCount() }
+        }
         itemsFetchController(sortKey: itemsSortKey)
         attributesFetchController()
         valuesFetchController()
     }
     
     func itemsFetchController(sortKey: String) {
-        if self.comparisonItemsFetchResultsController == nil || self.comparisonItemsFetchResultsController.fetchRequest.sortDescriptors?.first?.key != sortKey {
+        let predicate = NSPredicate(format: "comparison == %@", self.comparisonEntity)
+        let currentPredicateDescription = self.comparisonItemsFetchResultsController?.fetchRequest.predicate?.predicateFormat
+        let needsNewController =
+            self.comparisonItemsFetchResultsController == nil ||
+            self.comparisonItemsFetchResultsController.fetchRequest.sortDescriptors?.first?.key != sortKey ||
+            currentPredicateDescription != predicate.predicateFormat
+        
+        if needsNewController {
             
             var ascending = true
             
@@ -37,9 +47,16 @@ extension ComparisonListViewController {
             
             
             let request =  NSFetchRequest<ComparisonItemEntity>(entityName: "ComparisonItemEntity")
-            let sort = NSSortDescriptor(key: sortKey, ascending: ascending)
-            let predicate = NSPredicate(format: "comparison == %@", self.comparisonEntity)
-            request.sortDescriptors = [sort]
+            
+            if sortKey == itemSortKeys().value {
+                let primarySort = NSSortDescriptor(key: itemSortKeys().value, ascending: false)
+                let secondarySort = NSSortDescriptor(key: "potentialTrueValuesCount", ascending: false)
+                let fallbackSort = NSSortDescriptor(key: "date", ascending: true)
+                request.sortDescriptors = [primarySort, secondarySort, fallbackSort]
+            } else {
+                let sort = NSSortDescriptor(key: sortKey, ascending: ascending)
+                request.sortDescriptors = [sort]
+            }
             request.fetchBatchSize = 20
             request.predicate = predicate
             
@@ -60,10 +77,12 @@ extension ComparisonListViewController {
     }
     
     private func attributesFetchController() {
-        if self.comparisonAttributesFetchResultsController == nil {
+        let predicate = NSPredicate(format: "comparison == %@", self.comparisonEntity)
+        let currentPredicateDescription = self.comparisonAttributesFetchResultsController?.fetchRequest.predicate?.predicateFormat
+        
+        if self.comparisonAttributesFetchResultsController == nil || currentPredicateDescription != predicate.predicateFormat {
             let request = NSFetchRequest<ComparisonAttributeEntity>(entityName: "ComparisonAttributeEntity")
             let sort = NSSortDescriptor(key: "date", ascending: false)
-            let predicate = NSPredicate(format: "comparison == %@", self.comparisonEntity)
             request.sortDescriptors = [sort]
             request.fetchBatchSize = 20
             request.predicate = predicate
@@ -82,10 +101,12 @@ extension ComparisonListViewController {
     }
     
     private func valuesFetchController() {
-        if self.comparisonValuesFetchResultsController == nil {
+        let predicate = NSPredicate(format: "comparison == %@", self.comparisonEntity)
+        let currentPredicateDescription = self.comparisonValuesFetchResultsController?.fetchRequest.predicate?.predicateFormat
+        
+        if self.comparisonValuesFetchResultsController == nil || currentPredicateDescription != predicate.predicateFormat {
             let request = NSFetchRequest<ComparisonValueEntity>(entityName: "ComparisonValueEntity")
             let sort = NSSortDescriptor(key: "item", ascending: false)
-            let predicate = NSPredicate(format: "comparison == %@", self.comparisonEntity)
             request.sortDescriptors = [sort]
             request.fetchBatchSize = 60
             request.predicate = predicate

@@ -26,6 +26,7 @@ extension ComparisonItemEntity {
     @NSManaged public var value: NSSet?
     
     @NSManaged public var trueValuesCount: Int16
+    @NSManaged public var potentialTrueValuesCount: Int16
     
 //    @NSManaged public var rate: Int
     
@@ -45,12 +46,25 @@ extension ComparisonItemEntity {
         let values = value as? Set<ComparisonValueEntity> ?? []
         
         for value in values {
-            if value.booleanValue == true {
+            if value.effectivePositiveValue {
                 pluse += 1
             }
         }
 
         return [pluse, values.count]
+    }
+    
+    public var getPotentialPlusesAndValues: [Int] {
+        var pluses = 0
+        let values = value as? Set<ComparisonValueEntity> ?? []
+        
+        for value in values {
+            if value.potentialPositiveValue {
+                pluses += 1
+            }
+        }
+        
+        return [pluses, values.count]
     }
     
     public var getRelevance: Int {
@@ -65,6 +79,19 @@ extension ComparisonItemEntity {
         if values != 0.0 { return Int(relevance)}
         else { return 0 }
         }
+    
+    public var getPotentialRelevance: Int {
+        
+        let plusesAndValues = getPotentialPlusesAndValues
+        
+        let pluses = Double(plusesAndValues[0])
+        let values = Double(plusesAndValues[1])
+        
+        let relevance = (pluses / values) * 100
+
+        if values != 0.0 { return Int(relevance)}
+        else { return 0 }
+    }
 
 }
 
@@ -110,6 +137,7 @@ extension ComparisonItemEntity {
     func updateTrueValuesCount() {
         let valuesSet = value as? Set<ComparisonValueEntity> ?? []
         
-        trueValuesCount = Int16(valuesSet.filter {$0.booleanValue}.count)
+        trueValuesCount = Int16(valuesSet.filter { $0.effectivePositiveValue }.count)
+        potentialTrueValuesCount = Int16(valuesSet.filter { $0.potentialPositiveValue }.count)
     }
 }

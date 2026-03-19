@@ -9,6 +9,33 @@
 import Foundation
 import CoreData
 
+public enum ComparisonValueState: Int16 {
+    case minus = 0
+    case neutral = 1
+    case plus = 2
+    
+    var displaySymbol: String {
+        switch self {
+        case .minus:
+            return "-"
+        case .neutral:
+            return "○"
+        case .plus:
+            return "+"
+        }
+    }
+    
+    var accessibilityLabel: String {
+        switch self {
+        case .minus:
+            return "Minus"
+        case .neutral:
+            return "Neutral"
+        case .plus:
+            return "Plus"
+        }
+    }
+}
 
 extension ComparisonValueEntity {
 
@@ -18,6 +45,7 @@ extension ComparisonValueEntity {
 
     @NSManaged public var id: UUID
     @NSManaged public var value: Bool
+    @NSManaged public var isNeutral: Bool
     @NSManaged public var comment: String?
     @NSManaged public var item: ComparisonItemEntity?
     @NSManaged public var attribute: ComparisonAttributeEntity?
@@ -37,6 +65,26 @@ extension ComparisonValueEntity {
     
     public var booleanValue: Bool {
         value
+    }
+    
+    public var state: ComparisonValueState {
+        if isNeutral {
+            return .neutral
+        }
+        
+        return value ? .plus : .minus
+    }
+    
+    public var effectivePositiveValue: Bool {
+        state == .plus
+    }
+    
+    public var potentialPositiveValue: Bool {
+        state == .plus || state == .neutral
+    }
+    
+    public var displaySymbol: String {
+        state.displaySymbol
     }
 
 }

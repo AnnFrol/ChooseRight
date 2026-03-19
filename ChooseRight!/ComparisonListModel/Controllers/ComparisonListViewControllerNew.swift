@@ -35,6 +35,7 @@ class ComparisonListViewController: UIViewController  {
     var percentSortingTap = 0
     
     var currentSortKey = itemSortKeys().value
+    var isPercentSortActual = true
     
     weak var saveAttributeButtonInAlertChanged: UIAlertAction?
     private var addAttributeAlert = UIAlertController()
@@ -490,7 +491,7 @@ extension ComparisonListViewController: UICollectionViewDataSource {
             let cellValue = sharedData.fetchValue(item: item, attribute: attribute)
             cell.delegate = self
             
-            cell.updateButtonTitle(isValueTrue: cellValue.booleanValue)
+            cell.updateButtonTitle(state: cellValue.state)
             
             returnedCell = cell
         default:
@@ -523,13 +524,9 @@ extension ComparisonListViewController: valuesCollectionViewCellDelegate {
             
             let value = sharedData.fetchValue(item: item, attribute: attribute)
             sharedData.changeBooleanValue(for: value)
-            
-            
+            cell.updateButtonTitle(state: value.state)
             refreshCellWhenValueChanges(indexPath: indexPath, item: item)
-            
-            UIView.animate(withDuration: 0.3) {
-                self.valuesCollectionView.reloadItems(at: [indexPath])
-            }
+            invalidatePercentSortIfNeeded()
 
         }
     }
@@ -683,6 +680,14 @@ extension ComparisonListViewController: UIScrollViewDelegate {
 extension ComparisonListViewController {
     
     public func setComparisonEntity(comparison: ComparisonEntity) {
+        comparisonItemsFetchResultsController?.delegate = nil
+        comparisonAttributesFetchResultsController?.delegate = nil
+        comparisonValuesFetchResultsController?.delegate = nil
+        
+        comparisonItemsFetchResultsController = nil
+        comparisonAttributesFetchResultsController = nil
+        comparisonValuesFetchResultsController = nil
+        
         comparisonEntity = comparison
         
         
@@ -704,6 +709,7 @@ extension ComparisonListViewController {
 extension ComparisonListViewController: UIViewControllerTransitioningDelegate {
     
     public func reloadTables() {
+        invalidatePercentSortIfNeeded()
         self.valuesCollectionView.reloadData()
         self.attributesCollectionView.reloadData()
         self.objectTableView.reloadData()
@@ -857,6 +863,7 @@ extension ComparisonListViewController {
     
     func updateSortKey(_ sortKey: String) {
         currentSortKey = sortKey
+        isPercentSortActual = true
         
         self.comparisonEntity.itemsArray.forEach { $0.updateTrueValuesCount() }
 
@@ -870,6 +877,12 @@ extension ComparisonListViewController {
         self.objectTableView.reloadData()
         
         
+    }
+    
+    func invalidatePercentSortIfNeeded() {
+        guard currentSortKey == itemSortKeys().value, isPercentSortActual else { return }
+        isPercentSortActual = false
+        settingsButton.menu = setupSettingsMenu()
     }
     
 }

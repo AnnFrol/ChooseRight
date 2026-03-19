@@ -669,7 +669,7 @@ extension ObjectDetailsViewController: UITableViewDataSource {
         let cellValue = sharedDataBase.fetchValue(item: item, 
                                                   attribute: attribute)
         
-        cell.updateButtonTitle(isValueTrue: cellValue.booleanValue)
+        cell.updateButtonTitle(state: cellValue.state)
         cell.updateAttributeName(name: attributeName)
 
         let interaction = UIContextMenuInteraction(delegate: self)

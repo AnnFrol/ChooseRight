@@ -49,8 +49,8 @@ class ValuesCollectionViewCell: UICollectionViewCell {
         self.delegate?.didTapValueButton(cell: self)
     }
     
-    public func updateButtonTitle(isValueTrue: Bool) {
-        self.valueButton.updateTitle(isValueTrue: isValueTrue)
+    public func updateButtonTitle(state: ComparisonValueState) {
+        self.valueButton.updateTitle(state: state)
     }
 }
 

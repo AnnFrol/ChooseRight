@@ -31,6 +31,7 @@ extension ComparisonListViewController {
     
     func  setupSettingsMenu() -> UIMenu {
         var menu = UIMenu()
+        let isPercentSortSelected = currentSortKey == itemSortKeys().value && isPercentSortActual
         
         let sharePDFAction = UIAction(title: NSLocalizedString("Download PDF", comment: ""), image: UIImage(systemName: "square.and.arrow.down"), handler: { _ in
             guard let pdfFile = PDFService.getPdfDocument(fetchedItems: self.comparisonItemsFetchResultsController) else { return }
@@ -91,7 +92,7 @@ extension ComparisonListViewController {
 //            horizontalOrientationAction
 //        ])
         
-        let percentSortingAction = UIAction(title: NSLocalizedString("Percent", comment: ""), image: currentSortKey == itemSortKeys().value ? UIImage(named: "shakeMotion") : nil, state: currentSortKey == itemSortKeys().value ? .on : .off, handler: { _ in
+        let percentSortingAction = UIAction(title: NSLocalizedString("Percent", comment: ""), image: isPercentSortSelected ? UIImage(named: "shakeMotion") : nil, state: isPercentSortSelected ? .on : .off, handler: { _ in
                         
             
             
@@ -262,6 +263,7 @@ extension ComparisonListViewController {
                 sharedData.updateComparisonValue(for: valueEntity, newValue: matrix[i][j], nil)
             }
         }
+        invalidatePercentSortIfNeeded()
         objectTableView.reloadData()
         valuesCollectionView.reloadData()
     }

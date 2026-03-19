@@ -30,6 +30,7 @@ struct AttributeShareData: Codable {
 struct ValueShareData: Codable {
     let attributeIndex: Int
     let value: Bool
+    let isNeutral: Bool?
     let comment: String?
 }
 
@@ -85,6 +86,7 @@ class ComparisonSharingService {
                 values.append(ValueShareData(
                     attributeIndex: attrIndex,
                     value: value.booleanValue,
+                    isNeutral: value.isNeutral,
                     comment: value.unwrappedComment == "No comment" ? nil : value.unwrappedComment
                 ))
             }
@@ -347,6 +349,7 @@ class ComparisonSharingService {
                     let value = ComparisonValueEntity(entity: valueEntityDescription, insertInto: viewContext)
                     value.id = UUID()
                     value.value = valueData.value
+                    value.isNeutral = valueData.isNeutral ?? false
                     value.comment = valueData.comment
                     value.item = item
                     value.attribute = attribute

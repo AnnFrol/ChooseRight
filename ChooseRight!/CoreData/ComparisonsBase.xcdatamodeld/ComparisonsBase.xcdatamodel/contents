@@ -25,6 +25,7 @@
         <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" attributeType="String"/>
+        <attribute name="potentialTrueValuesCount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="trueValuesCount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="attributes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ComparisonAttributeEntity" inverseName="item" inverseEntity="ComparisonAttributeEntity"/>
         <relationship name="comparison" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ComparisonEntity" inverseName="items" inverseEntity="ComparisonEntity"/>
@@ -33,6 +34,7 @@
     <entity name="ComparisonValueEntity" representedClassName=".ComparisonValueEntity" syncable="YES">
         <attribute name="comment" optional="YES" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isNeutral" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="value" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <relationship name="attribute" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ComparisonAttributeEntity" inverseName="value" inverseEntity="ComparisonAttributeEntity"/>
         <relationship name="comparison" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ComparisonEntity" inverseName="values" inverseEntity="ComparisonEntity"/>

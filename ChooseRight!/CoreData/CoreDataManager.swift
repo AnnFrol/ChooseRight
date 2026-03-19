@@ -533,6 +533,7 @@ extension CoreDataManager {
         
         comparisonValue.id = UUID()
         comparisonValue.value = false
+        comparisonValue.isNeutral = false
         comparisonValue.item = item
         comparisonValue.attribute = attribute
         comparisonValue.comparison = item.comparison
@@ -571,20 +572,28 @@ extension CoreDataManager {
     //MARK: Update comparison value
     public func updateComparisonValue(for valueEntity: ComparisonValueEntity, newValue: Bool, _ comment: String?) {
         valueEntity.value = newValue
+        valueEntity.isNeutral = false
         
         if comment != nil && valueEntity.unwrappedComment != comment {
             valueEntity.comment = comment
         }
-//        valueEntity.relatedItem.updateTrueValuesCount()
         appDelegate.saveContext()
 
     }
     
     //MARK: Change Boolean Value
     public func changeBooleanValue(for valueEntity: ComparisonValueEntity) {
-        let value = valueEntity.value
-        valueEntity.value = !value
-//        valueEntity.relatedItem.updateTrueValuesCount()
+        switch valueEntity.state {
+        case .minus:
+            valueEntity.value = false
+            valueEntity.isNeutral = true
+        case .neutral:
+            valueEntity.value = true
+            valueEntity.isNeutral = false
+        case .plus:
+            valueEntity.value = false
+            valueEntity.isNeutral = false
+        }
         appDelegate.saveContext()
 
     }
@@ -592,6 +601,22 @@ extension CoreDataManager {
     //MARK: Update Value
     public func updateValue(value: ComparisonValueEntity, booleanValue: Bool) {
         value.value = booleanValue
+        value.isNeutral = false
+        appDelegate.saveContext()
+    }
+    
+    public func updateValue(value: ComparisonValueEntity, state: ComparisonValueState) {
+        switch state {
+        case .minus:
+            value.value = false
+            value.isNeutral = false
+        case .neutral:
+            value.value = false
+            value.isNeutral = true
+        case .plus:
+            value.value = true
+            value.isNeutral = false
+        }
         appDelegate.saveContext()
     }
     
@@ -601,7 +626,6 @@ extension CoreDataManager {
             viewContext.delete(value)
         }
         
-//        value.relatedItem.updateTrueValuesCount()
         appDelegate.saveContext()
         return
     }
@@ -738,7 +762,7 @@ extension CoreDataManager {
                 valueText = valueText.replacingOccurrences(of: "\u{00A0}", with: "") // Non-breaking space
                 valueText = valueText.trimmingCharacters(in: .whitespacesAndNewlines)
                 
-                let boolValue = parseBooleanValue(valueText)
+                let valueState = parseComparisonValueState(valueText)
                 
                 // Получаем или создаем значение
                 var value = fetchValue(item: item, attribute: attribute)
@@ -754,32 +778,37 @@ extension CoreDataManager {
                 }
                 
                 // Устанавливаем значение (даже если оно только что создано с false, обновим его на правильное)
-                updateValue(value: value, booleanValue: boolValue)
+                updateValue(value: value, state: valueState)
             }
         }
         
         return (itemsCount: createdItems.count, attributesCount: createdAttributes.count)
     }
     
-    /// Преобразует текстовое значение в boolean
-    private func parseBooleanValue(_ value: String) -> Bool {
+    /// Преобразует текстовое значение в состояние comparison value
+    private func parseComparisonValueState(_ value: String) -> ComparisonValueState {
         let normalized = value.trimmingCharacters(in: .whitespaces)
         
-        // Пустые значения = false
+        // Пустые значения = minus
         if normalized.isEmpty {
-            return false
+            return .minus
+        }
+        
+        let neutralValues = ["○", "◯", "◌", "o", "circle"]
+        if neutralValues.contains(normalized.lowercased()) {
+            return .neutral
         }
         
         // Отрицательные значения (явно обрабатываем)
         let negativeValues = ["-", "нет", "no", "0", "false", "✗", "✕", "x", "n", "отсутствует"]
         if negativeValues.contains(normalized.lowercased()) {
-            return false
+            return .minus
         }
         
         // Положительные значения
         let positiveValues = ["+", "да", "yes", "1", "true", "✓", "✔", "v", "y", "есть"]
         
-        return positiveValues.contains(normalized.lowercased())
+        return positiveValues.contains(normalized.lowercased()) ? .plus : .minus
     }
 }
 

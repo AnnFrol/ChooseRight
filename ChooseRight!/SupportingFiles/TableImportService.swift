@@ -83,10 +83,10 @@ class TableImportService {
     }
 
     private static func isVerticalFormat(_ lines: [String]) -> Bool {
-        // Проверяем, есть ли среди первых 10 строк одиночные символы + или -
+        // Проверяем, есть ли среди первых 10 строк одиночные символы значений
         for i in 0..<min(lines.count, 10) {
             let t = lines[i].trimmingCharacters(in: .whitespaces)
-            if t == "+" || t == "-" || t == "−" || t == "—" || t == "–" {
+            if t == "+" || t == "-" || t == "−" || t == "—" || t == "–" || t == "○" || t == "◯" || t.lowercased() == "o" {
                 return true
             }
         }
@@ -94,10 +94,10 @@ class TableImportService {
     }
 
     private static func parseVerticalTableFormat(_ lines: [String]) -> ImportedTableData? {
-        // Ищем первое появление значения (+/-)
+        // Ищем первое появление значения (+/-/neutral)
         guard let firstValIdx = lines.firstIndex(where: { 
             let t = $0.trimmingCharacters(in: .whitespaces)
-            return t == "+" || t == "-" || t == "−" || t == "—" || t == "–"
+            return t == "+" || t == "-" || t == "−" || t == "—" || t == "–" || t == "○" || t == "◯" || t.lowercased() == "o"
         }) else { return nil }
         
         // Элемент (напр. Яблоки) — это строка ПЕРЕД первым значением
@@ -168,18 +168,23 @@ class TableImportService {
         return result
     }
 
-    static func parseBooleanValue(_ value: String) -> Bool {
+    static func parseComparisonValueState(_ value: String) -> ComparisonValueState {
         let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "\u{200B}", with: "") // Zero-width space
             .replacingOccurrences(of: "\u{FEFF}", with: "") // Zero-width no-break space
             .replacingOccurrences(of: "\u{00A0}", with: "") // Non-breaking space
             .trimmingCharacters(in: .whitespacesAndNewlines)
         
-        if normalized.isEmpty { return false }
+        if normalized.isEmpty { return .minus }
+
+        let neutralValues = ["○", "◯", "◌", "o", "circle"]
+        if neutralValues.contains(normalized.lowercased()) {
+            return .neutral
+        }
 
         // Check for plus first
         if normalized == "+" || normalized.hasPrefix("+") || normalized.lowercased() == "да" {
-            return true
+            return .plus
         }
         
         // List of all possible "minus" and negation variants
@@ -187,12 +192,16 @@ class TableImportService {
         
         // If it's any of the minuses - it's false
         if negativeValues.contains(normalized) || negativeValues.contains(where: { normalized.hasPrefix($0) }) {
-            return false
+            return .minus
         }
         
         let positive = ["+", "да", "yes", "true", "1", "✓", "✔"]
-        if positive.contains(where: { normalized.lowercased().contains($0) }) { return true }
+        if positive.contains(where: { normalized.lowercased().contains($0) }) { return .plus }
         
-        return false
+        return .minus
+    }
+    
+    static func parseBooleanValue(_ value: String) -> Bool {
+        parseComparisonValueState(value) == .plus
     }
 }

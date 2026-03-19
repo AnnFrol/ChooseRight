@@ -20,16 +20,25 @@ class PlusMinusButton: UIButton {
     
     private func configure() {
         tintColor = .specialColors.text
-//        titleLabel?.font = .sfProTextRegular23()
-        setTitle(" ", for: .normal)
+        setTitle(nil, for: .normal)
+        setImage(nil, for: .normal)
         titleLabel?.font = .sfProTextRegular23()
         alpha = 0.6
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear
     }
     
-    func updateTitle(isValueTrue: Bool) {
-        let title = isValueTrue ? "+" : "-"
-        setTitle(title, for: .normal)
+    func updateTitle(state: ComparisonValueState) {
+        setImage(nil, for: .normal)
+        setTitle(nil, for: .normal)
+        
+        switch state {
+        case .plus, .minus:
+            setTitle(state.displaySymbol, for: .normal)
+        case .neutral:
+            setImage(UIImage(named: "neutralCircle")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        }
+        
+        accessibilityLabel = state.accessibilityLabel
     }
 }
