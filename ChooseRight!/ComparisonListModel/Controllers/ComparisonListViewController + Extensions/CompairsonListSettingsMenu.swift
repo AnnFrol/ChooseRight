@@ -31,7 +31,14 @@ extension ComparisonListViewController {
     
     func  setupSettingsMenu() -> UIMenu {
         var menu = UIMenu()
-        let isPercentSortSelected = currentSortKey == itemSortKeys().value && isPercentSortActual
+        let isPercentSortSelected = currentSortKey == itemSortKeys().value
+        let hideCommentsAction = UIAction(
+            title: NSLocalizedString("Hide comments", comment: ""),
+            image: UIImage(systemName: "text.bubble"),
+            state: areCommentsHidden ? .on : .off
+        ) { [weak self] _ in
+            self?.toggleCommentsVisibility()
+        }
         
         let sharePDFAction = UIAction(title: NSLocalizedString("Download PDF", comment: ""), image: UIImage(systemName: "square.and.arrow.down"), handler: { _ in
             guard let pdfFile = PDFService.getPdfDocument(fetchedItems: self.comparisonItemsFetchResultsController) else { return }
@@ -92,7 +99,7 @@ extension ComparisonListViewController {
 //            horizontalOrientationAction
 //        ])
         
-        let percentSortingAction = UIAction(title: NSLocalizedString("Percent", comment: ""), image: isPercentSortSelected ? UIImage(named: "shakeMotion") : nil, state: isPercentSortSelected ? .on : .off, handler: { _ in
+        let percentSortingAction = UIAction(title: NSLocalizedString("Percent", comment: ""), image: UIImage(named: "shakeMotion"), state: isPercentSortSelected ? .on : .off, handler: { _ in
                         
             
             
@@ -120,6 +127,7 @@ extension ComparisonListViewController {
         menu = UIMenu(title: "", image: nil,children: [
             sortingSubMenu,
             generateValuesAction,
+            hideCommentsAction,
             shareLinkAction,
             sharePDFAction,
             deleteAttributesAction,

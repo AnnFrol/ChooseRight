@@ -581,6 +581,16 @@ extension CoreDataManager {
 
     }
     
+    public func updateComparisonComment(for valueEntity: ComparisonValueEntity, comment: String?) {
+        let trimmedComment = comment?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedComment = trimmedComment?.isEmpty == false ? trimmedComment : nil
+        
+        guard valueEntity.comment != normalizedComment else { return }
+        
+        valueEntity.comment = normalizedComment
+        appDelegate.saveContext()
+    }
+    
     //MARK: Change Boolean Value
     public func changeBooleanValue(for valueEntity: ComparisonValueEntity) {
         switch valueEntity.state {

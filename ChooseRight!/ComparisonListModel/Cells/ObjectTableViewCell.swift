@@ -67,7 +67,7 @@ class ObjectTableViewCell: UITableViewCell {
     
     let backgroundCell: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = 10
+        view.layer.cornerRadius = 30
         view.backgroundColor = .specialColors.subviewBackground
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -107,7 +107,7 @@ class ObjectTableViewCell: UITableViewCell {
         let view = RoundedView()
         view.backgroundColor = UIColor(named: "sixGreenMagicMint")
         view.clipsToBounds = true
-        view.alpha = 0.6
+        view.alpha = 0.3
         view.translatesAutoresizingMaskIntoConstraints = false
         
         return view
@@ -279,7 +279,7 @@ class ObjectTableViewCell: UITableViewCell {
         
         //        translatesAutoresizingMaskIntoConstraints = false
         
-        layer.cornerRadius = 10
+        layer.cornerRadius = 30
         backgroundColor = .clear
         selectionStyle = .none
         isUserInteractionEnabled = true

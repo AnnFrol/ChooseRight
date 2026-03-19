@@ -55,6 +55,10 @@ extension ComparisonValueEntity {
         comment ?? "No comment"
     }
     
+    public var hasComment: Bool {
+        !(comment?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+    }
+    
     public var relatedItem: ComparisonItemEntity {
         item ?? ComparisonItemEntity()
     }

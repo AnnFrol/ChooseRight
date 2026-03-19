@@ -36,6 +36,7 @@ class ComparisonListViewController: UIViewController  {
     
     var currentSortKey = itemSortKeys().value
     var isPercentSortActual = true
+    var areCommentsHidden = false
     
     weak var saveAttributeButtonInAlertChanged: UIAlertAction?
     private var addAttributeAlert = UIAlertController()
@@ -475,8 +476,10 @@ extension ComparisonListViewController: UICollectionViewDataSource {
             cell.isUserInteractionEnabled = true
             cell.backgroundColor = .specialColors.background
             
-            let interaction = UIContextMenuInteraction(delegate: self)
-            cell.addInteraction(interaction)
+            if !cell.interactions.contains(where: { $0 is UIContextMenuInteraction }) {
+                let interaction = UIContextMenuInteraction(delegate: self)
+                cell.addInteraction(interaction)
+            }
             
             returnedCell = cell
         
@@ -492,6 +495,12 @@ extension ComparisonListViewController: UICollectionViewDataSource {
             cell.delegate = self
             
             cell.updateButtonTitle(state: cellValue.state)
+            cell.updateComment(text: areCommentsHidden ? nil : cellValue.comment)
+            
+            if !cell.interactions.contains(where: { $0 is UIContextMenuInteraction }) {
+                let interaction = UIContextMenuInteraction(delegate: self)
+                cell.addInteraction(interaction)
+            }
             
             returnedCell = cell
         default:
@@ -678,6 +687,53 @@ extension ComparisonListViewController: UIScrollViewDelegate {
 //MARK: - setComparisonEntity
 
 extension ComparisonListViewController {
+    private var sortStateStorageKey: String? {
+        guard let comparisonID = comparisonEntity.id?.uuidString else { return nil }
+        return "comparison.sortKey.\(comparisonID)"
+    }
+    
+    private var percentSortActualStorageKey: String? {
+        guard let comparisonID = comparisonEntity.id?.uuidString else { return nil }
+        return "comparison.percentSortActual.\(comparisonID)"
+    }
+    
+    private var commentsHiddenStorageKey: String? {
+        guard let comparisonID = comparisonEntity.id?.uuidString else { return nil }
+        return "comparison.commentsHidden.\(comparisonID)"
+    }
+    
+    private func persistSortState() {
+        guard let sortKey = sortStateStorageKey,
+              let percentKey = percentSortActualStorageKey,
+              let commentsKey = commentsHiddenStorageKey else { return }
+        
+        UserDefaults.standard.set(currentSortKey, forKey: sortKey)
+        UserDefaults.standard.set(isPercentSortActual, forKey: percentKey)
+        UserDefaults.standard.set(areCommentsHidden, forKey: commentsKey)
+    }
+    
+    private func restoreSortState() {
+        guard let sortKey = sortStateStorageKey,
+              let percentKey = percentSortActualStorageKey,
+              let commentsKey = commentsHiddenStorageKey else {
+            currentSortKey = itemSortKeys().value
+            isPercentSortActual = true
+            areCommentsHidden = false
+            return
+        }
+        
+        currentSortKey = UserDefaults.standard.string(forKey: sortKey) ?? itemSortKeys().value
+        if UserDefaults.standard.object(forKey: percentKey) != nil {
+            isPercentSortActual = UserDefaults.standard.bool(forKey: percentKey)
+        } else {
+            isPercentSortActual = true
+        }
+        if UserDefaults.standard.object(forKey: commentsKey) != nil {
+            areCommentsHidden = UserDefaults.standard.bool(forKey: commentsKey)
+        } else {
+            areCommentsHidden = false
+        }
+    }
     
     public func setComparisonEntity(comparison: ComparisonEntity) {
         comparisonItemsFetchResultsController?.delegate = nil
@@ -689,9 +745,11 @@ extension ComparisonListViewController {
         comparisonValuesFetchResultsController = nil
         
         comparisonEntity = comparison
+        restoreSortState()
         
         
         loadSavedData(itemsSortKey: currentSortKey)
+        settingsButton.menu = setupSettingsMenu()
         
         // Set label to comparison name
         mainLabel.text = comparisonEntity.unwrappedName
@@ -871,6 +929,7 @@ extension ComparisonListViewController {
 //        loadSavedData(itemsSortKey: sortKey)
 //        objectTableView.reloadData()
 //        valuesCollectionView.reloadData()
+        persistSortState()
         // Update menu (showsMenuAsPrimaryAction is already set in setupView)
         settingsButton.menu = setupSettingsMenu()
         
@@ -882,7 +941,15 @@ extension ComparisonListViewController {
     func invalidatePercentSortIfNeeded() {
         guard currentSortKey == itemSortKeys().value, isPercentSortActual else { return }
         isPercentSortActual = false
+        persistSortState()
         settingsButton.menu = setupSettingsMenu()
+    }
+    
+    func toggleCommentsVisibility() {
+        areCommentsHidden.toggle()
+        persistSortState()
+        settingsButton.menu = setupSettingsMenu()
+        valuesCollectionView.reloadData()
     }
     
 }

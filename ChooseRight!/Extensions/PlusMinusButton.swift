@@ -23,6 +23,10 @@ class PlusMinusButton: UIButton {
         setTitle(nil, for: .normal)
         setImage(nil, for: .normal)
         titleLabel?.font = .sfProTextRegular23()
+        titleLabel?.textAlignment = .center
+        imageView?.contentMode = .scaleAspectFit
+        contentHorizontalAlignment = .center
+        contentVerticalAlignment = .center
         alpha = 0.6
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear
@@ -36,7 +40,7 @@ class PlusMinusButton: UIButton {
         case .plus, .minus:
             setTitle(state.displaySymbol, for: .normal)
         case .neutral:
-            setImage(UIImage(named: "neutralCircle")?.withRenderingMode(.alwaysOriginal), for: .normal)
+            setImage(UIImage(named: "neutralCircle")?.withRenderingMode(.alwaysTemplate), for: .normal)
         }
         
         accessibilityLabel = state.accessibilityLabel

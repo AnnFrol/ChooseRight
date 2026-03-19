@@ -14,7 +14,7 @@ class MainTableViewCell: UITableViewCell {
     private let backgroundCell: UIView = {
        let view = UIView()
         view.backgroundColor = .specialColors.subviewBackground
-        view.layer.cornerRadius = 10
+        view.layer.cornerRadius = 30
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -45,7 +45,7 @@ class MainTableViewCell: UITableViewCell {
         backgroundColor = .clear
         selectionStyle = .none
         isUserInteractionEnabled = true
-        layer.cornerRadius = 10
+        layer.cornerRadius = 30
         
         addSubview(backgroundCell)
         addSubview(circleIcon)

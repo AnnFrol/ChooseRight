@@ -24,6 +24,18 @@ class ValuesCollectionViewCell: UICollectionViewCell {
         return button
     }()
     
+    private let commentLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 10, weight: .regular)
+        label.textColor = .specialColors.text?.withAlphaComponent(0.55)
+        label.textAlignment = .center
+        label.numberOfLines = 2
+        label.lineBreakMode = .byTruncatingTail
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isHidden = true
+        return label
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -39,6 +51,7 @@ class ValuesCollectionViewCell: UICollectionViewCell {
         
         valueButton.addTarget(self, action: #selector(valueButtonTapped), for: .touchUpInside)
         addSubview(valueButton)
+        addSubview(commentLabel)
     }
     
     @objc private func valueButtonTapped() {
@@ -52,6 +65,21 @@ class ValuesCollectionViewCell: UICollectionViewCell {
     public func updateButtonTitle(state: ComparisonValueState) {
         self.valueButton.updateTitle(state: state)
     }
+    
+    public func updateComment(text: String?) {
+        let trimmedText = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let hasComment = !trimmedText.isEmpty
+        commentLabel.text = trimmedText
+        commentLabel.isHidden = !hasComment
+        valueButton.accessibilityHint = hasComment ? NSLocalizedString("Has comment", comment: "Accessibility hint for value with comment") : nil
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        commentLabel.text = nil
+        commentLabel.isHidden = true
+        valueButton.accessibilityHint = nil
+    }
 }
 
 extension ValuesCollectionViewCell {
@@ -59,7 +87,14 @@ extension ValuesCollectionViewCell {
         NSLayoutConstraint.activate([
             
             valueButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-            valueButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+            valueButton.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -8),
+            valueButton.widthAnchor.constraint(equalToConstant: 28),
+            valueButton.heightAnchor.constraint(equalToConstant: 28),
+            
+            commentLabel.topAnchor.constraint(equalTo: valueButton.bottomAnchor, constant: 4),
+            commentLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 6),
+            commentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
+            commentLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -6),
         ])
     }
 }

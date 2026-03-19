@@ -85,37 +85,14 @@ extension ComparisonListViewController {
         
         guard let cell = objectTableView.cellForRow(at: indexPath) as? ObjectTableViewCell else { return nil }
         
-        let cellFrame = cell.backgroundCell.frame
-        
-//        guard let item = comparisonItemsFetchResultsController.fetchedObjects?[indexPath.section] as? ComparisonItemEntity else { return nil }
-        
-//        let previewFrame = CGRect(
-//            x: cellFrame.minX,
-//            y: cellFrame.minY,
-//            width: 250,
-//            height: cellFrame.height
-//        )
-        
-//        let previewView = ObjectTableViewCellPreview(frame: previewFrame)
-//        previewView.configureCell(comparisonItemEntity: item)
-//        previewView.translatesAutoresizingMaskIntoConstraints = true
-//        previewView.frame = previewFrame
-//        view.addSubview(previewView)
-//        
-//        let snapshot = previewView.snapshotView(afterScreenUpdates: true)
-//        previewView.removeFromSuperview()
-//        
-//        guard let snapshotView = snapshot else { return nil }
-//        
-//        snapshotView.layer.cornerRadius = cell.backgroundCell.layer.cornerRadius
-//        snapshotView.layer.masksToBounds = true
-//        
-        
         let parameters = UIPreviewParameters()
         parameters.backgroundColor = .clear
-        parameters.visiblePath = UIBezierPath(roundedRect: cellFrame, cornerRadius: cell.backgroundCell.layer.cornerRadius)
+        parameters.visiblePath = UIBezierPath(
+            roundedRect: cell.backgroundCell.bounds,
+            cornerRadius: cell.backgroundCell.layer.cornerRadius
+        )
         
-        return UITargetedPreview(view: cell, parameters: parameters)
+        return UITargetedPreview(view: cell.backgroundCell, parameters: parameters)
         
     }
     
