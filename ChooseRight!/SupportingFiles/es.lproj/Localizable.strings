@@ -89,6 +89,10 @@
 "Delete comment" = "Eliminar comentario";
 "Comment" = "Comentario";
 "Has comment" = "Tiene comentario";
+"Update available" = "Actualización disponible";
+"A new version of Choose Right! is available. Update to get improvements and fixes." = "Hay una nueva versión de Choose Right! Actualiza la app para obtener mejoras y correcciones.";
+"Update" = "Actualizar";
+"Later" = "Más tarde";
 
 /* Create comparison alert – example requests */
 "For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches." = "Por ejemplo:\n• Nueva York y Londres por coste de vida, tecnología y precio.\n• Manzanas, peras y melocotones.\n• 5 países.";

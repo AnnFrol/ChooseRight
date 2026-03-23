@@ -88,6 +88,10 @@
 "Delete comment" = "Удалить комментарий";
 "Comment" = "Комментарий";
 "Has comment" = "Есть комментарий";
+"Update available" = "Доступно обновление";
+"A new version of Choose Right! is available. Update to get improvements and fixes." = "Доступна новая версия Choose Right! Обновите приложение, чтобы получить улучшения и исправления.";
+"Update" = "Обновить";
+"Later" = "Позже";
 
 /* Create comparison alert – example requests */
 "For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches." = "Например:\n• Нью-Йорк и Лондон по стоимости жизни, технологиям, ценам.\n• Яблоки, Груши и Персики.\n• 5 стран.";

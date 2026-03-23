@@ -10,6 +10,11 @@ import UIKit
 import CoreData
 
 class MainViewController: UIViewController, UIViewControllerTransitioningDelegate, UIDocumentPickerDelegate {
+    private var hasCheckedForUpdateThisSession = false
+    private let updatePromptInterval: TimeInterval = 60 * 60 * 24 * 3
+    private let appStoreURLString = "itms-apps://itunes.apple.com/app/id6759388003"
+    private let lastUpdatePromptDateKey = "update_prompt_last_date"
+    private let lastPromptedAppVersionKey = "update_prompt_last_version"
     
     var dismissGesture = UITapGestureRecognizer()
     
@@ -137,7 +142,7 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+        checkForOptionalUpdateIfNeeded()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -253,6 +258,65 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
         tableView.dataSource = self
     }
     
+    private func checkForOptionalUpdateIfNeeded() {
+        guard !hasCheckedForUpdateThisSession else { return }
+        hasCheckedForUpdateThisSession = true
+        
+        AppUpdateChecker.shared.checkForOptionalUpdate { [weak self] (latestVersion: String?) in
+            guard let self = self,
+                  let latestVersion = latestVersion,
+                  self.shouldShowUpdatePrompt(for: latestVersion) else {
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.showOptionalUpdateAlert(latestVersion: latestVersion)
+            }
+        }
+    }
+    
+    private func shouldShowUpdatePrompt(for latestVersion: String) -> Bool {
+        let defaults = UserDefaults.standard
+        let lastVersion = defaults.string(forKey: lastPromptedAppVersionKey)
+        
+        if lastVersion != latestVersion {
+            return true
+        }
+        
+        guard let lastDate = defaults.object(forKey: lastUpdatePromptDateKey) as? Date else {
+            return true
+        }
+        
+        return Date().timeIntervalSince(lastDate) >= updatePromptInterval
+    }
+    
+    private func markUpdatePromptShown(for latestVersion: String) {
+        let defaults = UserDefaults.standard
+        defaults.set(Date(), forKey: lastUpdatePromptDateKey)
+        defaults.set(latestVersion, forKey: lastPromptedAppVersionKey)
+    }
+    
+    private func showOptionalUpdateAlert(latestVersion: String) {
+        let alert = UIAlertController(
+            title: NSLocalizedString("Update available", comment: ""),
+            message: NSLocalizedString("A new version of Choose Right! is available. Update to get improvements and fixes.", comment: ""),
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Later", comment: ""), style: .cancel) { [weak self] _ in
+            self?.markUpdatePromptShown(for: latestVersion)
+        })
+        
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Update", comment: ""), style: .default) { [weak self] _ in
+            self?.markUpdatePromptShown(for: latestVersion)
+            guard let url = URL(string: self?.appStoreURLString ?? ""),
+                  UIApplication.shared.canOpenURL(url) else { return }
+            UIApplication.shared.open(url)
+        })
+        
+        present(alert, animated: true)
+    }
+    
     
     //MARK: - Gradient top edge for table view
     
@@ -299,6 +363,58 @@ class MainViewController: UIViewController, UIViewControllerTransitioningDelegat
         alertConfigurationForCreate()
     }
     
+}
+
+private final class AppUpdateChecker {
+    static let shared = AppUpdateChecker()
+    
+    private let appStoreID = "6759388003"
+    
+    private init() {}
+    
+    func checkForOptionalUpdate(completion: @escaping (String?) -> Void) {
+        guard let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+              let url = URL(string: "https://itunes.apple.com/lookup?id=\(appStoreID)") else {
+            completion(nil)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            guard let data = data,
+                  let response = try? JSONDecoder().decode(LookupResponse.self, from: data),
+                  let latestVersion = response.results.first?.version else {
+                completion(nil)
+                return
+            }
+            
+            let hasUpdate = self.compare(currentVersion, isLessThan: latestVersion)
+            completion(hasUpdate ? latestVersion : nil)
+        }.resume()
+    }
+    
+    private func compare(_ lhs: String, isLessThan rhs: String) -> Bool {
+        let lhsParts = lhs.split(separator: ".").compactMap { Int($0) }
+        let rhsParts = rhs.split(separator: ".").compactMap { Int($0) }
+        let count = max(lhsParts.count, rhsParts.count)
+        
+        for index in 0..<count {
+            let lhsValue = index < lhsParts.count ? lhsParts[index] : 0
+            let rhsValue = index < rhsParts.count ? rhsParts[index] : 0
+            
+            if lhsValue < rhsValue { return true }
+            if lhsValue > rhsValue { return false }
+        }
+        
+        return false
+    }
+}
+
+private struct LookupResponse: Decodable {
+    let results: [LookupApp]
+}
+
+private struct LookupApp: Decodable {
+    let version: String
 }
 
 
