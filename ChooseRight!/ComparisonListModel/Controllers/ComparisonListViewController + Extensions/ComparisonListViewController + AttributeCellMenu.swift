@@ -59,6 +59,17 @@ extension ComparisonListViewController: UIContextMenuInteractionDelegate {
         
         if let cell = interaction.view as? ValuesCollectionViewCell,
            let indexPath = self.valuesCollectionView.indexPath(for: cell) {
+            let item = self.comparisonItemsFetchResultsController.fetchedObjects?[indexPath.section] ?? ComparisonItemEntity()
+            let attribute = self.comparisonAttributesFetchResultsController.fetchedObjects?[indexPath.row] ?? ComparisonAttributeEntity()
+            let value = self.sharedData.fetchValue(item: item, attribute: attribute)
+            
+            if !value.hasComment {
+                DispatchQueue.main.async { [weak self] in
+                    self?.showValueCommentAlert(for: value, at: indexPath)
+                }
+                return nil
+            }
+            
             return valueContextMenuConfiguration(for: indexPath)
         }
         

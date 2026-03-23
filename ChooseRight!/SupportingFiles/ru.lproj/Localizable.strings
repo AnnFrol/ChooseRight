@@ -82,6 +82,12 @@
 "New item" = "Новый объект";
 "Shake to reorder" = "Встряхните для сортировки";
 "e.g. Compare 5 cities" = "напр. Сравни 5 городов";
+"Hide comments" = "Скрыть комментарии";
+"Add comment" = "Добавить комментарий";
+"Edit comment" = "Изменить комментарий";
+"Delete comment" = "Удалить комментарий";
+"Comment" = "Комментарий";
+"Has comment" = "Есть комментарий";
 
 /* Create comparison alert – example requests */
 "For example:\n• Compare New York and London by cost of living, technology, price.\n• Compare Apples, Pears, and Peaches." = "Например:\n• Нью-Йорк и Лондон по стоимости жизни, технологиям, ценам.\n• Яблоки, Груши и Персики.\n• 5 стран.";
